@@ -1,0 +1,21 @@
+<div class="container">
+  <h2>Add Book</h2>
+
+  <form [formGroup]="addBookForm">
+    <label for="formISBN">ISBN:</label>
+    <input type="text" id="formISBN" class="form-control" formControlName="isbn" #isbn
+      (keyup.enter)="onIsbnEntered()" (blur)="onIsbnEntered()">
+
+    <div class="form-group" *ngIf="currentBook">
+      <p>Title: {{currentBook.title}}</p>
+      <p>Author: {{currentBook.author}}</p>
+      <p>Publisher Text: {{currentBook.publisherText}}
+    </div>
+
+    <div class="form-group" *ngIf="currentBook">
+      <label for="formBookBarcode">Book Barcode:</label>
+      <input type="text" id="formBookBarcode" class="form-control" formControlName="bookCopyBarCode">
+    </div>
+  </form>
+
+</div>

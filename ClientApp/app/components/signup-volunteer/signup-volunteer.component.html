@@ -1,0 +1,44 @@
+<div class="container">
+  <form #addVolunteerForm="ngForm" (ngSubmit)="onSubmit(addVolunteerForm)">
+      <div class="form-group">
+        <label for="formFirstName">First Name:</label>
+        <input type="text" class="form-control" id="formFirstName" required 
+          ngModel #firstName="ngModel" name="firstName">
+      </div>
+      <div class="form-group">
+        <label for="formLastName">Last Name:</label>
+        <input type="text" class="form-control" id="formLastName" required 
+          ngModel #lastName="ngModel" name="lastName">
+      </div>
+      <div class="form-group">
+        <label for="formPhone">Phone:</label>
+        <input type="text" class="form-control" id="formPhone" placeholder="Example: (555) 555-5555"
+          ngModel required #phone="ngModel" name="phone">
+      </div>
+      <div class="form-group">
+        <label for="formEmail">Email:</label>
+        <input type="text" class="form-control" id="formEmail" placeholder="Example: username@email.com"
+          ngModel required #email="ngModel" name="email">
+      </div>
+
+      <div class="form-group" *ngFor="let v4c of volunteerForClasses; index as i">
+        <label for="formClass{{i}}">Teacher:</label>
+        <select class="form-control" id="formClass{{i}}" required [(ngModel)]="v4c.classId" [ngModelOptions]="{standalone: true}">
+          <option *ngFor="let cls of (classes | sortClass)" [value]="cls.classId">{{cls.teacherName}} Grade: {{cls.grade}}</option>
+        </select> 
+        <label for="formDayOfWeek{{i}}">Day of Week:</label>
+        <select class="form-control" id="formDayOfWeek{{i}}" required
+          [(ngModel)]="v4c.dayOfWeek" [ngModelOptions]="{standalone: true}">>
+          <option [value]="DayOfWeek.Monday">Monday</option>
+          <option [value]="DayOfWeek.Tuesday">Tuesday</option>
+          <option [value]="DayOfWeek.Wednesday">Wednesday</option>
+          <option [value]="DayOfWeek.Thursday">Thursday</option>
+          <option [value]="DayOfWeek.Friday">Friday</option>
+        </select>
+      </div>
+
+      <button type="button" class="btn btn-secondary" (click)="addVolunteerForClass()">Add Volunteer to Class</button>
+      <button type="button" class="btn btn-secondary" (click)="removeVolunteerForClass()">Remove Volunteer From Class</button>
+      <button type="submit" class="btn btn-primary">Add New Volunteer</button>
+  </form>
+</div>

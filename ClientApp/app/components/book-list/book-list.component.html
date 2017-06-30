@@ -1,0 +1,41 @@
+<div class="container">
+  <app-add-book></app-add-book>
+  <div *ngIf="!books">No books found!</div>
+  <div *ngIf="books">
+      <data-table id="books-grid" headerTitle="Books"
+        [items]="books"
+        [itemCount]="books.length"
+        >
+        <data-table-column
+          [property]="'title'"
+          [header]="'Title'"
+          [resizable]="true">
+        </data-table-column>
+        <data-table-column
+          [property]="'author'"
+          [header]="'Author'"
+          [resizable]="true">
+        </data-table-column>
+        <data-table-column
+          [property]="'guidedReadingLevel'"
+          [header]="'Reading Level'"
+          [resizable]="true">
+        </data-table-column>
+        <data-table-column
+          [property]="'publisherText'"
+          [header]="'Publisher Text'"
+          [resizable]="true">
+        </data-table-column>
+        <data-table-column
+          [property]="'boxNumber'"
+          [header]="'Box'"
+          [resizable]="true">
+        </data-table-column>
+        <data-table-column
+          [property]="'isbn'"
+          [header]="'ISBN'"
+          [resizable]="true">
+        </data-table-column>
+      </data-table>
+    </div>
+</div>

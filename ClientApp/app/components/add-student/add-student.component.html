@@ -1,0 +1,18 @@
+<div class="container">
+  <form [formGroup]="addStudentForm" (ngSubmit)="onSubmit()" class=form-inline>
+      <input type="text" class="form-control mr-sm-2" formControlName="firstName" placeholder="First Name" 
+        id="firstName">
+      <input type="text" class="form-control mr-sm-2" formControlName="lastName" placeholder="Last Name">
+      <label for="readingLabel">Reading Level:</label>
+      <select class="form-control mr-sm-2" formControlName="readingLevel" id="readingLevel">
+        <option>A</option>
+        <option>B</option>
+        <option>C</option>
+        <option>D</option>
+        <option>E</option>
+        <option>F</option>
+      </select>
+    
+      <button type="submit" [disabled]="addStudentForm.pristine || addStudentForm.invalid" class="btn btn-primary">Add Student</button>
+  </form>
+</div>

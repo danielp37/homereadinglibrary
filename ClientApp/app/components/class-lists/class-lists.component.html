@@ -1,0 +1,40 @@
+<div class="container">
+  <div *ngIf="classes" class="form-group">
+    <label for="formClass">Teacher:</label>
+    <select class="form-control" id="formClass" 
+        (change)="displayClassListForCurrentTeacher($event.target.value)">
+      <option value="">(Select a teacher)</option>
+      <option *ngFor="let cls of (classes | sortClass)" [value]="cls.classId">{{cls.teacherName}} Grade: {{cls.grade}}</option>
+    </select>
+  </div>
+
+  <div *ngIf="selectedClassId">
+    <div *ngIf="!currentClassList">
+      Loading...
+    </div>
+    <div *ngIf="currentClassList">
+      <app-add-student [classId]="selectedClassId" (onSaved)="onNewStudent($event)"></app-add-student>
+
+      <data-table id="students-grid" headerTitle="Students"
+        [items]="currentClassList"
+        [itemCount]="currentClassList.length"
+        >
+        <data-table-column
+          [property]="'firstName'"
+          [header]="'First Name'"
+          [resizable]="true">
+        </data-table-column>
+        <data-table-column
+          [property]="'lastName'"
+          [header]="'Last Name'"
+          [resizable]="true">
+        </data-table-column>
+        <data-table-column
+          [property]="'readingLevel'"
+          [header]="'Reading Level'"
+          [resizable]="true">
+        </data-table-column>
+      </data-table>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,13 @@
+
+<div class="grid grid-pad">
+    <ul *ngIf="classes">
+        <li *ngFor="let cls of (classes | sortClass)">
+            {{cls.teacherName}} Grade: {{cls.grade}}
+            <ul>
+                <li *ngFor="let volunteer of cls.volunteers">
+                    {{volunteer.lastName}}, {{volunteer.firstName}} - {{getDayOfWeek(volunteer, cls)}}
+                </li>
+            </ul>
+        </li>
+    </ul>
+</div>
