@@ -15,8 +15,15 @@ export class BookListComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    this.refreshBookList();
+  }
+
+  refreshBookList() {
     this.baggyBookService.getAllBooks()
       .then(books => this.books = books);
   }
 
+  bookAdded(newBook: Book) {
+    this.books.push(newBook);
+  }
 }

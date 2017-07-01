@@ -1,21 +1,22 @@
 import {Http} from '@angular/http';
-import { Injectable } from '@angular/core';
+import { Injectable, Inject } from '@angular/core';
 import { Book } from '../entities/book';
 import { IsbnEntry } from '../entities/isbn-entry';
 
 @Injectable()
 export class BookLookupService {
-  private isbnUrl = 'http://isbndb.com/api/v2/json/QQ6LFTNI/book/';
+  private isbnUrl = '/api/booklookup/';
 
   constructor(
-    private http: Http
+    private http: Http,
+    @Inject('ORIGIN_URL') private originUrl: string
   ) { }
 
   getBookFromIsbn(isbn: string): Promise<Book> {
-    return this.http.get(`${this.isbnUrl}${isbn}`)
+    return this.http.get(`${this.originUrl}${this.isbnUrl}${isbn}`)
       .toPromise()
       .then(resp => {
-        const isbnEntry = resp.json().data[0] as IsbnEntry;
+        const isbnEntry = resp.json() as IsbnEntry;
         if (isbnEntry === undefined) {
           return undefined;
         }

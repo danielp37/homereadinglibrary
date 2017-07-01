@@ -1,5 +1,5 @@
 <div class="container">
-  <app-add-book></app-add-book>
+  <app-add-book (onBookAdded)="bookAdded($event)"></app-add-book>
   <div *ngIf="!books">No books found!</div>
   <div *ngIf="books">
       <data-table id="books-grid" headerTitle="Books"

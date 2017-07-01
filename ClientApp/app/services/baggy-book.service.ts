@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Headers, Http } from '@angular/http';
-import { Component, Inject } from "@angular/core";
+import { Component, Inject } from '@angular/core';
 import 'rxjs/add/operator/toPromise';
 
 import { Volunteer } from '../entities/Volunteer';

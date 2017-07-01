@@ -1,10 +1,9 @@
+import { AddBookComponent } from './components/add-book/add-book.component';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { sharedConfig } from './app.module.shared';
-
-sharedConfig.providers.push({ provide: 'ORIGIN_URL', useValue: location.origin });
 
 @NgModule({
     bootstrap: sharedConfig.bootstrap,
@@ -16,7 +15,10 @@ sharedConfig.providers.push({ provide: 'ORIGIN_URL', useValue: location.origin }
         HttpModule,
         ...sharedConfig.imports
     ],
-    providers: sharedConfig.providers
+    providers: [
+        { provide: 'ORIGIN_URL', useValue: location.origin },
+        ...sharedConfig.providers
+    ]
 })
 export class AppModule {
 }
