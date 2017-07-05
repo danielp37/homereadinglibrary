@@ -1,3 +1,4 @@
+import { BookCopy } from './../../entities/book-copy';
 import { BaggyBookService } from './../../services/baggy-book.service';
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { BookLookupService } from '../../services/book-lookup.service';
@@ -10,7 +11,9 @@ import { Book } from '../../entities/book';
   styleUrls: ['./add-book.component.css']
 })
 export class AddBookComponent implements OnInit {
+  lastBookCopyValue: number;
   addBookForm: FormGroup;
+  lastIsbnValue: string;
   currentBook: Book;
   @Output()onBookAdded = new EventEmitter<Book>();
 
@@ -31,13 +34,28 @@ export class AddBookComponent implements OnInit {
 
   onIsbnEntered() {
     const isbnInput = this.addBookForm.get('isbn');
-    this.bookLookupService.getBookFromIsbn(isbnInput.value)
-      .then(book => {
-        this.currentBook = book;
-        this.currentBook.guidedReadingLevel = this.addBookForm.get('readingLevel').value;
-        this.currentBook.boxNumber = this.addBookForm.get('boxNumber').value;
-        this.baggyBookService.addBook(book);
-        this.onBookAdded.emit(book);
-      });
+    if (isbnInput.value !== '' && isbnInput.value !== this.lastIsbnValue) {
+      this.bookLookupService.getBookFromIsbn(isbnInput.value)
+        .then(book => {
+          this.currentBook = book;
+          this.currentBook.guidedReadingLevel = this.addBookForm.get('readingLevel').value;
+          this.currentBook.boxNumber = this.addBookForm.get('boxNumber').value;
+          this.baggyBookService.getBook(book.id)
+                .then(foundBook => this.currentBook = foundBook)
+                .catch(error => {
+                    this.baggyBookService.addBook(book);
+                    this.onBookAdded.emit(book);
+                  })
+        });
+    }
+    this.lastIsbnValue = isbnInput.value;
+  }
+
+  onBookCopyEntered() {
+    const bookCopyInput = this.addBookForm.get('bookCopyBarCode');
+    if (bookCopyInput.value !== '' && bookCopyInput.value !== this.lastBookCopyValue) {
+      this.currentBook.addBookCopy(bookCopyInput.value);
+    }
+    this.lastBookCopyValue = bookCopyInput.value;
   }
 }

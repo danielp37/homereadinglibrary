@@ -1,3 +1,4 @@
+import { CheckOutBookComponent } from './../../components/check-out-book/check-out-book.component';
 import { BookListComponent } from './../../components/book-list/book-list.component';
 import { ClassListsComponent } from './../../components/class-lists/class-lists.component';
 import { SigninVolunteerComponent } from './../../components/signin-volunteer/signin-volunteer.component';
@@ -15,6 +16,7 @@ const routes: Routes = [
             { path: 'signin',  component: SigninVolunteerComponent },
             { path: 'classlists',  component: ClassListsComponent },
             { path: 'booklist',  component: BookListComponent },
+            { path: 'checkout',  component: CheckOutBookComponent },
             { path: '**', redirectTo: 'home' }
         ];
 /*[

@@ -1,3 +1,5 @@
+import { BookCopyReservation } from './../entities/book-copy-reservation';
+import { Student } from './../entities/student';
 import { Injectable } from '@angular/core';
 import { Headers, Http } from '@angular/http';
 import { Component, Inject } from '@angular/core';
@@ -5,8 +7,8 @@ import 'rxjs/add/operator/toPromise';
 
 import { Volunteer } from '../entities/Volunteer';
 import { Class } from '../entities/class';
-import { Student } from '../entities/student';
 import { Book } from '../entities/book';
+import { BookCopy } from '../entities/book-copy';
 
 @Injectable()
 export class BaggyBookService {
@@ -14,6 +16,7 @@ export class BaggyBookService {
   private volunteersUrl = '/api/volunteers'
   private classesUrl = '/api/classes'
   private booksUrl = '/api/books'
+  private bookCheckOutUrl = '/api/bookcheckout'
   private headers = new Headers({'Content-Type': 'application/json'});
 
   constructor(private http: Http, @Inject('ORIGIN_URL') private originUrl: string) { }
@@ -59,6 +62,14 @@ export class BaggyBookService {
       .catch(this.handleError);
   }
 
+  getStudentByBarCode(barCode: string): Promise<Student> {
+    return this.http
+      .get(`${this.originUrl}${this.studentsUrl}?barCode=${barCode}`)
+      .toPromise()
+      .then(res => res.json().data[0] as Student)
+      .catch(this.handleError);
+  }
+
   getAllBooks(): Promise<Book[]> {
     return this.http
       .get(`${this.originUrl}${this.booksUrl}`)
@@ -73,6 +84,41 @@ export class BaggyBookService {
       .toPromise()
       .then(res => res.json().data as Book)
       .catch(this.handleError);
+  }
+
+  getBook(bookId: string): Promise<Book> {
+    return this.http
+      .get(`${this.originUrl}${this.booksUrl}/${bookId}`)
+      .toPromise()
+      .then(book => Book.fromObject(book.json().data))
+      .catch(error => {
+        if (error.status === 404) {
+          return Promise.reject('Book not found');
+        }
+        return this.handleError(error);
+      });
+  }
+
+  getBookCopyByBarCode(barCode: number): Promise<BookCopy> {
+    return this.getAllBooks()
+      .then(books => {
+        let bookCopy = undefined as BookCopy;
+        books.forEach(book => {
+          bookCopy = book.getBookCopy(barCode);
+        });
+
+        return bookCopy;
+      })
+
+  }
+
+  checkOutBookForStudent(bookCopyId: string, studentId: string): Promise<BookCopyReservation> {
+    const bookCopyReservation = new BookCopyReservation(bookCopyId, studentId, new Date(Date.now()));
+
+    return this.http
+      .post(`${this.originUrl}${this.bookCheckOutUrl}`, JSON.stringify(bookCopyReservation), {headers: this.headers})
+      .toPromise()
+      .then(bcr => bcr.json().data as BookCopyReservation);
   }
 
   private handleError(error: any): Promise<any> {

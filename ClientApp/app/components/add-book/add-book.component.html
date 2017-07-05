@@ -69,7 +69,8 @@
 
     <div class="form-group" *ngIf="currentBook">
       <label for="formBookBarcode">Book Barcode:</label>
-      <input type="text" id="formBookBarcode" class="form-control" formControlName="bookCopyBarCode">
+      <input type="text" id="formBookBarcode" class="form-control" formControlName="bookCopyBarCode"
+        (keyup.enter)="onBookCopyEntered()">
     </div>
   </form>
 

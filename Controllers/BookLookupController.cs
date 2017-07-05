@@ -18,7 +18,7 @@ namespace WebApplicationBasic.Controllers
             {
                 var jsonString = await result.Content.ReadAsStringAsync();
                 var isbnResult = JsonConvert.DeserializeObject<JsonResult<IsbnEntry>>(jsonString);
-                if(isbnResult.Data.Length >= 1)
+                if(isbnResult.Data?.Length >= 1)
                 {
                     return Ok(isbnResult.Data[0]);
                 }

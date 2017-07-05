@@ -1,5 +1,5 @@
 export interface IsbnEntry {
-    author_data : AuthorData[];
+    author_data: AuthorData[];
     summary: string;
     isbn13: string;
     publisher_text: string;
