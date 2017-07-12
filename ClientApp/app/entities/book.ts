@@ -26,7 +26,8 @@ export class Book {
         const book = new Book();
         Object.assign(book, bookObj);
         if (bookObj.bookCopies !== undefined) {
-            bookObj.forEach(element => {
+            book.bookCopies = new Array<BookCopy>();
+            bookObj.bookCopies.forEach(element => {
                 book.bookCopies.push(BookCopy.fromObject(element));
             });
         }
@@ -43,6 +44,9 @@ export class Book {
     }
 
     getBookCopy(barCode: number): BookCopy {
+        if (this.bookCopies === undefined) {
+            return null;
+        } 
         return this.bookCopies.find(bc => bc.barCode === barCode);
     }
 

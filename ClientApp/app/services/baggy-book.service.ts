@@ -74,7 +74,7 @@ export class BaggyBookService {
     return this.http
       .get(`${this.originUrl}${this.booksUrl}`)
       .toPromise()
-      .then(res => res.json().data as Book[])
+      .then(res => res.json().data.map(Book.fromObject))
       .catch(this.handleError);
   }
 
@@ -82,7 +82,7 @@ export class BaggyBookService {
     return this.http
       .post(`${this.originUrl}${this.booksUrl}`, JSON.stringify(book), {headers: this.headers})
       .toPromise()
-      .then(res => res.json().data as Book)
+      .then(res => Book.fromObject(res.json().data))
       .catch(this.handleError);
   }
 

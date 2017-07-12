@@ -15,6 +15,12 @@ export class CheckOutBookComponent implements OnInit {
   currentStudent: Student;
   currentBook: Book;
 
+  resetForm() {
+    this.checkOutBookForm.reset();
+    this.currentBook = undefined;
+    this.currentStudent = undefined;
+  }
+
   constructor(
     private baggyBookService: BaggyBookService,
     private fb: FormBuilder
@@ -40,15 +46,11 @@ export class CheckOutBookComponent implements OnInit {
         this.baggyBookService.getBook(bookCopy.bookId)
           .then(book => {
             this.currentBook = book;
-            setTimeout(this.resetForm, 1000);
+            setTimeout(() => this.resetForm(), 1000);
           })
       });
 
   }
 
-  resetForm() {
-    this.checkOutBookForm.reset();
-    this.currentBook = undefined;
-    this.currentStudent = undefined;
-  }
+
 }
