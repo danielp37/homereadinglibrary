@@ -1,3 +1,4 @@
+import { BookCopyReservationsComponent } from './../../components/book-copy-reservations/book-copy-reservations.component';
 import { CheckOutBookComponent } from './../../components/check-out-book/check-out-book.component';
 import { BookListComponent } from './../../components/book-list/book-list.component';
 import { ClassListsComponent } from './../../components/class-lists/class-lists.component';
@@ -17,6 +18,7 @@ const routes: Routes = [
             { path: 'classlists',  component: ClassListsComponent },
             { path: 'booklist',  component: BookListComponent },
             { path: 'checkout',  component: CheckOutBookComponent },
+            { path: 'bookscheckedout', component: BookCopyReservationsComponent},
             { path: '**', redirectTo: 'home' }
         ];
 /*[

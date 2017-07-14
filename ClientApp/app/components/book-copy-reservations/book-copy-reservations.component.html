@@ -1,0 +1,30 @@
+<div class="container">
+  <div *ngIf="!bookCopyReservations">No books found!</div>
+  <div *ngIf="bookCopyReservations">
+      <data-table id="books-grid" headerTitle="Books Checked Out"
+        [items]="bookCopyReservations"
+        [itemCount]="bookCopyReservations.length"
+        >
+        <data-table-column
+          [property]="'bookCopyId'"
+          [header]="'Book Copy Id'"
+          [resizable]="true">
+        </data-table-column>
+        <data-table-column
+          [property]="'studentId'"
+          [header]="'Student Id'"
+          [resizable]="true">
+        </data-table-column>
+        <data-table-column
+          [property]="'checkedOutDate'"
+          [header]="'Checked Out'"
+          [resizable]="true">
+        </data-table-column>
+        <data-table-column
+          [property]="'checkedInDate'"
+          [header]="'Checked In'"
+          [resizable]="true">
+        </data-table-column>
+      </data-table>
+    </div>
+</div>

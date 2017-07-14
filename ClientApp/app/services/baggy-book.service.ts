@@ -16,7 +16,7 @@ export class BaggyBookService {
   private volunteersUrl = '/api/volunteers'
   private classesUrl = '/api/classes'
   private booksUrl = '/api/books'
-  private bookCheckOutUrl = '/api/bookcheckout'
+  private bookCheckOutUrl = '/api/bookcopyreservations'
   private headers = new Headers({'Content-Type': 'application/json'});
 
   constructor(private http: Http, @Inject('ORIGIN_URL') private originUrl: string) { }
@@ -119,6 +119,13 @@ export class BaggyBookService {
       .post(`${this.originUrl}${this.bookCheckOutUrl}`, JSON.stringify(bookCopyReservation), {headers: this.headers})
       .toPromise()
       .then(bcr => bcr.json().data as BookCopyReservation);
+  }
+
+  getBookCopyReservations(): Promise<BookCopyReservation[]> {
+    return this.http
+      .get(`${this.originUrl}${this.bookCheckOutUrl}`)
+      .toPromise()
+      .then(bcr => bcr.json().data as BookCopyReservation[]);
   }
 
   private handleError(error: any): Promise<any> {

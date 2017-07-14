@@ -46,11 +46,14 @@ export class InMemoryDataService implements InMemoryDbService {
                 bookCopies: [{'bookCopyId': '3-1', 'bookId': '3', 'barCode': '1'}]}
         ];
 
+        const bookCopyReservations = [];
+
         return {
-            volunteers : volunteers, 
+            volunteers : volunteers,
             classes : classes,
             students : students,
-            books : books
+            books : books,
+            bookcopyreservations : bookCopyReservations
         };
     }
 }

@@ -46,7 +46,10 @@ export class CheckOutBookComponent implements OnInit {
         this.baggyBookService.getBook(bookCopy.bookId)
           .then(book => {
             this.currentBook = book;
-            setTimeout(() => this.resetForm(), 1000);
+            this.baggyBookService.checkOutBookForStudent(bookCopy.bookCopyId, this.currentStudent.studentId)
+              .then(bookCopyReservation => {
+                setTimeout(() => this.resetForm(), 1000);
+              });
           })
       });
 

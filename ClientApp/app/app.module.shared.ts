@@ -1,3 +1,4 @@
+import { BookCopyReservationsComponent } from './components/book-copy-reservations/book-copy-reservations.component';
 import { CheckOutBookComponent } from './components/check-out-book/check-out-book.component';
 import { BookLookupService } from './services/book-lookup.service';
 import { BaggyBookService } from './services/baggy-book.service';
@@ -35,7 +36,8 @@ export const sharedConfig: NgModule = {
         AddStudentComponent,
         ClassListsComponent,
         SortClassPipe,
-        CheckOutBookComponent
+        CheckOutBookComponent,
+        BookCopyReservationsComponent
     ],
     imports: [
         AppRoutingModule,
