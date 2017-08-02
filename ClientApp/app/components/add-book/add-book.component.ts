@@ -54,7 +54,10 @@ export class AddBookComponent implements OnInit {
   onBookCopyEntered() {
     const bookCopyInput = this.addBookForm.get('bookCopyBarCode');
     if (bookCopyInput.value !== '' && bookCopyInput.value !== this.lastBookCopyValue) {
-      this.currentBook.addBookCopy(bookCopyInput.value);
+      this.baggyBookService.addBookCopy(this.currentBook.id, bookCopyInput.value)
+        .then(book => {
+            this.onBookAdded.emit(book);
+        });
     }
     this.lastBookCopyValue = bookCopyInput.value;
   }

@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 namespace WebApplicationBasic.Controllers
 {
     [Route("/api/[controller]")]
-    public class BookLookupController : Controller
+    public partial class BookLookupController : Controller
     {
         private static string IsbnUrl = "http://isbndb.com/api/v2/json/QQ6LFTNI/book/";
 
@@ -18,18 +18,12 @@ namespace WebApplicationBasic.Controllers
             {
                 var jsonString = await result.Content.ReadAsStringAsync();
                 var isbnResult = JsonConvert.DeserializeObject<JsonResult<IsbnEntry>>(jsonString);
-                if(isbnResult.Data?.Length >= 1)
+                if(isbnResult.Data?.Count >= 1)
                 {
                     return Ok(isbnResult.Data[0]);
                 }
             }
             return NotFound($"Could not find book with isbn {isbn}.");
-        }
-    
-        public class JsonResult<T>
-        {
-            public T[] Data { get; set;}
-
         }
         public class IsbnEntry 
         {

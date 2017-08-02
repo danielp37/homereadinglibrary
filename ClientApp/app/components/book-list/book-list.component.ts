@@ -24,6 +24,12 @@ export class BookListComponent implements OnInit {
   }
 
   bookAdded(newBook: Book) {
-    this.books.push(newBook);
+    const existingBook = this.books.find(book => book.id === newBook.id);
+    if (existingBook === undefined) {
+      this.books.push(newBook);
+    } else {
+      const index = this.books.indexOf(existingBook);
+      this.books[index] = newBook;
+    }
   }
 }

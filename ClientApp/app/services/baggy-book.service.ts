@@ -86,6 +86,14 @@ export class BaggyBookService {
       .catch(this.handleError);
   }
 
+  addBookCopy(bookId: string, barCode: string): Promise<Book> {
+    return this.http
+      .post(`${this.originUrl}${this.booksUrl}/${bookId}/bookcopy`, JSON.stringify({ barCode: barCode }), {headers: this.headers})
+      .toPromise()
+      .then(book => Book.fromObject(book.json().data))
+      .catch(this.handleError);
+  }
+
   getBook(bookId: string): Promise<Book> {
     return this.http
       .get(`${this.originUrl}${this.booksUrl}/${bookId}`)
@@ -99,7 +107,7 @@ export class BaggyBookService {
       });
   }
 
-  getBookCopyByBarCode(barCode: number): Promise<BookCopy> {
+  getBookCopyByBarCode(barCode: string): Promise<BookCopy> {
     return this.getAllBooks()
       .then(books => {
         let bookCopy = undefined as BookCopy;

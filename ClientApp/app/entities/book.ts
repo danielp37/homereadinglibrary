@@ -34,19 +34,19 @@ export class Book {
         return book;
     }
 
-    addBookCopy(barCode: number): void {
+    addBookCopy(barCode: string): void {
         if (this.bookCopies === undefined) {
             this.bookCopies = new Array<BookCopy>();
         }
         if (this.bookCopies.find(bookCopy => bookCopy.barCode === barCode) === undefined) {
-            this.bookCopies.push(new BookCopy(this.id, barCode));
+            this.bookCopies.push(new BookCopy(barCode));
         }
     }
 
-    getBookCopy(barCode: number): BookCopy {
+    getBookCopy(barCode: string): BookCopy {
         if (this.bookCopies === undefined) {
             return null;
-        } 
+        }
         return this.bookCopies.find(bc => bc.barCode === barCode);
     }
 

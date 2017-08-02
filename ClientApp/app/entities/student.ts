@@ -4,5 +4,5 @@ export class Student {
     firstName: string;
     lastName: string;
     readingLevel: string;
-    barCode?: number;
+    barCode?: string;
 }

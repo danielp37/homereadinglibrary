@@ -43,14 +43,10 @@ export class CheckOutBookComponent implements OnInit {
     const bookCopyField = this.checkOutBookForm.get('bookCopyBarCode');
     this.baggyBookService.getBookCopyByBarCode(bookCopyField.value)
       .then(bookCopy => {
-        this.baggyBookService.getBook(bookCopy.bookId)
-          .then(book => {
-            this.currentBook = book;
-            this.baggyBookService.checkOutBookForStudent(bookCopy.bookCopyId, this.currentStudent.studentId)
-              .then(bookCopyReservation => {
-                setTimeout(() => this.resetForm(), 1000);
-              });
-          })
+          this.baggyBookService.checkOutBookForStudent(bookCopy.barCode, this.currentStudent.studentId)
+            .then(bookCopyReservation => {
+              setTimeout(() => this.resetForm(), 1000);
+            });
       });
 
   }

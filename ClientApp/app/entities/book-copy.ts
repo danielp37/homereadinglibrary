@@ -1,12 +1,10 @@
 export class BookCopy {
-    bookCopyId: string;
-    bookId: string;
-    barCode: number;
+    barCode: string;
     isLost?: boolean;
     isDamaged?: boolean;
 
     static fromObject(bookCopyObj: any): BookCopy {
-        const bookCopy = new BookCopy(bookCopyObj.bookId, bookCopyObj.barCode);
+        const bookCopy = new BookCopy(bookCopyObj.barCode);
         Object.assign(bookCopy, bookCopyObj);
         return bookCopy;
     }
@@ -14,9 +12,7 @@ export class BookCopy {
     /**
      *
      */
-    constructor(bookId: string, barCode: number) {
-        this.bookId = bookId;
+    constructor(barCode: string) {
         this.barCode = barCode;
-        this.bookCopyId = `${this.bookId}-${this.barCode}`;
     }
 }
