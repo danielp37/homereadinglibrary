@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using aspnetcore_spa.Entities;
 using aspnetcore_spa.Startup;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
@@ -17,18 +19,19 @@ namespace aspnetcore_spa.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async virtual Task<IActionResult> Get()
         {
             IMongoDatabase db = MongoConfig.Database;
 
             var entityCollection = db.GetCollection<T>(_collectionName);
             var filter = new BsonDocument();
 
-            var books = await (await entityCollection.FindAsync<T>(filter)).ToListAsync();
+            var entities = await (await entityCollection.FindAsync<T>(filter))
+                .ToListAsync();
 
             return Ok(new WebApplicationBasic.Controllers.JsonResult<T>
             {
-                Data = books
+                Data = entities
             });
         }
 
@@ -40,13 +43,18 @@ namespace aspnetcore_spa.Controllers
             var entityCollection = db.GetCollection<T>(_collectionName);
             try 
             {
+                var auditFields = entity as IAuditFields;
+                if(auditFields != null)
+                {
+                    auditFields.CreatedDate = DateTime.Now;
+                }
                 await entityCollection.InsertOneAsync(entity);
             }
             catch
             {
                 //TODO: log error
             }
-            return Ok(entity);
+            return Ok(new { Data = entity });
         }
     }
 }

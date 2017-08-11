@@ -9,6 +9,8 @@ export class Book {
     guidedReadingLevel: string;
     isbn: string;
     boxNumber: string;
+    createdDate: Date;
+    modifiedDate: Date;
 
     bookCopies: BookCopy[];
 
@@ -16,7 +18,7 @@ export class Book {
         const book = new Book();
         book.id = isbnEntry.book_id;
         book.title = isbnEntry.title;
-        book.author = isbnEntry.author_data[0].name;
+        book.author = isbnEntry.author_data[0] !== undefined ? isbnEntry.author_data[0].name : 'Unknown';
         book.publisherText = isbnEntry.publisher_text;
         book.isbn = isbnEntry.isbn13;
         return book;

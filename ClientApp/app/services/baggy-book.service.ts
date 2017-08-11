@@ -107,6 +107,19 @@ export class BaggyBookService {
       });
   }
 
+  getBookByIsbn(isbn: string): Promise<Book> {
+    return this.http
+      .get(`${this.originUrl}${this.booksUrl}/isbn/${isbn}`)
+      .toPromise()
+      .then(book => Book.fromObject(book.json().data))
+      .catch(error => {
+        if (error.status === 404) {
+          return Promise.reject('Book not found');
+        }
+        return this.handleError(error);
+      });
+  }
+
   getBookCopyByBarCode(barCode: string): Promise<BookCopy> {
     return this.getAllBooks()
       .then(books => {

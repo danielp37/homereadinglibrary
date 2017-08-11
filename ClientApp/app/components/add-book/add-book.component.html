@@ -67,6 +67,15 @@
       <p>Publisher Text: {{currentBook.publisherText}}
     </div>
 
+    <div class="form-group" *ngIf="newBook">
+      <p>Could not find book with that ISBN.</p>
+      <label for="formTitle">Title:</label>
+      <input type="text" id="formTitle" class="form-control" formControlName="title" #title>
+      <label for="formAuthor">Author:</label>
+      <input type="text" id="formAuthor" class="form-control" formControlName="author" #author>
+      <button type="button" (click)="addNewBook()">Add Book</button>
+    </div>
+
     <div class="form-group" *ngIf="currentBook">
       <label for="formBookBarcode">Book Barcode:</label>
       <input type="text" id="formBookBarcode" class="form-control" formControlName="bookCopyBarCode"
