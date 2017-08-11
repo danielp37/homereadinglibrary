@@ -1,4 +1,5 @@
 using System;
+using System.Security.Authentication;
 using Microsoft.Extensions.Configuration;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
@@ -9,7 +10,7 @@ namespace aspnetcore_spa.Startup
     public static class MongoConfig
     {
         static IConfigurationRoot _config {get; set;}
-        private static string _server {get; set;}
+        private static string _connectionString {get; set;}
         private static string _database {get; set;}
         private static MongoClient _client = null;
         public static MongoClient Client => _client ?? (_client = CreateClient());
@@ -20,19 +21,22 @@ namespace aspnetcore_spa.Startup
             _config = config;
             SetConventions();
             var mongoConfig = _config.GetSection("mongodb");
-            _server = mongoConfig.GetValue("server", "127.0.0.1");
+            _connectionString = Environment.GetEnvironmentVariable("CUSTOMCONNSTR_mongodb");
+            //_connectionString = mongoConfig.GetValue("connectionString", "mongodb://127.0.0.1");
             _database = mongoConfig.GetValue("database", "baggybooks");
         }
 
         private static MongoClient CreateClient()
         {
-            
-            var client = new MongoClient(new MongoClientSettings
+            var settings = MongoClientSettings.FromUrl(
+                new MongoUrl(_connectionString)
+            );
+            if(settings.UseSsl)
             {
-                Server = new MongoServerAddress(_server),
-                ClusterConfigurator = builder => { },
-
-            });
+                settings.SslSettings = new SslSettings() { EnabledSslProtocols = SslProtocols.Tls12 };
+            }
+            var mongoClient = new MongoClient(settings);
+            var client = new MongoClient(settings);
 
             return client;
         }
