@@ -72,7 +72,8 @@
       <label for="formTitle">Title:</label>
       <input type="text" id="formTitle" class="form-control" formControlName="title" #title>
       <label for="formAuthor">Author:</label>
-      <input type="text" id="formAuthor" class="form-control" formControlName="author" #author>
+      <input type="text" id="formAuthor" class="form-control" formControlName="author" #author
+        (keyup.enter)="addNewBook()">
       <button type="button" (click)="addNewBook()">Add Book</button>
     </div>
 
@@ -80,6 +81,15 @@
       <label for="formBookBarcode">Book Barcode:</label>
       <input type="text" id="formBookBarcode" class="form-control" formControlName="bookCopyBarCode"
         (keyup.enter)="onBookCopyEntered()">
+      
+      <div *ngIf="currentBook.bookCopyCount > 0">
+        <p>Existing Bar Codes</p>
+        <ul>
+          <li *ngFor="let bookCopy of currentBook.bookCopies">
+            {{bookCopy.barCode}} <button type="button" (click)="removeBookCopy(bookCopy.barCode)">Delete</button>
+          </li>
+        </ul>
+      </div>
     </div>
   </form>
 

@@ -49,15 +49,23 @@ export class AddBookComponent implements OnInit {
               book.guidedReadingLevel = this.addBookForm.get('readingLevel').value;
               book.boxNumber = this.addBookForm.get('boxNumber').value;
 
+              this.newBook = false;
               this.addBook(book);
             })
             .catch(e => {
-              this.currentBook = null;
-              this.newBook = true;
+              this.enableNewBookEntry();
             });
         });
     }
     this.lastIsbnValue = isbnInput.value;
+  }
+
+  enableNewBookEntry() {
+    this.currentBook = null;
+    this.addBookForm.get('author').setValue('');
+    this.addBookForm.get('title').setValue('');
+    this.newBook = true;
+    this.focusBookTitle();
   }
 
   focusBookBarCode() {
@@ -65,6 +73,13 @@ export class AddBookComponent implements OnInit {
                 const element = this.renderer.selectRootElement('#formBookBarcode');
                 element.focus();
               }, 300);
+  }
+
+  focusBookTitle() {
+    setTimeout(() => {
+      const element = this.renderer.selectRootElement('#formTitle');
+      element.focus();
+    }, 300);
   }
 
   addBook(book: Book) {
@@ -83,12 +98,21 @@ export class AddBookComponent implements OnInit {
       this.baggyBookService.addBookCopy(this.currentBook.id, bookCopyInput.value)
         .then(book => {
             this.onBookAdded.emit(book);
-            setTimeout(() => bookCopyInput.setValue(''), 1000);
+            this.currentBook = book;
+            setTimeout(() => bookCopyInput.setValue(''), 0);
         });
     } else {
-      setTimeout(() => bookCopyInput.setValue(''), 1000);
+      setTimeout(() => bookCopyInput.setValue(''), 0);
     }
     this.lastBookCopyValue = bookCopyInput.value;
+  }
+
+  removeBookCopy(barCode: string) {
+    this.baggyBookService.removeBookCopy(this.currentBook.id, barCode)
+      .then(book => {
+        this.onBookAdded.emit(book);
+        this.currentBook = book;
+      })
   }
 
   addNewBook() {
@@ -98,7 +122,6 @@ export class AddBookComponent implements OnInit {
     newBook.title = this.addBookForm.get('title').value;
     newBook.guidedReadingLevel = this.addBookForm.get('readingLevel').value;
     newBook.boxNumber = this.addBookForm.get('boxNumber').value;
-    newBook.id = newBook.title.replace(' ', '_').toLowerCase();
     this.addBook(newBook);
   }
 }

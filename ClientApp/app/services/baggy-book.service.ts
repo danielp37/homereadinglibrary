@@ -94,6 +94,14 @@ export class BaggyBookService {
       .catch(this.handleError);
   }
 
+  removeBookCopy(bookId: string, barCode: string): Promise<Book> {
+    return this.http
+      .delete(`${this.originUrl}${this.booksUrl}/${bookId}/bookcopy/${barCode}`)
+      .toPromise()
+      .then(book => Book.fromObject(book.json().data))
+      .catch(this.handleError);
+  }
+
   getBook(bookId: string): Promise<Book> {
     return this.http
       .get(`${this.originUrl}${this.booksUrl}/${bookId}`)

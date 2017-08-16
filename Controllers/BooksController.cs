@@ -39,7 +39,32 @@ namespace aspnetcore_spa.Controllers
 
             var bookCollection = db.GetCollection<Book>("books");
             var filter = Builders<Book>.Filter.Eq(b => b.Id, bookId);
-            var update = Builders<Book>.Update.AddToSet(b => b.BookCopies, new BookCopy{ BarCode = body.BarCode});
+            var update = Builders<Book>.Update.AddToSet(b => b.BookCopies, new BookCopy{ BarCode = body.BarCode})
+                            .CurrentDate(b => b.ModifiedDate);
+            await bookCollection.FindOneAndUpdateAsync(filter, update);
+            // The book returned by the above method is the version before the update
+            // so we must requery to get the new version.
+            var book = bookCollection.AsQueryable()
+                            .Where(b => b.Id == bookId)
+                            .SingleOrDefault();
+
+            if(book == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(new { Data = book });
+        }
+
+        [HttpDelete("{bookId}/bookcopy/{barCode}")]
+        public async Task<IActionResult> RemoveBookCopy(string bookId, string barCode)
+        {
+            IMongoDatabase db = MongoConfig.Database;
+
+            var bookCollection = db.GetCollection<Book>("books");
+            var filter = Builders<Book>.Filter.Eq(b => b.Id, bookId);
+            var update = Builders<Book>.Update.PullFilter(b => b.BookCopies, bc => bc.BarCode == barCode)
+                                .CurrentDate(b => b.ModifiedDate);
             await bookCollection.FindOneAndUpdateAsync(filter, update);
             var book = bookCollection.AsQueryable()
                             .Where(b => b.Id == bookId)
