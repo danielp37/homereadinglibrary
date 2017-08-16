@@ -1,0 +1,1 @@
+db.books.createIndex({"bookCopies.barCode" : 1}, {"sparse" : true, "unique" : true })

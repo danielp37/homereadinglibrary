@@ -42,7 +42,10 @@ export class AddBookComponent implements OnInit {
     const isbnInput = this.addBookForm.get('isbn');
     if (isbnInput.value !== '' && isbnInput.value !== this.lastIsbnValue) {
       this.baggyBookService.getBookByIsbn(isbnInput.value)
-        .then(book => this.currentBook = book)
+        .then(book => {
+          this.currentBook = book;
+          this.focusBookBarCode();
+        })
         .catch(error => {
           this.bookLookupService.getBookFromIsbn(isbnInput.value)
             .then(book => {
