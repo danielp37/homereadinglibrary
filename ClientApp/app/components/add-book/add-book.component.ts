@@ -79,8 +79,10 @@ export class AddBookComponent implements OnInit {
   }
 
   set currentBook(book: Book) {
-    this.addBookForm.get('readingLevel').setValue(book.guidedReadingLevel);
-    this.addBookForm.get('boxNumber').setValue(book.boxNumber);
+    if (book) {
+      this.addBookForm.get('readingLevel').setValue(book.guidedReadingLevel);
+      this.addBookForm.get('boxNumber').setValue(book.boxNumber);
+    }
     this._currentBook = book;
   }
 
