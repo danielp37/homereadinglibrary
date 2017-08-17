@@ -14,8 +14,9 @@ export class AddBookComponent implements OnInit {
   lastBookCopyValue: number;
   addBookForm: FormGroup;
   newBook: boolean;
+  editingBook: boolean;
   lastIsbnValue: string;
-  currentBook: Book;
+  private _currentBook: Book;
   @Output()onBookAdded = new EventEmitter<Book>();
 
   constructor(
@@ -34,7 +35,9 @@ export class AddBookComponent implements OnInit {
       isbn : [''],
       bookCopyBarCode : [''],
       title : [''],
-      author : ['']
+      author : [''],
+      editTitle : [''],
+      editAuthor : ['']
     });
   }
 
@@ -49,11 +52,19 @@ export class AddBookComponent implements OnInit {
         .catch(error => {
           this.bookLookupService.getBookFromIsbn(isbnInput.value)
             .then(book => {
-              book.guidedReadingLevel = this.addBookForm.get('readingLevel').value;
-              book.boxNumber = this.addBookForm.get('boxNumber').value;
+              // Check to see if we can find the book by the returned isbn
+              this.baggyBookService.getBookByIsbn(book.isbn)
+                .then(existingBook => {
+                  this.currentBook = existingBook;
+                  this.focusBookBarCode();
+                })
+                .catch(error2 => {
+                  book.guidedReadingLevel = this.addBookForm.get('readingLevel').value;
+                  book.boxNumber = this.addBookForm.get('boxNumber').value;
 
-              this.newBook = false;
-              this.addBook(book);
+                  this.newBook = false;
+                  this.addBook(book);
+                });
             })
             .catch(e => {
               this.enableNewBookEntry();
@@ -61,6 +72,16 @@ export class AddBookComponent implements OnInit {
         });
     }
     this.lastIsbnValue = isbnInput.value;
+  }
+
+  get currentBook(): Book {
+    return this._currentBook;
+  }
+
+  set currentBook(book: Book) {
+    this.addBookForm.get('readingLevel').setValue(book.guidedReadingLevel);
+    this.addBookForm.get('boxNumber').setValue(book.boxNumber);
+    this._currentBook = book;
   }
 
   enableNewBookEntry() {
@@ -126,5 +147,27 @@ export class AddBookComponent implements OnInit {
     newBook.guidedReadingLevel = this.addBookForm.get('readingLevel').value;
     newBook.boxNumber = this.addBookForm.get('boxNumber').value;
     this.addBook(newBook);
+  }
+
+  startEditingBook() {
+    this.editingBook = true;
+    this.addBookForm.get('editAuthor').setValue(this.currentBook.author);
+    this.addBookForm.get('editTitle').setValue(this.currentBook.title);
+  }
+
+  updateBook() {
+    this.editingBook = false;
+    this.baggyBookService.getBook(this.currentBook.id)
+      .then(book => {
+        book.guidedReadingLevel = this.addBookForm.get('readingLevel').value;
+        book.boxNumber = this.addBookForm.get('boxNumber').value;
+        book.title = this.addBookForm.get('editTitle').value;
+        book.author = this.addBookForm.get('editAuthor').value;
+        this.baggyBookService.updateBook(book)
+          .then(updatedBook => {
+            this.onBookAdded.emit(book);
+            this.currentBook = book;
+          });
+      });
   }
 }

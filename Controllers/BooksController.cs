@@ -32,6 +32,47 @@ namespace aspnetcore_spa.Controllers
             });
         }
 
+        [HttpGet("{bookId}")]
+        public IActionResult Get(string bookId)
+        {
+            IMongoDatabase db = MongoConfig.Database;
+
+            var bookCollection = db.GetCollection<Book>(_collectionName);
+
+            var editedBook = bookCollection.AsQueryable()
+                            .Where(b => b.Id == bookId)
+                            .SingleOrDefault();
+
+            return Ok(new { Data = editedBook });
+        }
+
+        [HttpPut("{bookId}")]
+        public async Task<IActionResult> UpdateBook(string bookId, [FromBody]Book book) 
+        {
+            IMongoDatabase db = MongoConfig.Database;
+
+            var bookCollection = db.GetCollection<Book>(_collectionName);
+            var filter = Builders<Book>.Filter.Eq(b => b.Id, bookId);
+            var update = Builders<Book>.Update
+                .Set(b => b.BoxNumber, book.BoxNumber)
+                .Set(b => b.GuidedReadingLevel, book.GuidedReadingLevel)
+                .Set(b => b.Title, book.Title)
+                .Set(b => b.Author, book.Author)
+                .CurrentDate(b => b.ModifiedDate);
+            await bookCollection.FindOneAndUpdateAsync(filter, update);
+
+            var editedBook = bookCollection.AsQueryable()
+                            .Where(b => b.Id == bookId)
+                            .SingleOrDefault();
+
+            if(editedBook == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(new { Data = editedBook });
+        }
+
         [HttpPost("{bookId}/bookcopy")]
         public async Task<IActionResult> AddBookCopy(string bookId, [FromBody]BarCodeBody body)
         {

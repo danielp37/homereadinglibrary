@@ -86,6 +86,14 @@ export class BaggyBookService {
       .catch(this.handleError);
   }
 
+  updateBook(book: Book): Promise<Book> {
+    return this.http
+      .put(`${this.originUrl}${this.booksUrl}/${book.id}`, JSON.stringify(book), {headers: this.headers})
+      .toPromise()
+      .then(res => Book.fromObject(res.json().data))
+      .catch(this.handleError);
+  }
+
   addBookCopy(bookId: string, barCode: string): Promise<Book> {
     return this.http
       .post(`${this.originUrl}${this.booksUrl}/${bookId}/bookcopy`, JSON.stringify({ barCode: barCode }), {headers: this.headers})
