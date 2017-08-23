@@ -14,7 +14,7 @@ import { HttpModule } from '@angular/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { AppRoutingModule } from './modules/app-routing/app-routing.module';
-import { NgModule } from '@angular/core';
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { InMemoryWebApiModule } from 'angular-in-memory-web-api';
 import { DataTableModule } from 'angular-2-data-table';
@@ -48,5 +48,6 @@ export const sharedConfig: NgModule = {
         InMemoryWebApiModule.forRoot(InMemoryDataService, {passThruUnknownUrl: true}),
         DataTableModule
     ],
-    providers: [BaggyBookService, BookLookupService ]
+    providers: [BaggyBookService, BookLookupService ],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA]
 };

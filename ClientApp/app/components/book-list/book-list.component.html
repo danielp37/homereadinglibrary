@@ -1,10 +1,10 @@
 <div class="container">
   <app-add-book (onBookAdded)="bookAdded($event)"></app-add-book>
-  <div *ngIf="!books">No books found!</div>
-  <div *ngIf="books">
+  <div>
       <data-table id="books-grid" headerTitle="Books"
-        [items]="books"
-        [itemCount]="books.length"
+        [items]="bookList.books"
+        [itemCount]="bookList.count"
+        (reload)="refreshBookList($event)"
         >
         <data-table-column
           [property]="'title'"

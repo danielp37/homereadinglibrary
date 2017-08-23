@@ -1,3 +1,5 @@
+import { DataTableParams } from 'angular-2-data-table';
+import { BookList } from './../../entities/book-list';
 import { Component, OnInit } from '@angular/core';
 import { BaggyBookService } from '../../services/baggy-book.service';
 import { Book } from '../../entities/book';
@@ -8,28 +10,32 @@ import { Book } from '../../entities/book';
   styleUrls: ['./book-list.component.css']
 })
 export class BookListComponent implements OnInit {
-  books: Book[];
+
+  bookList: BookList;
+  lastSearchParams: DataTableParams;
 
   constructor(
     private baggyBookService: BaggyBookService
-  ) { }
+  ) {
+    this.bookList = {};
+   }
 
-  ngOnInit() {
-    this.refreshBookList();
+  ngOnInit(): void {
   }
 
-  refreshBookList() {
-    this.baggyBookService.getAllBooks()
-      .then(books => this.books = books);
+  refreshBookList(params: DataTableParams) {
+    this.lastSearchParams = params;
+    this.baggyBookService.getAllBooks(params)
+      .then(bookList => this.bookList = bookList);
   }
 
   bookAdded(newBook: Book) {
-    const existingBook = this.books.find(book => book.id === newBook.id);
+    const existingBook = this.bookList.books.find(book => book.id === newBook.id);
     if (existingBook === undefined) {
-      this.books.unshift(newBook);
+      this.refreshBookList(this.lastSearchParams);
     } else {
-      const index = this.books.indexOf(existingBook);
-      this.books[index] = newBook;
+      const index = this.bookList.books.indexOf(existingBook);
+      this.bookList.books[index] = newBook;
     }
   }
 }

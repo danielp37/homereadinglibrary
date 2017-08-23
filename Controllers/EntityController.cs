@@ -18,23 +18,6 @@ namespace aspnetcore_spa.Controllers
             _collectionName = collectionName;
         }
 
-        [HttpGet]
-        public async virtual Task<IActionResult> Get()
-        {
-            IMongoDatabase db = MongoConfig.Database;
-
-            var entityCollection = db.GetCollection<T>(_collectionName);
-            var filter = new BsonDocument();
-
-            var entities = await (await entityCollection.FindAsync<T>(filter))
-                .ToListAsync();
-
-            return Ok(new WebApplicationBasic.Controllers.JsonResult<T>
-            {
-                Data = entities
-            });
-        }
-
         [HttpPost]
         public async Task<IActionResult> Post([FromBody]T entity)
         {

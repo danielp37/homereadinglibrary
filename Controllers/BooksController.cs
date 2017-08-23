@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using System.Linq;
+using System;
+using System.Text.RegularExpressions;
 
 namespace aspnetcore_spa.Controllers
 {
@@ -15,21 +17,50 @@ namespace aspnetcore_spa.Controllers
         }
 
         [HttpGet]
-        public async override Task<IActionResult> Get()
+        public async Task<IActionResult> Get([FromQuery]int offset = 0, [FromQuery]int pageSize = 10,
+            [FromQuery]string title = null, [FromQuery]string author = null, [FromQuery]string boxNumber = null)
         {
+            if(offset < 0) offset = 0;
+            if(pageSize < 1) pageSize = 1;
+
             IMongoDatabase db = MongoConfig.Database;
-
+            var filter = BuildFilter(title, author, boxNumber);
             var entityCollection = db.GetCollection<Book>(_collectionName);
-            var filter = new BsonDocument();
 
+            var entityCount = await entityCollection.Find(filter).CountAsync();
             var entities = await entityCollection.Find(filter)
                 .SortByDescending(b => b.CreatedDate)
+                .Skip(offset)
+                .Limit(pageSize)
                 .ToListAsync();
 
-            return Ok(new WebApplicationBasic.Controllers.JsonResult<Book>
+            return Ok(new 
             {
+                Count = entityCount,
                 Data = entities
             });
+        }
+
+        private FilterDefinition<Book> BuildFilter(string title, string author, string boxNumber)
+        {
+            var builder = Builders<Book>.Filter;
+            if(!string.IsNullOrWhiteSpace(title))
+            {
+                return builder.Regex(b => b.Title, new Regex($".*{title}.*", RegexOptions.IgnoreCase));
+            }
+            if(!string.IsNullOrWhiteSpace(author))
+            {
+                return builder.Regex(b => b.Author, new Regex($".*{author}.*", RegexOptions.IgnoreCase));
+            }
+            if(!string.IsNullOrWhiteSpace(boxNumber))
+            {
+                var readingLevel = boxNumber.Substring(0, 1);
+                var number = boxNumber.Length > 1 ? boxNumber.Substring(1) : null;
+                return number != null ? builder.Eq(b => b.GuidedReadingLevel, readingLevel) & 
+                                        builder.Eq(b => b.BoxNumber, number)
+                                    :   builder.Eq(b => b.GuidedReadingLevel, readingLevel);
+            }
+            return builder.Empty;
         }
 
         [HttpGet("{bookId}")]

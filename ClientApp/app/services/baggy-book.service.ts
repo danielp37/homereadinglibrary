@@ -1,3 +1,5 @@
+import { BookList } from './../entities/book-list';
+import {DataTableParams} from 'angular-2-data-table';
 import { BookCopyReservation } from './../entities/book-copy-reservation';
 import { Student } from './../entities/student';
 import { Injectable } from '@angular/core';
@@ -70,12 +72,37 @@ export class BaggyBookService {
       .catch(this.handleError);
   }
 
-  getAllBooks(): Promise<Book[]> {
+  getAllBooks(params: DataTableParams): Promise<BookList> {
     return this.http
-      .get(`${this.originUrl}${this.booksUrl}`)
+      .get(`${this.originUrl}${this.booksUrl}?${this.paramsToQueryString(params)}`)
       .toPromise()
-      .then(res => res.json().data.map(Book.fromObject))
+      .then(res => {
+        const obj = res.json();
+        return {
+          count: obj.count,
+          books: obj.data.map(Book.fromObject)
+        }
+      })
       .catch(this.handleError);
+  }
+
+  paramsToQueryString(params: DataTableParams): string {
+    const result = [];
+
+    if (params.offset != null) {
+        result.push(['offset', params.offset]);
+    }
+    if (params.limit != null) {
+        result.push(['pageSize', params.limit]);
+    }
+    // if (params.sortBy != null) {
+    //     result.push(['_sort', params.sortBy]);
+    // }
+    // if (params.sortAsc != null) {
+    //     result.push(['_order', params.sortAsc ? 'ASC' : 'DESC']);
+    // }
+
+    return result.map(param => param.join('=')).join('&');
   }
 
   addBook(book: Book): Promise<Book> {
@@ -137,12 +164,14 @@ export class BaggyBookService {
   }
 
   getBookCopyByBarCode(barCode: string): Promise<BookCopy> {
-    return this.getAllBooks()
+    return this.http
+      .get(`${this.originUrl}${this.booksUrl}?barcode=${barCode}`)
+      .toPromise()
       .then(books => {
-        let bookCopy = undefined as BookCopy;
-        books.forEach(book => {
-          bookCopy = book.getBookCopy(barCode);
-        });
+        const bookCopy = undefined as BookCopy;
+        // books.forEach(book => {
+        //   bookCopy = book.getBookCopy(barCode);
+        // });
 
         return bookCopy;
       })
