@@ -1,3 +1,4 @@
+import { BookSearchParameters } from './Book-Search-Parameters';
 import { BookList } from './../entities/book-list';
 import {DataTableParams} from 'angular-2-data-table';
 import { BookCopyReservation } from './../entities/book-copy-reservation';
@@ -72,9 +73,9 @@ export class BaggyBookService {
       .catch(this.handleError);
   }
 
-  getAllBooks(params: DataTableParams): Promise<BookList> {
+  getAllBooks(params: DataTableParams, searchParameters: BookSearchParameters): Promise<BookList> {
     return this.http
-      .get(`${this.originUrl}${this.booksUrl}?${this.paramsToQueryString(params)}`)
+      .get(`${this.originUrl}${this.booksUrl}?${this.paramsToQueryString(params, searchParameters)}`)
       .toPromise()
       .then(res => {
         const obj = res.json();
@@ -86,7 +87,7 @@ export class BaggyBookService {
       .catch(this.handleError);
   }
 
-  paramsToQueryString(params: DataTableParams): string {
+  paramsToQueryString(params: DataTableParams, searchParameters: BookSearchParameters): string {
     const result = [];
 
     if (params.offset != null) {
@@ -95,7 +96,16 @@ export class BaggyBookService {
     if (params.limit != null) {
         result.push(['pageSize', params.limit]);
     }
-    // if (params.sortBy != null) {
+    if (searchParameters.title) {
+        result.push(['title', searchParameters.title])
+    }
+    if (searchParameters.author) {
+      result.push(['author', searchParameters.author])
+    }
+    if (searchParameters.boxNumber) {
+      result.push(['boxNumber', searchParameters.boxNumber])
+    }
+// if (params.sortBy != null) {
     //     result.push(['_sort', params.sortBy]);
     // }
     // if (params.sortAsc != null) {

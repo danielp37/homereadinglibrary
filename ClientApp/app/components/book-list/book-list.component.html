@@ -1,5 +1,19 @@
 <div class="container">
   <app-add-book (onBookAdded)="bookAdded($event)"></app-add-book>
+
+  <hr>
+
+  <form class="form-inline" [formGroup]="searchBookForm">
+    <label for="searchType">Book Search</label>
+    <select id="searchType" class="form-control" formControlName="searchType">
+      <option>Title</option>
+      <option>Author</option>
+      <option>ReadingLevel/Box</option>
+    </select>
+    <input id="searchText" class="form-control" formControlName="searchText" (keyup.enter)="searchBooks()" >
+    <button class="btn btn-primary" (onclick)="searchBooks()">Search</button>
+  </form>
+
   <div>
       <data-table id="books-grid" headerTitle="Books"
         [items]="bookList.books"
