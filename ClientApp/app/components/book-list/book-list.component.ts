@@ -17,7 +17,10 @@ export class BookListComponent implements OnInit {
   constructor(
     private baggyBookService: BaggyBookService
   ) {
-    this.bookList = {};
+    this.bookList = {
+      books: [],
+      count: 0
+    };
    }
 
   ngOnInit(): void {
