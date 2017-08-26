@@ -22,7 +22,8 @@ export class BaggyBookService {
   private bookCheckOutUrl = '/api/bookcopyreservations'
   private headers = new Headers({'Content-Type': 'application/json'});
 
-  constructor(private http: Http, @Inject('ORIGIN_URL') private originUrl: string) { }
+  constructor(private http: Http,
+    @Inject('ORIGIN_URL') private originUrl: string) { }
 
   createVolunteer(volunteer: Volunteer): Promise<Volunteer> {
     return this.http
@@ -87,13 +88,17 @@ export class BaggyBookService {
       .catch(this.handleError);
   }
 
+  exportBooks(searchParameters: BookSearchParameters) {
+    window.location.href = `${this.originUrl}${this.booksUrl}/exporttotab?${this.paramsToQueryString({}, searchParameters)}`;
+  }
+
   paramsToQueryString(params: DataTableParams, searchParameters: BookSearchParameters): string {
     const result = [];
 
-    if (params.offset != null) {
+    if (params.offset) {
         result.push(['offset', params.offset]);
     }
-    if (params.limit != null) {
+    if (params.limit) {
         result.push(['pageSize', params.limit]);
     }
     if (searchParameters.title) {

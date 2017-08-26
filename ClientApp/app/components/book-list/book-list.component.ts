@@ -69,4 +69,8 @@ export class BookListComponent implements OnInit {
   searchBooks() {
     this.refreshBookList(this.lastSearchParams);
   }
+
+  exportToTab() {
+    this.baggyBookService.exportBooks(this.getBookSearchParameters());
+  }
 }

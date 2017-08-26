@@ -7,6 +7,9 @@ using MongoDB.Driver;
 using System.Linq;
 using System;
 using System.Text.RegularExpressions;
+using Microsoft.Net.Http.Headers;
+using System.IO;
+using System.Text;
 
 namespace aspnetcore_spa.Controllers
 {
@@ -39,6 +42,35 @@ namespace aspnetcore_spa.Controllers
                 Count = entityCount,
                 Data = entities
             });
+        }
+
+        [HttpGet("ExportToTab")]
+        public async Task<IActionResult> ExportToTab([FromQuery]string title = null, [FromQuery]string author = null, [FromQuery]string boxNumber = null)
+        {
+            IMongoDatabase db = MongoConfig.Database;
+            var filter = BuildFilter(title, author, boxNumber);
+            var entityCollection = db.GetCollection<Book>(_collectionName);
+            var entities = await entityCollection.Find(filter)
+                .SortByDescending(b => b.CreatedDate)
+                .ToListAsync();
+
+
+            var resultsAsTab = new [] { "ReadingLevel\tBoxNumber\tTitle\tAuthor\tIsbn\tPublisherText\tCreated Date\tCopies\tBarCodes" }
+                .Union(entities.Select(book => 
+                $"{book.GuidedReadingLevel}\t{book.BoxNumber}\t{book.Title}\t{book.Author}\t\"{book.Isbn}\"\t{book.PublisherText}\t{book.CreatedDate}\t" +
+                $"{book.BookCopies?.Count ?? 0}\t\"{string.Join(",", book.BookCopies.Select(bc => bc.BarCode))}\""));
+            byte[] file = null;
+            using(var stream = new MemoryStream())
+            {
+                using (var writer = new StreamWriter(stream, Encoding.UTF8))
+                {
+                    writer.Write(string.Join("\r\n", resultsAsTab));
+                    writer.Flush();
+                    file = stream.ToArray();
+                }
+            }
+
+            return File(file, "text/tab-separated-values", "book-list.txt");
         }
 
         private FilterDefinition<Book> BuildFilter(string title, string author, string boxNumber)

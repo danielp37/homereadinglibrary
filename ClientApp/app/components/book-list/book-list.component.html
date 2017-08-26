@@ -11,7 +11,8 @@
       <option>ReadingLevel/Box</option>
     </select>
     <input id="searchText" class="form-control" formControlName="searchText" (keyup.enter)="searchBooks()" >
-    <button class="btn btn-primary" (onclick)="searchBooks()">Search</button>
+    <button class="btn btn-primary" (click)="searchBooks()">Search</button>
+    <button class="btn btn-secondary" (click)="exportToTab()">Export To File</button>
   </form>
 
   <div>
