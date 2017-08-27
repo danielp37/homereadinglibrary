@@ -1,7 +1,9 @@
+import { AddClassComponent } from './../add-class/add-class.component';
 import { Component, OnInit } from '@angular/core';
 import { BaggyBookService } from '../../services/baggy-book.service';
 import { Class } from '../../entities/class';
 import { Student } from '../../entities/student';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-class-lists',
@@ -14,7 +16,8 @@ export class ClassListsComponent implements OnInit {
   selectedClassId: string;
 
   constructor(
-    private baggyBookService: BaggyBookService
+    private baggyBookService: BaggyBookService,
+    private modalService: NgbModal
   ) { }
 
   displayClassListForCurrentTeacher(classId: string) {
@@ -38,4 +41,11 @@ export class ClassListsComponent implements OnInit {
     this.selectedClassId = '';
   }
 
+  addNewClass(content) {
+    this.modalService.open(content).result.then((result) => {
+
+    }, (reason) => {
+
+    });
+  }
 }

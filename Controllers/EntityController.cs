@@ -12,18 +12,19 @@ namespace aspnetcore_spa.Controllers
     [Route("api/[controller]")]
     public abstract class EntityController<T> : Controller
     {
+        protected readonly IMongoDatabase mongoDatabase;
         protected string _collectionName;
         public EntityController(string collectionName)
         {
             _collectionName = collectionName;
+            mongoDatabase = MongoConfig.Database;
         }
 
         [HttpPost]
         public async Task<IActionResult> Post([FromBody]T entity)
         {
-            IMongoDatabase db = MongoConfig.Database;
 
-            var entityCollection = db.GetCollection<T>(_collectionName);
+            var entityCollection = mongoDatabase.GetCollection<T>(_collectionName);
             try 
             {
                 var auditFields = entity as IAuditFields;

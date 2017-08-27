@@ -15,8 +15,10 @@ namespace aspnetcore_spa.Controllers
 {
     public class BooksController : EntityController<Book>
     {
+        private readonly IMongoCollection<Book> bookCollection;
         public BooksController() : base("books")
         {
+            bookCollection = mongoDatabase.GetCollection<Book>(_collectionName);
         }
 
         [HttpGet]
@@ -26,12 +28,10 @@ namespace aspnetcore_spa.Controllers
             if(offset < 0) offset = 0;
             if(pageSize < 1) pageSize = 1;
 
-            IMongoDatabase db = MongoConfig.Database;
             var filter = BuildFilter(title, author, boxNumber);
-            var entityCollection = db.GetCollection<Book>(_collectionName);
 
-            var entityCount = await entityCollection.Find(filter).CountAsync();
-            var entities = await entityCollection.Find(filter)
+            var entityCount = await bookCollection.Find(filter).CountAsync();
+            var entities = await bookCollection.Find(filter)
                 .SortByDescending(b => b.CreatedDate)
                 .Skip(offset)
                 .Limit(pageSize)
@@ -47,10 +47,8 @@ namespace aspnetcore_spa.Controllers
         [HttpGet("ExportToTab")]
         public async Task<IActionResult> ExportToTab([FromQuery]string title = null, [FromQuery]string author = null, [FromQuery]string boxNumber = null)
         {
-            IMongoDatabase db = MongoConfig.Database;
             var filter = BuildFilter(title, author, boxNumber);
-            var entityCollection = db.GetCollection<Book>(_collectionName);
-            var entities = await entityCollection.Find(filter)
+            var entities = await bookCollection.Find(filter)
                 .SortByDescending(b => b.CreatedDate)
                 .ToListAsync();
 
@@ -98,10 +96,6 @@ namespace aspnetcore_spa.Controllers
         [HttpGet("{bookId}")]
         public IActionResult Get(string bookId)
         {
-            IMongoDatabase db = MongoConfig.Database;
-
-            var bookCollection = db.GetCollection<Book>(_collectionName);
-
             var editedBook = bookCollection.AsQueryable()
                             .Where(b => b.Id == bookId)
                             .SingleOrDefault();
@@ -112,9 +106,6 @@ namespace aspnetcore_spa.Controllers
         [HttpPut("{bookId}")]
         public async Task<IActionResult> UpdateBook(string bookId, [FromBody]Book book) 
         {
-            IMongoDatabase db = MongoConfig.Database;
-
-            var bookCollection = db.GetCollection<Book>(_collectionName);
             var filter = Builders<Book>.Filter.Eq(b => b.Id, bookId);
             var update = Builders<Book>.Update
                 .Set(b => b.BoxNumber, book.BoxNumber)
@@ -139,9 +130,6 @@ namespace aspnetcore_spa.Controllers
         [HttpPost("{bookId}/bookcopy")]
         public async Task<IActionResult> AddBookCopy(string bookId, [FromBody]BarCodeBody body)
         {
-            IMongoDatabase db = MongoConfig.Database;
-
-            var bookCollection = db.GetCollection<Book>("books");
             var filter = Builders<Book>.Filter.Eq(b => b.Id, bookId);
             var update = Builders<Book>.Update.AddToSet(b => b.BookCopies, new BookCopy{ BarCode = body.BarCode})
                             .CurrentDate(b => b.ModifiedDate);
@@ -163,9 +151,6 @@ namespace aspnetcore_spa.Controllers
         [HttpDelete("{bookId}/bookcopy/{barCode}")]
         public async Task<IActionResult> RemoveBookCopy(string bookId, string barCode)
         {
-            IMongoDatabase db = MongoConfig.Database;
-
-            var bookCollection = db.GetCollection<Book>("books");
             var filter = Builders<Book>.Filter.Eq(b => b.Id, bookId);
             var update = Builders<Book>.Update.PullFilter(b => b.BookCopies, bc => bc.BarCode == barCode)
                                 .CurrentDate(b => b.ModifiedDate);
@@ -185,9 +170,6 @@ namespace aspnetcore_spa.Controllers
         [HttpGet("isbn/{isbn}")]
         public async Task<IActionResult> GetBookByIsbn(string isbn)
         {
-            IMongoDatabase db = MongoConfig.Database;
-
-            var bookCollection = db.GetCollection<Book>("books");
             var filter = Builders<Book>.Filter.Eq(b => b.Isbn, isbn);
             var book = await (await bookCollection.FindAsync(filter)).SingleOrDefaultAsync();
 

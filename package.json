@@ -21,6 +21,7 @@
     "@angular/platform-browser-dynamic": "4.1.2",
     "@angular/platform-server": "4.1.2",
     "@angular/router": "4.1.2",
+    "@ng-bootstrap/ng-bootstrap": "^1.0.0-beta.2",
     "@types/node": "7.0.18",
     "angular-2-data-table": "0.1.2",
     "angular-in-memory-web-api": "^0.3.2",

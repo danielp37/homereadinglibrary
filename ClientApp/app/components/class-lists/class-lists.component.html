@@ -1,4 +1,19 @@
 <div class="container">
+  <ng-template #addNewClassContent let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title">Add New Class</h4>
+        <button type="button" class="close" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+      <app-add-class></app-add-class>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline-dark">Close</button>
+    </div>
+  </ng-template>
+
   <div *ngIf="classes" class="form-group">
     <label for="formClass">Teacher:</label>
     <select class="form-control" id="formClass" 
@@ -6,6 +21,7 @@
       <option value="">(Select a teacher)</option>
       <option *ngFor="let cls of (classes | sortClass)" [value]="cls.classId">{{cls.teacherName}} Grade: {{cls.grade}}</option>
     </select>
+    <button type="button" class="btn btn-primary" (click)="addNewClass(addNewClassContent)">Add New Class</button>
   </div>
 
   <div *ngIf="selectedClassId">

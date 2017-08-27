@@ -1,3 +1,4 @@
+import { AddClassComponent } from './components/add-class/add-class.component';
 import { BookCopyReservationsComponent } from './components/book-copy-reservations/book-copy-reservations.component';
 import { CheckOutBookComponent } from './components/check-out-book/check-out-book.component';
 import { BookLookupService } from './services/book-lookup.service';
@@ -18,6 +19,7 @@ import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { InMemoryWebApiModule } from 'angular-in-memory-web-api';
 import { DataTableModule } from 'angular-2-data-table';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { AppComponent } from './components/app/app.component'
 import { NavMenuComponent } from './components/navmenu/navmenu.component';
@@ -25,6 +27,9 @@ import { HomeComponent } from './components/home/home.component';
 
 export const sharedConfig: NgModule = {
     bootstrap: [ AppComponent ],
+    entryComponents: [
+
+    ],
     declarations: [
         AppComponent,
         NavMenuComponent,
@@ -37,7 +42,8 @@ export const sharedConfig: NgModule = {
         ClassListsComponent,
         SortClassPipe,
         CheckOutBookComponent,
-        BookCopyReservationsComponent
+        BookCopyReservationsComponent,
+        AddClassComponent
     ],
     imports: [
         AppRoutingModule,
@@ -46,7 +52,8 @@ export const sharedConfig: NgModule = {
         ReactiveFormsModule,
         HttpModule,
         InMemoryWebApiModule.forRoot(InMemoryDataService, {passThruUnknownUrl: true}),
-        DataTableModule
+        DataTableModule,
+        NgbModule.forRoot()
     ],
     providers: [BaggyBookService, BookLookupService ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA]
