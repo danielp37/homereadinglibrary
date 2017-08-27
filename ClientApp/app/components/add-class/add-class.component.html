@@ -1,11 +1,13 @@
 
-
-<label for="teacherName">Teacher Last Name</label>
-<input class="form-control" id="teacherName">
-<label for="grade">Grade</label>
-<select id="grade" class="form-control">
-  <option>0</option>
-  <option>1</option>
-  <option>2</option>
-</select>
-
+<form #f="ngForm" (ngSubmit)="addNewClass(f)" novalidate>
+  <label for="teacherName">Teacher Last Name</label>
+  <input class="form-control" id="teacherName" name="teacherName" ngModel required #teacherName="ngModel">
+  <label for="grade">Grade</label>
+  <select id="grade" name="grade" class="form-control" #grade="ngModel" ngModel required>
+    <option>0</option>
+    <option>1</option>
+    <option>2</option>
+  </select>
+  <button type="submit" class="btn btn-primary">Add Class</button>
+  <div>{{status}}</div>
+</form>

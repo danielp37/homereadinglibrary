@@ -41,13 +41,21 @@ export class BaggyBookService {
       .catch(this.handleError);
   }
 
-  getClasses(schoolYear: number): Promise<Class[]> {
+  getClasses(): Promise<Class[]> {
     return this.http
-      .get(`${this.originUrl}${this.classesUrl}?schoolYear=${schoolYear}`)
+      .get(`${this.originUrl}${this.classesUrl}`)
       .toPromise()
       .then(response => response.json().data as Class[])
       .catch(this.handleError);
 
+  }
+
+  addClass(teacherName: string, grade: number): Promise<Class> {
+    return this.http
+      .post(`${this.originUrl}${this.classesUrl}`, JSON.stringify({teacherName: teacherName, grade: grade}), {headers: this.headers})
+      .toPromise()
+      .then(res => res.json().data as Class)
+      .catch(this.handleError);
   }
 
   getStudents(classId: string): Promise<Student[]> {

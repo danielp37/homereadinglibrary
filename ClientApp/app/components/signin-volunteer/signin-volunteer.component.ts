@@ -28,7 +28,7 @@ export class SigninVolunteerComponent implements OnInit {
   }
 
   ngOnInit() {
-    const c = this.baggyBookService.getClasses(2018);
+    const c = this.baggyBookService.getClasses();
     const v = this.baggyBookService.getVolunteers();
     Promise.all([c, v]).then(values => {
       const classes = values[0] as Class[];

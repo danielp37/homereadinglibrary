@@ -1,9 +1,9 @@
 import { AddClassComponent } from './../add-class/add-class.component';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, TemplateRef } from '@angular/core';
 import { BaggyBookService } from '../../services/baggy-book.service';
 import { Class } from '../../entities/class';
 import { Student } from '../../entities/student';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 
 @Component({
   selector: 'app-class-lists',
@@ -14,10 +14,11 @@ export class ClassListsComponent implements OnInit {
   classes: Class[];
   currentClassList: Student[];
   selectedClassId: string;
+  public modalRef: BsModalRef;
 
   constructor(
     private baggyBookService: BaggyBookService,
-    private modalService: NgbModal
+    private modalService: BsModalService
   ) { }
 
   displayClassListForCurrentTeacher(classId: string) {
@@ -36,16 +37,17 @@ export class ClassListsComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.baggyBookService.getClasses(2018)
+    this.baggyBookService.getClasses()
       .then(classes => this.classes = classes);
     this.selectedClassId = '';
   }
 
-  addNewClass(content) {
-    this.modalService.open(content).result.then((result) => {
+  addNewClass(content: TemplateRef<any>) {
+    this.modalRef =  this.modalService.show(content);
+  }
 
-    }, (reason) => {
-
-    });
+  onClassAdded(newClass: Class) {
+    this.baggyBookService.getClasses()
+      .then(classes => this.classes = classes);
   }
 }

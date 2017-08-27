@@ -47,7 +47,7 @@ export class SignupVolunteerComponent implements OnInit {
        }
 
   ngOnInit() {
-    this.baggyBookService.getClasses(2018)
+    this.baggyBookService.getClasses()
       .then(classes => this.classes = classes);
   }
 

@@ -1,16 +1,17 @@
 <div class="container">
-  <ng-template #addNewClassContent let-c="close" let-d="dismiss">
+  <ng-template #addNewClassContent>
     <div class="modal-header">
-        <h4 class="modal-title">Add New Class</h4>
-        <button type="button" class="close" aria-label="Close">
+        <h4 class="modal-title pull-left">Add New Class</h4>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
             <span aria-hidden="true">&times;</span>
         </button>
     </div>
+
     <div class="modal-body">
-      <app-add-class></app-add-class>
+      <app-add-class (onClassAdded)="onClassAdded($event)"></app-add-class>
     </div>
     <div class="modal-footer">
-        <button type="button" class="btn btn-outline-dark">Close</button>
+        <button type="button" class="btn btn-outline-dark" (click)="modalRef.hide()">Close</button>
     </div>
   </ng-template>
 

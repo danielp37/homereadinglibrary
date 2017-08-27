@@ -1,3 +1,4 @@
+import { ModalModule } from 'ngx-bootstrap/modal';
 import { AddClassComponent } from './components/add-class/add-class.component';
 import { BookCopyReservationsComponent } from './components/book-copy-reservations/book-copy-reservations.component';
 import { CheckOutBookComponent } from './components/check-out-book/check-out-book.component';
@@ -19,7 +20,6 @@ import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { InMemoryWebApiModule } from 'angular-in-memory-web-api';
 import { DataTableModule } from 'angular-2-data-table';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { AppComponent } from './components/app/app.component'
 import { NavMenuComponent } from './components/navmenu/navmenu.component';
@@ -53,7 +53,7 @@ export const sharedConfig: NgModule = {
         HttpModule,
         InMemoryWebApiModule.forRoot(InMemoryDataService, {passThruUnknownUrl: true}),
         DataTableModule,
-        NgbModule.forRoot()
+        ModalModule.forRoot()
     ],
     providers: [BaggyBookService, BookLookupService ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA]
