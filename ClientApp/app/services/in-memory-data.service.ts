@@ -50,7 +50,7 @@ export class InMemoryDataService implements InMemoryDbService {
 
         return {
             volunteers : volunteers,
-            classes : classes,
+            // classes : classes,
             students : students,
             // books : books,
             bookcopyreservations : bookCopyReservations

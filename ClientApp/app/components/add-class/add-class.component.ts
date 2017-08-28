@@ -1,7 +1,7 @@
 import { Class } from './../../entities/class';
 import { NgForm } from '@angular/forms';
 import { BaggyBookService } from './../../services/baggy-book.service';
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, Renderer2 } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
@@ -12,8 +12,11 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 export class AddClassComponent implements OnInit {
   @Output()onClassAdded = new EventEmitter<Class>();
   status: string;
+  errorStatus: string;
 
-  constructor(private baggyBookService: BaggyBookService) { }
+  constructor(
+    private baggyBookService: BaggyBookService,
+    private renderer: Renderer2) { }
 
   ngOnInit() {
   }
@@ -25,6 +28,18 @@ export class AddClassComponent implements OnInit {
         f.resetForm();
         this.status = `Class ${cls.teacherName} successfully added!`
         setTimeout(() => this.status = '', 2000);
+        this.focusTeacherName();
+      })
+      .catch(error => {
+        this.errorStatus = `Error: ${error}`;
+        setTimeout(() => this.errorStatus = '', 10000);
       });
+  }
+
+  focusTeacherName() {
+    setTimeout(() => {
+      const element = this.renderer.selectRootElement('#teacherName');
+      element.focus();
+    }, 300);
   }
 }
