@@ -12,7 +12,7 @@ import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 })
 export class ClassListsComponent implements OnInit {
   classes: Class[];
-  currentClassList: Student[];
+  currentClass: Class;
   selectedClassId: string;
   public modalRef: BsModalRef;
 
@@ -23,17 +23,13 @@ export class ClassListsComponent implements OnInit {
 
   displayClassListForCurrentTeacher(classId: string) {
     this.selectedClassId = classId;
-    this.currentClassList = undefined;
-    this.updateCurrentClassList();
+    this.currentClass = this.classes.find(cls => cls.classId === classId);
   }
 
-  updateCurrentClassList() {
-    this.baggyBookService.getStudents(this.selectedClassId)
-      .then(students => this.currentClassList = students);
-  }
-
-  onNewStudent(newStudent: Student) {
-    this.updateCurrentClassList();
+  onNewStudent(updatedClass: Class) {
+    const classIdx = this.classes.findIndex(cls => cls.classId === updatedClass.classId);
+    this.classes[classIdx] = updatedClass;
+    this.displayClassListForCurrentTeacher(updatedClass.classId);
   }
 
   ngOnInit() {

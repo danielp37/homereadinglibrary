@@ -1,3 +1,4 @@
+import { Class } from './../../entities/class';
 import {BaggyBookService} from '../../services/baggy-book.service';
 import { Component, OnInit, Input, EventEmitter, Output, ViewChild, Renderer2 } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -12,7 +13,7 @@ export class AddStudentComponent implements OnInit {
     addStudentForm: FormGroup;
 
   @Input()classId: string;
-  @Output()onSaved = new EventEmitter<Student>();
+  @Output()onSaved = new EventEmitter<Class>();
 
   constructor(
     private fb: FormBuilder,
@@ -21,8 +22,7 @@ export class AddStudentComponent implements OnInit {
     ) {
         this.addStudentForm = this.fb.group({
           firstName : ['', Validators.required],
-          lastName : ['', Validators.required],
-          readingLevel : ['A', Validators.required]
+          lastName : ['', Validators.required]
         });
      }
 
@@ -38,11 +38,11 @@ export class AddStudentComponent implements OnInit {
 
   onSubmit() {
     const newStudent = this.prepareNewStudent();
-    this.baggyBookService.addStudent(newStudent)
-      .then(ns => {
-        this.addStudentForm.reset({readingLevel: 'A'});
+    this.baggyBookService.addStudent(this.classId, newStudent)
+      .then(cls => {
+        this.addStudentForm.reset();
         this.focusFirstName();
-        this.onSaved.emit(ns);
+        this.onSaved.emit(cls);
       });
   }
 
@@ -50,11 +50,8 @@ export class AddStudentComponent implements OnInit {
     const formModel = this.addStudentForm.value;
 
     const newStudent: Student = {
-      studentId : null,
       firstName : formModel.firstName,
       lastName : formModel.lastName,
-      readingLevel : formModel.readingLevel,
-      classId : this.classId
     };
 
     return newStudent;

@@ -60,17 +60,17 @@ export class BaggyBookService {
 
   getStudents(classId: string): Promise<Student[]> {
     return this.http
-      .get(`${this.originUrl}${this.studentsUrl}?classId=${classId}`)
+      .get(`${this.originUrl}${this.classesUrl}/${classId}/students`)
       .toPromise()
       .then(response => response.json().data as Student[])
       .catch(this.handleError);
   }
 
-  addStudent(newStudent: Student): Promise<Student> {
+  addStudent(classId: string, newStudent: Student): Promise<Class> {
     return this.http
-      .post(`${this.originUrl}${this.studentsUrl}`, JSON.stringify(newStudent), {headers: this.headers})
+      .post(`${this.originUrl}${this.classesUrl}/${classId}/students`, JSON.stringify(newStudent), {headers: this.headers})
       .toPromise()
-      .then(res => res.json().data as Student)
+      .then(res => Class.fromObject(res.json().data))
       .catch(this.handleError);
   }
 

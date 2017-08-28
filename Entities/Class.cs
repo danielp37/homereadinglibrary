@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.IdGenerators;
 
@@ -12,5 +13,6 @@ namespace aspnetcore_spa.Entities
         public byte Grade { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime ModifiedDate { get; set; }
+        public List<Student> Students { get; set; } = new List<Student>();
     }
 }

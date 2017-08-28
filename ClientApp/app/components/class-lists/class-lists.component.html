@@ -26,15 +26,15 @@
   </div>
 
   <div *ngIf="selectedClassId">
-    <div *ngIf="!currentClassList">
+    <div *ngIf="!currentClass">
       Loading...
     </div>
-    <div *ngIf="currentClassList">
+    <div *ngIf="currentClass">
       <app-add-student [classId]="selectedClassId" (onSaved)="onNewStudent($event)"></app-add-student>
 
       <data-table id="students-grid" headerTitle="Students"
-        [items]="currentClassList"
-        [itemCount]="currentClassList.length"
+        [items]="currentClass.students"
+        [itemCount]="currentClass.students.length"
         >
         <data-table-column
           [property]="'firstName'"
@@ -47,8 +47,8 @@
           [resizable]="true">
         </data-table-column>
         <data-table-column
-          [property]="'readingLevel'"
-          [header]="'Reading Level'"
+          [property]="'barCode'"
+          [header]="'Bar Code'"
           [resizable]="true">
         </data-table-column>
       </data-table>

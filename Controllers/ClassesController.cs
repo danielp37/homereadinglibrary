@@ -1,12 +1,18 @@
+using System;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using aspnetcore_spa.Entities;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
+using MongoDB.Driver.Linq;
 
 namespace aspnetcore_spa.Controllers
 {
     public class ClassesController : EntityController<Class>
     {
+        private const int BarCodeLength = 9;
+        private static readonly Random rand = new Random();
         private readonly IMongoCollection<Class> classCollection;
         public ClassesController() : base("classes")
         {
@@ -29,6 +35,66 @@ namespace aspnetcore_spa.Controllers
                 Count = entityCount,
                 Data = entities
             });
+        }
+
+        [HttpPost("{classId}/students")]
+        public async Task<IActionResult> AddStudentToClass(string classId, [FromBody]StudentBody body)
+        {
+            var filter = Builders<Class>.Filter.Eq(c => c.ClassId, classId);
+            var update = Builders<Class>.Update.AddToSet(c => c.Students, new Student
+                { 
+                    BarCode = await GenerateUniqueBarCode(),
+                    FirstName = body.FirstName,
+                    LastName = body.LastName,
+                    CreatedDate = DateTime.Now
+                })
+                .CurrentDate(c => c.ModifiedDate);
+            await classCollection.FindOneAndUpdateAsync(filter, update);
+            // The class returned by the above method is the version before the update
+            // so we must requery to get the new version.
+            var @class = classCollection.AsQueryable()
+                            .Where(c => c.ClassId == classId)
+                            .SingleOrDefault();
+
+            if(@class == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(new { Data = @class });
+        }
+
+        private async Task<string> GenerateUniqueBarCode()
+        {
+            var isMatch = false;
+            var barCode = string.Empty;
+            var attempts = 0;
+            do {
+                barCode = GetBarCode();
+                var filter = Builders<Class>.Filter.ElemMatch(cls => cls.Students, student => student.BarCode == barCode);
+                isMatch = await classCollection.Find(filter).AnyAsync();
+                attempts++;
+            } while (isMatch || attempts < 10);
+
+            if(attempts >= 10 && isMatch)
+            {
+                return "CouldNotFindBarCode";
+            }
+            return barCode;
+        }
+
+        private string GetBarCode()
+        {
+            lock(rand)
+            {
+                return DateTime.Today.Year.ToString() + string.Concat(Enumerable.Range(1, BarCodeLength).Select(i => rand.Next(9).ToString()));
+            }
+        }
+
+        public class StudentBody
+        {
+            public string FirstName { get; set; }
+            public string LastName { get; set; }
         }
     }
 }

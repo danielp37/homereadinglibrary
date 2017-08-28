@@ -1,8 +1,12 @@
 export class Student {
-    studentId: string;
-    classId: string;
     firstName: string;
     lastName: string;
-    readingLevel: string;
     barCode?: string;
+
+    public static fromObject(studentObj: any): Student {
+        const student = new Student();
+        Object.assign(student, studentObj);
+
+        return student;
+    }
 }
