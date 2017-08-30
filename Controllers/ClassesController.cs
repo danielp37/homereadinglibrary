@@ -64,6 +64,25 @@ namespace aspnetcore_spa.Controllers
             return Ok(new { Data = @class });
         }
 
+        [HttpGet("/api/students/{studentBarCode}")]
+        public async Task<IActionResult> GetStudentByBarCode(string studentBarCode)
+        {
+            var filter = Builders<Class>.Filter.ElemMatch(cls => cls.Students, student => student.BarCode == studentBarCode);
+            var studentInfo = await classCollection.Find(filter)
+                .Project(c => new {
+                    c.TeacherName,
+                    Student = c.Students.SingleOrDefault(s => s.BarCode == studentBarCode)
+                })
+                .FirstOrDefaultAsync();
+
+            if(studentInfo == null)
+            {
+                return NotFound($"Student with barcode {studentBarCode} not found");
+            }
+
+            return Ok(studentInfo);
+        }
+
         private async Task<string> GenerateUniqueBarCode()
         {
             var isMatch = false;

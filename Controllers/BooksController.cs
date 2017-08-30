@@ -181,6 +181,23 @@ namespace aspnetcore_spa.Controllers
             return Ok(new { Data = book });
         }
 
+        [HttpGet("bookcopies/{barCode}")]
+        public async Task<IActionResult> GetBookCopyByBarCode(string barCode)
+        {
+            var filter = Builders<Book>.Filter.ElemMatch(b => b.BookCopies, bc => bc.BarCode == barCode);
+            var bookCopy = await bookCollection.Find(filter)
+                                .Project(b => new {
+                                    b.Title,
+                                    b.Author,
+                                    BarCode = b.BookCopies.Single(bc => bc.BarCode == barCode).BarCode
+                                }).FirstOrDefaultAsync();
+            if(bookCopy == null)
+            {
+                return NotFound($"Could not find BookCopy with barCode {barCode}.");
+            }
+            return Ok(bookCopy);
+        }
+
         public class BarCodeBody
         {
             public string BarCode { get; set;}

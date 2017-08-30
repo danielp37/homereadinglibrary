@@ -1,3 +1,5 @@
+import { BookCopyWithBook } from './../entities/book-copy-with-book';
+import { StudentWithTeacher } from './../entities/student-with-teacher';
 import { BookSearchParameters } from './Book-Search-Parameters';
 import { BookList } from './../entities/book-list';
 import {DataTableParams} from 'angular-2-data-table';
@@ -74,11 +76,11 @@ export class BaggyBookService {
       .catch(this.handleError);
   }
 
-  getStudentByBarCode(barCode: string): Promise<Student> {
+  getStudentByBarCode(barCode: string): Promise<StudentWithTeacher> {
     return this.http
-      .get(`${this.originUrl}${this.studentsUrl}?barCode=${barCode}`)
+      .get(`${this.originUrl}${this.studentsUrl}/${barCode}`)
       .toPromise()
-      .then(res => res.json().data[0] as Student)
+      .then(res => res.json() as StudentWithTeacher)
       .catch(this.handleError);
   }
 
@@ -186,23 +188,18 @@ export class BaggyBookService {
       });
   }
 
-  getBookCopyByBarCode(barCode: string): Promise<BookCopy> {
+  getBookCopyByBarCode(barCode: string): Promise<BookCopyWithBook> {
     return this.http
-      .get(`${this.originUrl}${this.booksUrl}?barcode=${barCode}`)
+      .get(`${this.originUrl}${this.booksUrl}/bookcopies/${barCode}`)
       .toPromise()
-      .then(books => {
-        const bookCopy = undefined as BookCopy;
-        // books.forEach(book => {
-        //   bookCopy = book.getBookCopy(barCode);
-        // });
-
-        return bookCopy;
-      })
-
+      .then(book => book.json() as BookCopyWithBook);
   }
 
-  checkOutBookForStudent(bookCopyId: string, studentId: string): Promise<BookCopyReservation> {
-    const bookCopyReservation = new BookCopyReservation(bookCopyId, studentId, new Date(Date.now()));
+  checkOutBookForStudent(bookCopyBarCode: string, studentBarCode: string): Promise<BookCopyReservation> {
+    const bookCopyReservation: BookCopyReservation = {
+      bookCopyBarCode: bookCopyBarCode,
+      studentBarCode: studentBarCode
+    };
 
     return this.http
       .post(`${this.originUrl}${this.bookCheckOutUrl}`, JSON.stringify(bookCopyReservation), {headers: this.headers})

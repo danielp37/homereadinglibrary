@@ -1,8 +1,10 @@
+import { BookCopyWithBook } from './../../entities/book-copy-with-book';
+import { StudentWithTeacher } from './../../entities/student-with-teacher';
 import { Book } from './../../entities/book';
 import { Student } from './../../entities/student';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { BaggyBookService } from './../../services/baggy-book.service';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Renderer2 } from '@angular/core';
 
 @Component({
   selector: 'app-check-out-book',
@@ -12,18 +14,25 @@ import { Component, OnInit } from '@angular/core';
 export class CheckOutBookComponent implements OnInit {
 
   checkOutBookForm: FormGroup;
-  currentStudent: Student;
-  currentBook: Book;
+  currentStudent: StudentWithTeacher;
+  currentBook: BookCopyWithBook;
 
   resetForm() {
     this.checkOutBookForm.reset();
     this.currentBook = undefined;
     this.currentStudent = undefined;
+    this.setFocusOnStudentBarCode();
+  }
+
+  setFocusOnStudentBarCode() {
+    const studentBarCodeInput = this.renderer.selectRootElement('#formStudentBarCode');
+    studentBarCodeInput.focus();
   }
 
   constructor(
     private baggyBookService: BaggyBookService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private renderer: Renderer2
   ) { }
 
   ngOnInit() {
@@ -34,21 +43,29 @@ export class CheckOutBookComponent implements OnInit {
   }
 
   onStudentBarCodeEntered() {
-    const barCodeField = this.checkOutBookForm.get('studentBarCode');
-    this.baggyBookService.getStudentByBarCode(barCodeField.value)
+    const barCodeValue = this.checkOutBookForm.value.studentBarCode;
+    this.baggyBookService.getStudentByBarCode(barCodeValue)
       .then(student => this.currentStudent = student);
   }
 
   onBookCopyEntered() {
-    const bookCopyField = this.checkOutBookForm.get('bookCopyBarCode');
-    this.baggyBookService.getBookCopyByBarCode(bookCopyField.value)
+    const bookCopyValue = this.checkOutBookForm.value.bookCopyBarCode;
+    const barCodeValue = this.checkOutBookForm.value.studentBarCode;
+    this.baggyBookService.getBookCopyByBarCode(bookCopyValue)
       .then(bookCopy => {
-          this.baggyBookService.checkOutBookForStudent(bookCopy.barCode, this.currentStudent.barCode)
+          this.currentBook = bookCopy;
+          this.baggyBookService.checkOutBookForStudent(bookCopyValue, barCodeValue)
             .then(bookCopyReservation => {
-              setTimeout(() => this.resetForm(), 1000);
+              this.playSuccessSound();
+              setTimeout(() => this.resetForm(), 2000);
             });
       });
 
+  }
+
+  playSuccessSound() {
+    const notificationSuccess = this.renderer.selectRootElement('#notificationSuccess');
+    notificationSuccess.play();
   }
 
 
