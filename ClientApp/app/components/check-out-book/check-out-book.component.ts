@@ -16,6 +16,8 @@ export class CheckOutBookComponent implements OnInit {
   checkOutBookForm: FormGroup;
   currentStudent: StudentWithTeacher;
   currentBook: BookCopyWithBook;
+  studentError: string;
+  bookError: string;
 
   resetForm() {
     this.checkOutBookForm.reset();
@@ -27,6 +29,13 @@ export class CheckOutBookComponent implements OnInit {
   setFocusOnStudentBarCode() {
     const studentBarCodeInput = this.renderer.selectRootElement('#formStudentBarCode');
     studentBarCodeInput.focus();
+  }
+
+  setFocusOnBookBarCode() {
+    setTimeout(() => {
+        const bookBarCodeInput = this.renderer.selectRootElement('#formBookBarcode');
+        bookBarCodeInput.focus();
+      }, 200);
   }
 
   constructor(
@@ -43,12 +52,21 @@ export class CheckOutBookComponent implements OnInit {
   }
 
   onStudentBarCodeEntered() {
+    this.currentStudent = undefined;
     const barCodeValue = this.checkOutBookForm.value.studentBarCode;
     this.baggyBookService.getStudentByBarCode(barCodeValue)
-      .then(student => this.currentStudent = student);
+      .then(student => {
+        this.setFocusOnBookBarCode();
+        this.currentStudent = student;
+      })
+      .catch(error => {
+        this.playFailureSound();
+        this.setStudentError(error._body || error);
+      });
   }
 
   onBookCopyEntered() {
+    this.currentBook = undefined;
     const bookCopyValue = this.checkOutBookForm.value.bookCopyBarCode;
     const barCodeValue = this.checkOutBookForm.value.studentBarCode;
     this.baggyBookService.getBookCopyByBarCode(bookCopyValue)
@@ -58,7 +76,15 @@ export class CheckOutBookComponent implements OnInit {
             .then(bookCopyReservation => {
               this.playSuccessSound();
               setTimeout(() => this.resetForm(), 2000);
+            })
+            .catch(error => {
+              this.playFailureSound();
+              this.setBookError(error._body || error);
             });
+      })
+      .catch(error => {
+        this.playFailureSound();
+        this.setBookError(error._body || error);
       });
 
   }
@@ -68,5 +94,18 @@ export class CheckOutBookComponent implements OnInit {
     notificationSuccess.play();
   }
 
+  playFailureSound() {
+    const notificationFailure = this.renderer.selectRootElement('#notificationFailure');
+    notificationFailure.play();
+  }
 
+  setStudentError(status: string) {
+    this.studentError = status;
+    setTimeout(() => this.studentError = null, 2000);
+  }
+
+  setBookError(status: string) {
+    this.bookError = status;
+    setTimeout(() => this.bookError = null, 2000);
+  }
 }

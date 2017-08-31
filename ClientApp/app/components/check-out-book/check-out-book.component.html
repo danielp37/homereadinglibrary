@@ -7,10 +7,12 @@
       formControlName="studentBarCode" #studentBarCode
       (keyup.enter)="onStudentBarCodeEntered()">
 
-    <div class="form-group" *ngIf="currentStudent">
+    <div class="form-group bg-success" *ngIf="currentStudent">
       <p>Teacher: {{currentStudent.teacherName}}
       <p>Student Name: {{currentStudent.student.firstName}} {{currentStudent.student.lastName}}</p>
     </div>
+
+    <p class="bg-warning">{{studentError}}</p>
 
     <div class="form-group" *ngIf="currentStudent">
       <label for="formBookBarcode">Book Barcode:</label>
@@ -18,10 +20,12 @@
         (keyup.enter)="onBookCopyEntered()">
     </div>
 
-    <div class="form-group" *ngIf="currentBook">
+    <div class="form-group bg-success" *ngIf="currentBook">
       <p>Book Title: {{currentBook.title}}</p>
       <p>Book Author: {{currentBook.author}}</p>
     </div>
+
+    <p class="bg-warning">{{bookError}}</p>
 
     <audio style="display: none;" id="notificationSuccess" preload src="/media/success.wav"></audio>
     <audio style="display: none;" id="notificationFailure" preload src="/media/failure.wav"></audio>
