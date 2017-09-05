@@ -1,3 +1,4 @@
+import { UploadStudentsComponent } from './components/upload-students/upload-students.component';
 import { CheckInBookComponent } from './components/check-in-book/check-in-book.component';
 import { ModalModule } from 'ngx-bootstrap/modal';
 import { AddClassComponent } from './components/add-class/add-class.component';
@@ -45,7 +46,8 @@ export const sharedConfig: NgModule = {
         CheckOutBookComponent,
         BookCopyReservationsComponent,
         AddClassComponent,
-        CheckInBookComponent
+        CheckInBookComponent,
+        UploadStudentsComponent
     ],
     imports: [
         AppRoutingModule,

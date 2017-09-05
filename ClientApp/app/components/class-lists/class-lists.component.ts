@@ -21,15 +21,14 @@ export class ClassListsComponent implements OnInit {
     private modalService: BsModalService
   ) { }
 
-  displayClassListForCurrentTeacher(classId: string) {
-    this.selectedClassId = classId;
-    this.currentClass = this.classes.find(cls => cls.classId === classId);
+  displayClassListForCurrentTeacher() {
+    this.currentClass = this.classes.find(cls => cls.classId === this.selectedClassId);
   }
 
   onNewStudent(updatedClass: Class) {
     const classIdx = this.classes.findIndex(cls => cls.classId === updatedClass.classId);
     this.classes[classIdx] = updatedClass;
-    this.displayClassListForCurrentTeacher(updatedClass.classId);
+    this.displayClassListForCurrentTeacher();
   }
 
   ngOnInit() {
@@ -42,8 +41,15 @@ export class ClassListsComponent implements OnInit {
     this.modalRef =  this.modalService.show(content);
   }
 
+  addMultipleStudents(content: TemplateRef<any>) {
+    this.modalRef = this.modalService.show(content);
+  }
+
   onClassAdded(newClass: Class) {
     this.baggyBookService.getClasses()
-      .then(classes => this.classes = classes);
+      .then(classes => {
+        this.classes = classes;
+
+      });
   }
 }
