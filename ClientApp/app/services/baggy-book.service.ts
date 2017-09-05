@@ -207,6 +207,12 @@ export class BaggyBookService {
       .then(bcr => bcr.json().data as BookCopyReservation);
   }
 
+  checkInBookCopy(bookCopyBarCode: string): Promise<any> {
+    return this.http
+    .post(`${this.originUrl}${this.bookCheckOutUrl}/${bookCopyBarCode}`, JSON.stringify({}), {headers: this.headers})
+    .toPromise();
+  }
+
   getBookCopyReservations(): Promise<BookCopyReservation[]> {
     return this.http
       .get(`${this.originUrl}${this.bookCheckOutUrl}`)

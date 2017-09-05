@@ -62,6 +62,7 @@ export class CheckOutBookComponent implements OnInit {
       .catch(error => {
         this.playFailureSound();
         this.setStudentError(error._body || error);
+        setTimeout(() => this.resetForm(), 2000);
       });
   }
 
@@ -80,11 +81,13 @@ export class CheckOutBookComponent implements OnInit {
             .catch(error => {
               this.playFailureSound();
               this.setBookError(error._body || error);
+              setTimeout(() => this.resetForm(), 2000);
             });
       })
       .catch(error => {
         this.playFailureSound();
         this.setBookError(error._body || error);
+        setTimeout(() => this.resetForm(), 2000);
       });
 
   }

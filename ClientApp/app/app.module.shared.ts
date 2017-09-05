@@ -1,3 +1,4 @@
+import { CheckInBookComponent } from './components/check-in-book/check-in-book.component';
 import { ModalModule } from 'ngx-bootstrap/modal';
 import { AddClassComponent } from './components/add-class/add-class.component';
 import { BookCopyReservationsComponent } from './components/book-copy-reservations/book-copy-reservations.component';
@@ -43,7 +44,8 @@ export const sharedConfig: NgModule = {
         SortClassPipe,
         CheckOutBookComponent,
         BookCopyReservationsComponent,
-        AddClassComponent
+        AddClassComponent,
+        CheckInBookComponent
     ],
     imports: [
         AppRoutingModule,

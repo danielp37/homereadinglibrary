@@ -1,0 +1,21 @@
+<div class="container">
+  <h2>Checkin Books</h2>
+
+  <form [formGroup]="checkInBookForm">
+    <div class="form-group">
+      <label for="formBookBarcode">Book Barcode:</label>
+      <input type="text" id="formBookBarcode" class="form-control" formControlName="bookCopyBarCode"
+        (keyup.enter)="onBookCopyEntered()">
+    </div>
+
+    <div class="form-group bg-success" *ngIf="currentBook">
+      <p>Book Title: {{currentBook.title}}</p>
+      <p>Book Author: {{currentBook.author}}</p>
+    </div>
+
+    <p class="bg-warning">{{bookError}}</p>
+
+    <audio style="display: none;" id="notificationSuccess" preload src="/media/success.wav"></audio>
+    <audio style="display: none;" id="notificationFailure" preload src="/media/failure.wav"></audio>
+  </form>
+</div>
