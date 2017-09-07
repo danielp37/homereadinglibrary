@@ -10,10 +10,10 @@ namespace aspnetcore_spa.Entities
     {
         [BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
         public string Id {get; set;}
-        public string Title {get; set;}
-        public string Author {get; set;}
-        public string PublisherText {get; set;}
-        public string GuidedReadingLevel {get; set;}
+            public string Title {get; set;}
+            public string Author {get; set;}
+            public string PublisherText {get; set;}
+            public string GuidedReadingLevel {get; set;}
         public string Isbn {get; set;}
         public string BoxNumber {get; set;}
         public DateTime CreatedDate {get;set;}

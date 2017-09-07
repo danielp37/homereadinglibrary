@@ -6,25 +6,54 @@
         [itemCount]="bookCopyReservations.length"
         >
         <data-table-column
-          [property]="'bookCopyId'"
-          [header]="'Book Copy Id'"
+          [property]="'bookCopy.bookCopyBarCode'"
+          [header]="'Book Copy Bar Code'"
           [resizable]="true">
-        </data-table-column>
-        <data-table-column
-          [property]="'studentId'"
-          [header]="'Student Id'"
-          [resizable]="true">
+          <ng-template #dataTableCell let-item="item">
+            {{item.bookCopy.bookCopyBarCode}}
+          </ng-template>
         </data-table-column>
         <data-table-column
           [property]="'checkedOutDate'"
           [header]="'Checked Out'"
           [resizable]="true">
+          <ng-template #dataTableCell let-item="item">
+              {{item.checkedOutDate | date:'MM-dd-yyyy'}}
+          </ng-template>
         </data-table-column>
         <data-table-column
-          [property]="'checkedInDate'"
-          [header]="'Checked In'"
+          [property]="'bookCopy.title'"
+          [header]="'Book Title'"
           [resizable]="true">
+          <ng-template #dataTableCell let-item="item">
+              {{item.bookCopy.title}}
+          </ng-template>
         </data-table-column>
-      </data-table>
-    </div>
+        <data-table-column
+          [property]="'bookCopy.author'"
+          [header]="'Book Author'"
+          [resizable]="true">
+          <ng-template #dataTableCell let-item="item">
+              {{item.bookCopy.author}}
+          </ng-template>
+        </data-table-column>
+        <data-table-column
+          [property]="'student.teacherName'"
+          [header]="'Teacher'"
+          [resizable]="true">
+          <ng-template #dataTableCell let-item="item">
+            {{item.student.teacherName}} Grade: {{item.student.grade}}
+          </ng-template>
+        </data-table-column>
+        <data-table-column
+          [property]="'student.lastName'"
+          [header]="'Student'"
+          [resizable]="true">
+          <ng-template #dataTableCell let-item="item">
+            {{item.student.firstName}} {{item.student.lastName}}<br>
+            {{item.student.studentBarCode}}
+          </ng-template>
+        </data-table-column>
+    </data-table>
+  </div>
 </div>

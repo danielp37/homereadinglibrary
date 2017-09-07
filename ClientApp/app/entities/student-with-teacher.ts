@@ -1,5 +1,9 @@
 import { Student } from './student';
 export interface StudentWithTeacher {
+    studentBarCode: string;
     teacherName: string;
-    student: Student;
+    grade: number;
+    firstName: string;
+    lastName: string;
+    teacherId: string;
 }

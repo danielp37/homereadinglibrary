@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using aspnetcore_spa.Entities;
 using aspnetcore_spa.Startup;
+using homereadinglibrary.Entities;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -17,6 +18,17 @@ namespace aspnetcore_spa.Controllers
         {
             mongoDatabase = MongoConfig.Database;
             reservationCollection = mongoDatabase.GetCollection<BookCopyReservation>("currentreservations");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetCheckedOutBookCopies()
+        {
+            var checkedOutBooksCollection = mongoDatabase.GetCollection<CheckedOutBook>("bookscheckedout");
+            var filter = Builders<CheckedOutBook>.Filter.Eq(bcr => bcr.CheckedInDate, null);
+
+            var checkedOutBooks = await checkedOutBooksCollection.Find(filter).ToListAsync();
+
+            return Ok(new { Data = checkedOutBooks });
         }
 
         [HttpPost]

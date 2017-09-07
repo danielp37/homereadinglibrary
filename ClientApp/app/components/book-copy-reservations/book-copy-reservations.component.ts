@@ -1,3 +1,4 @@
+import { BookCopyReservationWithData } from './../../entities/book-copy-reservation-with-data';
 import { BaggyBookService } from './../../services/baggy-book.service';
 import { BookCopyReservation } from './../../entities/book-copy-reservation';
 import { Component, OnInit } from '@angular/core';
@@ -9,7 +10,7 @@ import { Component, OnInit } from '@angular/core';
 })
 export class BookCopyReservationsComponent implements OnInit {
 
-  bookCopyReservations: BookCopyReservation[];
+  bookCopyReservations: BookCopyReservationWithData[];
 
   constructor(
     private baggyBookService: BaggyBookService
@@ -17,7 +18,9 @@ export class BookCopyReservationsComponent implements OnInit {
 
   ngOnInit() {
     this.baggyBookService.getBookCopyReservations()
-      .then(bcr => this.bookCopyReservations = bcr);
+      .then(bcr =>
+        this.bookCopyReservations = bcr
+      );
   }
 
 }

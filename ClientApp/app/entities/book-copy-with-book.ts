@@ -1,5 +1,8 @@
 export interface BookCopyWithBook {
+    bookCopyBarCode: string;
     title: string;
     author: string;
-    barCode: string;
+    guidedReadingLevel: string;
+    boxNumber: string;
+    bookId: string;
 }

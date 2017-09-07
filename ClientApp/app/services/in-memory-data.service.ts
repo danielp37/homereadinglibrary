@@ -53,7 +53,7 @@ export class InMemoryDataService implements InMemoryDbService {
             // classes : classes,
             // students : students,
             // books : books,
-            bookcopyreservations : bookCopyReservations
+            // bookcopyreservations : bookCopyReservations
         };
     }
 }

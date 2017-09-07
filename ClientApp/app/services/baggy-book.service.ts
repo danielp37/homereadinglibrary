@@ -1,3 +1,4 @@
+import { BookCopyReservationWithData } from './../entities/book-copy-reservation-with-data';
 import { BookCopyWithBook } from './../entities/book-copy-with-book';
 import { StudentWithTeacher } from './../entities/student-with-teacher';
 import { BookSearchParameters } from './Book-Search-Parameters';
@@ -209,15 +210,15 @@ export class BaggyBookService {
 
   checkInBookCopy(bookCopyBarCode: string): Promise<any> {
     return this.http
-    .post(`${this.originUrl}${this.bookCheckOutUrl}/${bookCopyBarCode}`, JSON.stringify({}), {headers: this.headers})
+    .post(`${this.originUrl}${this.bookCheckOutUrl}/checkin/${bookCopyBarCode}`, JSON.stringify({}), {headers: this.headers})
     .toPromise();
   }
 
-  getBookCopyReservations(): Promise<BookCopyReservation[]> {
+  getBookCopyReservations(): Promise<BookCopyReservationWithData[]> {
     return this.http
       .get(`${this.originUrl}${this.bookCheckOutUrl}`)
       .toPromise()
-      .then(bcr => bcr.json().data as BookCopyReservation[]);
+      .then(bcr => bcr.json().data as BookCopyReservationWithData[]);
   }
 
   private handleError(error: any): Promise<any> {
