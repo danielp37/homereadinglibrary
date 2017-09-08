@@ -5,3 +5,5 @@ db.currentreservations.createIndex({ "bookCopyBarCode": 1}, {"name" : "FIDX_Book
     "partialFilterExpression" : { "checkedInDate" : null }})
 db.currentreservations.createIndex({ "studentBarCode": 1}, {"name" : "IDX_BookCopyReservations_StudentBarCode",
     "partialFilterExpression" : { "checkedInDate" : null }})
+db.currentreservations.createIndex({ "checkedInDate": 1}, {"name" : "FIDX_BookCopyReservations_CheckedInDate_Null",
+    "partialFilterExpression" : { "checkedInDate" : null }})

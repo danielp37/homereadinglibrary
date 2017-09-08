@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using aspnetcore_spa.Startup;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.MongoDB;
 using Microsoft.AspNetCore.SpaServices.Webpack;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,7 +14,7 @@ using Microsoft.Extensions.Logging;
 
 namespace WebApplicationBasic
 {
-    public class Startup
+    public partial class Startup
     {
         public Startup(IHostingEnvironment env)
         {
@@ -30,6 +32,8 @@ namespace WebApplicationBasic
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            ConfigureAuth(services);
+
             // Add framework services.
             services.AddMvc();
         }
@@ -40,6 +44,7 @@ namespace WebApplicationBasic
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
+            ConfigureAuth(app);
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
