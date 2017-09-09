@@ -15,6 +15,7 @@ namespace aspnetcore_spa.Startup
         private static MongoClient _client = null;
         public static MongoClient Client => _client ?? (_client = CreateClient());
         public static IMongoDatabase Database => Client.GetDatabase(_database);
+        public static string ConnectionString => _connectionString;
 
         public static void Configure(IConfigurationRoot config)
         {
