@@ -1,7 +1,7 @@
 
 Microsoft Visual Studio Solution File, Format Version 15.00
 # Visual Studio 2017
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspnetcoreSpa", "AspnetcoreSpa.csproj", "{D7A8E68A-B5FC-4A23-BAEC-5FD30C7A16C4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspnetcoreSpa", "website\website.csproj", "{D7A8E68A-B5FC-4A23-BAEC-5FD30C7A16C4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspnetCore.Identity.MongoDb", "AspnetCore.Identity.MongoDb\AspnetCore.Identity.MongoDb.csproj", "{56CD90FF-18D0-4C1B-A1D2-D8E8F1FD6A21}"
 EndProject
