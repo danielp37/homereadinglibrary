@@ -28,29 +28,34 @@ export class SigninVolunteerComponent implements OnInit {
   }
 
   ngOnInit() {
-    const c = this.baggyBookService.getClasses();
-    const v = this.baggyBookService.getVolunteers();
-    Promise.all([c, v]).then(values => {
-      const classes = values[0] as Class[];
-      const volunteers = values[1] as Volunteer[];
-      classes.forEach(classObj => {
-          if (classObj.volunteers === undefined) {
-            classObj.volunteers = [];
-          }
-      });
+    // const c = this.baggyBookService.getClasses();
+    // const v = this.baggyBookService.getVolunteers();
+    // Promise.all([c, v]).then(values => {
+    //   const classes = values[0] as Class[];
+    //   const volunteers = values[1] as Volunteer[];
+    //   classes.forEach(classObj => {
+    //       if (classObj.volunteers === undefined) {
+    //         classObj.volunteers = [];
+    //       }
+    //   });
 
-      volunteers.forEach(volunteer => {
-        volunteer.volunteerForClass.forEach( v4c => {
-          const classObj = classes.find(cls => cls.classId === v4c.classId);
-          if (classObj !== undefined) {
-            classObj.volunteers.push(volunteer);
-          }
-        });
-      });
+    //   volunteers.forEach(volunteer => {
+    //     volunteer.volunteerForClass.forEach( v4c => {
+    //       const classObj = classes.find(cls => cls.classId === v4c.classId);
+    //       if (classObj !== undefined) {
+    //         classObj.volunteers.push(volunteer);
+    //       }
+    //     });
+    //   });
 
-      this.classes = classes;
-      this.volunteers = volunteers;
-    });
+    //   this.classes = classes;
+    //   this.volunteers = volunteers;
+    // });
+  }
+
+  loginClicked() {
+    this.baggyBookService.loginVolunteer('59b5b15f00225445af3c0633')
+      .catch(error => alert(error));
   }
 
 }

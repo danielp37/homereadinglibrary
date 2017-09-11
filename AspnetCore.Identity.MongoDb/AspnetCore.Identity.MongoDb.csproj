@@ -13,4 +13,8 @@
     <PackageReference Include="MongoDb.Driver" Version="2.4.4" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="5.1.4" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Stores\" />
+    <Folder Include="Validators\" />
+  </ItemGroup>
 </Project>

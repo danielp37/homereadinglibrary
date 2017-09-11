@@ -1,6 +1,6 @@
 ﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
     <AssetTargetFallback>$(AssetTargetFallback);portable-net45+win8+wp8+wpa81;</AssetTargetFallback>
     <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
     <IsPackable>false</IsPackable>
@@ -39,6 +39,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="AspnetCore.Identity.MongoDb\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AspnetCore.Identity.MongoDb\AspnetCore.Identity.MongoDb.csproj" />
   </ItemGroup>
   <Target Name="RunWebpack" AfterTargets="ComputeFilesToPublish">
     <!-- As part of publishing, ensure the JS resources are freshly built in production mode -->

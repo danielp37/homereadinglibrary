@@ -3,11 +3,11 @@ import { BookCopyWithBook } from './../entities/book-copy-with-book';
 import { StudentWithTeacher } from './../entities/student-with-teacher';
 import { BookSearchParameters } from './Book-Search-Parameters';
 import { BookList } from './../entities/book-list';
-import {DataTableParams} from 'angular-2-data-table';
+import { DataTableParams } from 'angular-2-data-table';
 import { BookCopyReservation } from './../entities/book-copy-reservation';
 import { Student } from './../entities/student';
 import { Injectable } from '@angular/core';
-import { Headers, Http } from '@angular/http';
+import { Headers, Http, Response } from '@angular/http';
 import { Component, Inject } from '@angular/core';
 import 'rxjs/add/operator/toPromise';
 
@@ -219,6 +219,13 @@ export class BaggyBookService {
       .get(`${this.originUrl}${this.bookCheckOutUrl}`)
       .toPromise()
       .then(bcr => bcr.json().data as BookCopyReservationWithData[]);
+  }
+
+  loginVolunteer(volunteerId: string): Promise<Response> {
+    return this.http
+      .post(`${this.originUrl}${this.volunteersUrl}/login`, JSON.stringify({ volunteerId: volunteerId}), {headers: this.headers})
+      .toPromise();
+
   }
 
   private handleError(error: any): Promise<any> {
