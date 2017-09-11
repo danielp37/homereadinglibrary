@@ -7,7 +7,7 @@
         {
             "taskName": "build",
             "args": [
-                "${workspaceRoot}/AspnetcoreSpa.csproj"
+                "${workspaceRoot}/website/website.csproj"
             ],
             "isBuildCommand": true,
             "problemMatcher": "$msCompile"
