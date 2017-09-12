@@ -1,10 +1,15 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AspnetCore.Identity.MongoDb.Entities;
 using aspnetcore_spa.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson;
 using MongoDB.Driver;
+using website.Entities;
 
 namespace aspnetcore_spa.Controllers
 {
@@ -26,6 +31,17 @@ namespace aspnetcore_spa.Controllers
     }
 
     [AllowAnonymous]
+    [HttpGet("byclass")]
+    public async Task<IActionResult> GetVolunteersByClass()
+    {
+      var collection = mongodb.GetCollection<ClassWithVolunteers>("volunteersByClass");
+
+      var classes = await (await collection.FindAsync(new BsonDocument())).ToListAsync();
+
+      return Ok(new { Data = classes });
+    }
+
+    [AllowAnonymous]
     [HttpPost]
     public async Task<IActionResult> Register([FromBody]RegisterVolunteerModel model)
     {
@@ -35,8 +51,13 @@ namespace aspnetcore_spa.Controllers
         {
           FirstName = model.FirstName,
           LastName = model.LastName,
-          UserName = model.Username,
-          Phone = model.Phone
+          UserName = model.Email,
+          Phone = model.Phone,
+          VolunteerForClasses = model.VolunteerForClasses.Select(v4c => new AspnetCore.Identity.MongoDb.Entities.VolunteerForClass
+          {
+            ClassId = v4c.ClassId,
+            DayOfWeek = v4c.DayOfWeek
+          }).ToList()
         };
         var result = await userManager.CreateAsync(newVolunteer);
 
@@ -95,8 +116,15 @@ namespace aspnetcore_spa.Controllers
     {
       public string FirstName { get; set; }
       public string LastName { get; set; }
-      public string Username { get; set; }
+      public string Email { get; set; }
       public string Phone { get; set; }
+      public List<RegisterVolunteerForClass> VolunteerForClasses { get; set; } = new List<RegisterVolunteerForClass>();
+    }
+
+    public class RegisterVolunteerForClass
+    {
+      public string ClassId { get; set; }
+      public DayOfWeek DayOfWeek { get; set; }
     }
 
     public class LoginVolunteerModel
@@ -104,5 +132,6 @@ namespace aspnetcore_spa.Controllers
       public string VolunteerId { get; set; }
       public string Password { get; set; }
     }
+
   }
 }

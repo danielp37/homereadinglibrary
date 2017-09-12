@@ -5,5 +5,5 @@ export class Volunteer {
     lastName: string;
     phone: string;
     email: string;
-    volunteerForClass: VolunteerForClass[] = new Array();
+    volunteerForClasses: VolunteerForClass[] = new Array();
 }

@@ -6,10 +6,10 @@
             <ul>
                 <li *ngFor="let volunteer of cls.volunteers">
                     {{volunteer.lastName}}, {{volunteer.firstName}} - {{getDayOfWeek(volunteer, cls)}}
+                    <button type="button" (click)="loginClicked(volunteer.volunteerId)">Login</button>
                 </li>
             </ul>
         </li>
     </ul>
 </div>
 
-<button type="button" (click)="loginClicked()">Login</button>

@@ -1,3 +1,4 @@
+import { ClassWithVolunteers } from './../entities/class-with-volunteers';
 import { BookCopyReservationWithData } from './../entities/book-copy-reservation-with-data';
 import { BookCopyWithBook } from './../entities/book-copy-with-book';
 import { StudentWithTeacher } from './../entities/student-with-teacher';
@@ -51,6 +52,14 @@ export class BaggyBookService {
       .then(response => response.json().data.map(Class.fromObject))
       .catch(this.handleError);
 
+  }
+
+  getClassesWithVolunteers(): Promise<ClassWithVolunteers[]> {
+    return this.http
+    .get(`${this.originUrl}${this.volunteersUrl}/byclass`)
+    .toPromise()
+    .then(response => response.json().data as ClassWithVolunteers[])
+    .catch(this.handleError);
   }
 
   addClass(teacherName: string, grade: number): Promise<Class> {

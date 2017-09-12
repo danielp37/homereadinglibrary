@@ -22,7 +22,7 @@ export class SignupVolunteerComponent implements OnInit {
 
   onSubmit(signupVolunteer: NgForm) {
     const volunteer = Object.assign({}, signupVolunteer.value) as Volunteer;
-    volunteer.volunteerForClass = this.volunteerForClasses;
+    volunteer.volunteerForClasses = this.volunteerForClasses;
     this.baggyBookService.createVolunteer(volunteer)
       .then(() => this.gotoVolunteerSignIn());
   }
