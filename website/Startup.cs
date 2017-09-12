@@ -51,7 +51,8 @@ namespace WebApplicationBasic
         app.UseDeveloperExceptionPage();
         app.UseWebpackDevMiddleware(new WebpackDevMiddlewareOptions
         {
-          HotModuleReplacement = true
+          //Not working right now
+          //HotModuleReplacement = true
         });
       }
       else
