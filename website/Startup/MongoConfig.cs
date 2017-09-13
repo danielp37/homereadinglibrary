@@ -9,7 +9,7 @@ namespace aspnetcore_spa.Startup
 {
     public static class MongoConfig
     {
-        static IConfigurationRoot _config {get; set;}
+        static IConfiguration _config {get; set;}
         private static string _connectionString {get; set;}
         private static string _database {get; set;}
         private static MongoClient _client = null;
@@ -17,7 +17,7 @@ namespace aspnetcore_spa.Startup
         public static IMongoDatabase Database => Client.GetDatabase(_database);
         public static string ConnectionString => _connectionString;
 
-        public static void Configure(IConfigurationRoot config)
+        public static void Configure(IConfiguration config)
         {
             _config = config;
             SetConventions();

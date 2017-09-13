@@ -148,7 +148,6 @@ namespace AspnetCore.Identity.MongoDb.Stores
       // GC.SuppressFinalize(this);
     }
 
-
     #endregion
   }
 }

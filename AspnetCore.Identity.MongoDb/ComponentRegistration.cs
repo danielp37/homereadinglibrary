@@ -1,80 +1,46 @@
 ﻿using System;
+using System.Text;
 using AspnetCore.Identity.MongoDb.Entities;
+using AspnetCore.Identity.MongoDb.JwtModels;
 using AspnetCore.Identity.MongoDb.Stores;
 using AspnetCore.Identity.MongoDb.Validators;
-using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
+using System.Threading.Tasks;
 
 namespace AspnetCore.Identity.MongoDb
 {
   public static class ComponentRegistration
   {
-    public static void ConfigureIdentity(this IServiceCollection services)
+    public static void ConfigureIdentity(this IServiceCollection services, IConfiguration configuration)
     {
-      services.AddIdentity<Volunteer, VolunteerRole>()
-        .AddDefaultTokenProviders();
-
       // Identity Services
       services.AddSingleton<IUserStore<Volunteer>>(provider =>
       {
         return new VolunteerStore(provider.GetService<IMongoDatabase>());
       });
-      services.AddSingleton<IUserPasswordStore<Volunteer>>(provider => 
+      services.AddSingleton<IUserPasswordStore<Volunteer>>(provider =>
       {
         return new VolunteerStore(provider.GetService<IMongoDatabase>());
       });
       services.AddTransient<IRoleStore<VolunteerRole>, VolunteerRoleStore>();
 
-      services.ConfigureExternalCookie(cookieOptions =>
+      ConfigureJwt(services, configuration);
+      services.AddAuthorization(options =>
       {
-        cookieOptions.LoginPath = new PathString("/api/volunteers/login");
-        cookieOptions.Cookie.HttpOnly = true;
-        cookieOptions.Cookie.Name = ".gchrlauth";
-        cookieOptions.LogoutPath = new PathString("/api/volunteers/logout");
-        cookieOptions.ExpireTimeSpan = TimeSpan.FromMinutes(30);
-        cookieOptions.SlidingExpiration = true;
+        options.AddPolicy("VolunteerUser", policy => policy.RequireClaim(Constants.Strings.JwtClaimIdentifiers.Rol,
+                                                                         Constants.Strings.JwtClaims.VolunteerAccess,
+                                                                         Constants.Strings.JwtClaims.AdminAccess));
+        options.AddPolicy("AdminUser", policy => policy.RequireClaim(Constants.Strings.JwtClaimIdentifiers.Rol,
+                                                                 Constants.Strings.JwtClaims.AdminAccess));
       });
-
-      services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-              .AddCookie(o =>
-      {
-        o.LoginPath = new PathString("/signin");
-        o.Cookie.HttpOnly = true;
-        o.Cookie.Name = ".gchrlauth";
-        o.LogoutPath = new PathString("/api/volunteers/logout");
-        o.ExpireTimeSpan = TimeSpan.FromMinutes(30);
-        o.SlidingExpiration = true;
-        o.Events = new CookieAuthenticationEvents
-        {
-          OnValidatePrincipal = SecurityStampValidator.ValidatePrincipalAsync
-        };
-      });
-
-      /*
-      services.AddAuthentication(options => 
-      {
-        options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
-        options.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
-        options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
-      })
-              .AddCookie(IdentityConstants.ApplicationScheme, (obj) => 
-      {
-        obj.LoginPath = new PathString("/api/volunteer/login");
-        obj.Events = new CookieAuthenticationEvents
-        {
-          OnValidatePrincipal = SecurityStampValidator.ValidatePrincipalAsync
-        };
-      })
-              .AddCookie(IdentityConstants.ExternalScheme, o =>
-      {
-        o.Cookie.Name = IdentityConstants.ExternalScheme;
-        o.ExpireTimeSpan = TimeSpan.FromMinutes(5);
-      });
-      */
 
       // Hosting doesn't add IHttpContextAccessor by default
       services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
@@ -84,8 +50,61 @@ namespace AspnetCore.Identity.MongoDb
       services.TryAddScoped<IPasswordHasher<Volunteer>, PasswordHasher>();
       services.TryAddScoped<UserManager<Volunteer>, AspNetUserManager<Volunteer>>();
       services.TryAddScoped<SignInManager<Volunteer>, SignInManager<Volunteer>>();
+      services.TryAddScoped<ILookupNormalizer, UpperInvariantLookupNormalizer>();
+      services.TryAddScoped<IdentityErrorDescriber>();
+      services.TryAddScoped<IUserClaimsPrincipalFactory<Volunteer>, UserClaimsPrincipalFactory<Volunteer, VolunteerRole>>();
+      services.TryAddScoped<RoleManager<VolunteerRole>, AspNetRoleManager<VolunteerRole>>();
 
+    }
 
+    private static void ConfigureJwt(IServiceCollection services, IConfiguration configuration)
+    {
+      // jwt wire up
+      // Get options from app settings
+      var jwtAppSettingOptions = configuration.GetSection(nameof(JwtIssuerOptions));
+      var secretKey = Environment.GetEnvironmentVariable("JWT_Key"); 
+      var signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secretKey));
+
+      services.AddTransient<IJwtFactory, JwtFactory>();
+
+      var tokenValidationParameters = new TokenValidationParameters
+      {
+        ValidateIssuer = true,
+        ValidIssuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)],
+
+        ValidateAudience = true,
+        ValidAudience = jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)],
+
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = signingKey,
+
+        RequireExpirationTime = false,
+        ValidateLifetime = false,
+        ClockSkew = TimeSpan.Zero
+      };
+
+      services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+              .AddJwtBearer(options =>
+              {
+                //options.Audience = jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)];
+                //options.Authority = jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)];
+                options.TokenValidationParameters = tokenValidationParameters;
+                options.Events = new JwtBearerEvents
+                {
+                  OnMessageReceived = (arg) =>
+                  {
+                    return Task.CompletedTask;
+                  }
+                };
+              });
+
+      // Configure JwtIssuerOptions
+      services.Configure<JwtIssuerOptions>(options =>
+      {
+        options.Issuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)];
+        options.Audience = jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)];
+        options.SigningCredentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);
+      });
     }
   }
 }

@@ -12,9 +12,11 @@
     <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="5.1.4" />
     <PackageReference Include="MongoDb.Driver" Version="2.4.4" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="5.1.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="2.0.0" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Stores\" />
     <Folder Include="Validators\" />
+    <Folder Include="JwtModels\" />
   </ItemGroup>
 </Project>

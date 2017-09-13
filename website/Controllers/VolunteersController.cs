@@ -1,12 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using AspnetCore.Identity.MongoDb.Entities;
+using AspnetCore.Identity.MongoDb.JwtModels;
 using aspnetcore_spa.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using website.Entities;
@@ -20,11 +23,17 @@ namespace aspnetcore_spa.Controllers
     private readonly IMongoDatabase mongodb;
     private readonly UserManager<Volunteer> userManager;
     readonly SignInManager<Volunteer> signInManager;
+    readonly IJwtFactory jwtFactory;
+    readonly JwtIssuerOptions jwtOptions;
 
     public VolunteersController(IMongoDatabase mongodb
                                , UserManager<Volunteer> userManager
-                               , SignInManager<Volunteer> signInManager)
+                               , SignInManager<Volunteer> signInManager
+                               , IJwtFactory jwtFactory
+                               , IOptions<JwtIssuerOptions> jwtOptions)
     {
+      this.jwtOptions = jwtOptions.Value;
+      this.jwtFactory = jwtFactory;
       this.signInManager = signInManager;
       this.userManager = userManager;
       this.mongodb = mongodb;
@@ -110,6 +119,50 @@ namespace aspnetcore_spa.Controllers
       }
 
       return BadRequest(ModelState);
+    }
+
+    [AllowAnonymous]
+    [HttpPost("jwtlogin")]
+    public async Task<IActionResult> LoginJwt([FromBody]LoginVolunteerModel model)
+    {
+      if (ModelState.IsValid)
+      {
+        var identity = await GetClaimsIdentity(model.VolunteerId, model.Password);
+        if (identity == null)
+        {
+          ModelState.AddModelError("login_failure", "Invalid username or password");
+          return BadRequest(ModelState);
+        }
+
+        var response = new
+        {
+          id = identity.Claims.Single(c => c.Type == "id").Value,
+          auth_token = await jwtFactory.GenerateEncodedToken(model.VolunteerId, identity),
+          expires_in = (int)jwtOptions.ValidFor.TotalSeconds
+        };
+
+        return Ok(response);
+      }
+
+      return BadRequest(ModelState);
+    }
+
+    private async Task<ClaimsIdentity> GetClaimsIdentity(string userId, string password)
+    {
+      if (!string.IsNullOrEmpty(userId))
+      {
+        // get the user to verifty
+        var userToVerify = await userManager.FindByIdAsync(userId);
+
+        if (string.IsNullOrWhiteSpace(userToVerify.PasswordHash) ||
+            await userManager.CheckPasswordAsync(userToVerify, password))
+        {
+          return jwtFactory.GenerateClaimsIdentity(userToVerify.UserName, userToVerify.Id);
+        }
+      }
+
+      // Credentials are invalid, or account doesn't exist
+      return null;
     }
 
     public class RegisterVolunteerModel

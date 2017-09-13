@@ -5,7 +5,6 @@ export class Class {
     teacherName: string;
     grade: number;
     students: Student[] = new Array();
-    volunteers: Volunteer[] = new Array();
 
     public static fromObject(classObj: any): Class {
         const cls = new Class();
