@@ -1,3 +1,5 @@
+import { AuthGuard } from './../app-auth/services/authguard.service';
+import { AuthModule } from './../app-auth/app-auth.module';
 import { CheckInBookComponent } from './../../components/check-in-book/check-in-book.component';
 import { BookCopyReservationsComponent } from './../../components/book-copy-reservations/book-copy-reservations.component';
 import { CheckOutBookComponent } from './../../components/check-out-book/check-out-book.component';
@@ -16,11 +18,11 @@ const routes: Routes = [
             { path: 'home', component: HomeComponent },
             { path: 'signup',  component: SignupVolunteerComponent },
             { path: 'signin',  component: SigninVolunteerComponent },
-            { path: 'classlists',  component: ClassListsComponent },
-            { path: 'booklist',  component: BookListComponent },
-            { path: 'checkout',  component: CheckOutBookComponent },
-            { path: 'checkin',  component: CheckInBookComponent },
-            { path: 'bookscheckedout', component: BookCopyReservationsComponent},
+            { path: 'classlists',  component: ClassListsComponent, canActivate: [AuthGuard] },
+            { path: 'booklist',  component: BookListComponent, canActivate: [AuthGuard] },
+            { path: 'checkout',  component: CheckOutBookComponent, canActivate: [AuthGuard] },
+            { path: 'checkin',  component: CheckInBookComponent, canActivate: [AuthGuard] },
+            { path: 'bookscheckedout', component: BookCopyReservationsComponent, canActivate: [AuthGuard]},
             { path: '**', redirectTo: 'home' }
         ];
 /*[
@@ -32,7 +34,10 @@ const routes: Routes = [
 ];*/
 
 @NgModule({
-  imports: [ RouterModule.forRoot(routes) ],
+  imports: [
+    RouterModule.forRoot(routes),
+    AuthModule
+   ],
   exports: [ RouterModule ]
 })
 export class AppRoutingModule {}

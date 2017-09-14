@@ -3,11 +3,12 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Principal;
 using System.Threading.Tasks;
+using AspnetCore.Identity.MongoDb.Entities;
 using Microsoft.Extensions.Options;
 
 namespace AspnetCore.Identity.MongoDb.JwtModels
 {
-public class JwtFactory : IJwtFactory
+  public class JwtFactory : IJwtFactory
   {
     private readonly JwtIssuerOptions _jwtOptions;
 
@@ -20,13 +21,15 @@ public class JwtFactory : IJwtFactory
     public async Task<string> GenerateEncodedToken(string userName, ClaimsIdentity identity)
     {
       var claims = new[]
-   {
-                 new Claim(JwtRegisteredClaimNames.Sub, userName),
-                 new Claim(JwtRegisteredClaimNames.Jti, await _jwtOptions.JtiGenerator()),
-                 new Claim(JwtRegisteredClaimNames.Iat, ToUnixEpochDate(_jwtOptions.IssuedAt).ToString(), ClaimValueTypes.Integer64),
-                 identity.FindFirst(Constants.Strings.JwtClaimIdentifiers.Rol),
-                 identity.FindFirst(Constants.Strings.JwtClaimIdentifiers.Id)
-             };
+      {
+        new Claim(JwtRegisteredClaimNames.Sub, userName),
+        new Claim(JwtRegisteredClaimNames.Jti, await _jwtOptions.JtiGenerator()),
+        new Claim(JwtRegisteredClaimNames.Iat, ToUnixEpochDate(_jwtOptions.IssuedAt).ToString(), ClaimValueTypes.Integer64),
+        identity.FindFirst(Constants.Strings.JwtClaimIdentifiers.Rol),
+        identity.FindFirst(Constants.Strings.JwtClaimIdentifiers.Id),
+        identity.FindFirst(JwtRegisteredClaimNames.GivenName),
+        identity.FindFirst(JwtRegisteredClaimNames.FamilyName)
+      };
 
       // Create the JWT security token and encode it.
       var jwt = new JwtSecurityToken(
@@ -42,13 +45,15 @@ public class JwtFactory : IJwtFactory
       return encodedJwt;
     }
 
-    public ClaimsIdentity GenerateClaimsIdentity(string userName, string id)
+    public ClaimsIdentity GenerateClaimsIdentity(string userName, string id, Volunteer volunteer)
     {
       return new ClaimsIdentity(new GenericIdentity(userName, "Token"), new[]
       {
-                new Claim(Constants.Strings.JwtClaimIdentifiers.Id, id),
-                new Claim(Constants.Strings.JwtClaimIdentifiers.Rol, Constants.Strings.JwtClaims.VolunteerAccess)
-            });
+        new Claim(Constants.Strings.JwtClaimIdentifiers.Id, id),
+        new Claim(Constants.Strings.JwtClaimIdentifiers.Rol, Constants.Strings.JwtClaims.VolunteerAccess),
+        new Claim(JwtRegisteredClaimNames.GivenName, volunteer.FirstName),
+        new Claim(JwtRegisteredClaimNames.FamilyName, volunteer.LastName)
+      });
     }
 
     /// <returns>Date converted to seconds since Unix epoch (Jan 1, 1970, midnight UTC).</returns>

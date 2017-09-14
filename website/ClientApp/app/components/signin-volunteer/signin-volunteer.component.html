@@ -1,15 +1,16 @@
 
-<div class="grid grid-pad">
-    <ul *ngIf="classes">
-        <li *ngFor="let cls of (classes | sortClass)">
-            {{cls.teacherName}} Grade: {{cls.grade}}
-            <ul>
-                <li *ngFor="let volunteer of cls.volunteers">
-                    {{volunteer.lastName}}, {{volunteer.firstName}} - {{getDayOfWeek(volunteer, cls)}}
-                    <button type="button" (click)="loginClicked(volunteer.volunteerId)">Login</button>
-                </li>
-            </ul>
-        </li>
-    </ul>
+<h2>Click on your name to login</h2>
+<div class="row" *ngIf="classes">
+
+    <div *ngFor="let cls of (classes | sortClass)" class="col-sm-6">
+        <div class="card">
+            <div class="card-block">
+                <h3 class="card-title">{{cls.teacherName}} Grade: {{cls.grade}}</h3>
+                <p *ngFor="let volunteer of cls.volunteers">
+                    <button type="button" class="btn btn-primary" (click)="loginClicked(volunteer.volunteerId)">{{volunteer.lastName}}, {{volunteer.firstName}}</button>
+                </p>
+            </div>
+        </div>
+    </div>
 </div>
 

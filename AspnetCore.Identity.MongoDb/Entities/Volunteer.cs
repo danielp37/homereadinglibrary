@@ -21,6 +21,7 @@ namespace AspnetCore.Identity.MongoDb.Entities
     public string LastName { get; set; }
     public string Phone { get; set; }
     public string PasswordHash { get; set; }
+    public bool IsAdmin { get; set; }
     public List<VolunteerForClass> VolunteerForClasses { get; set; } = new List<VolunteerForClass>();
   }
 }

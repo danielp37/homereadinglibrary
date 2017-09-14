@@ -157,7 +157,7 @@ namespace aspnetcore_spa.Controllers
         if (string.IsNullOrWhiteSpace(userToVerify.PasswordHash) ||
             await userManager.CheckPasswordAsync(userToVerify, password))
         {
-          return jwtFactory.GenerateClaimsIdentity(userToVerify.UserName, userToVerify.Id);
+          return jwtFactory.GenerateClaimsIdentity(userToVerify.UserName, userToVerify.Id, userToVerify);
         }
       }
 

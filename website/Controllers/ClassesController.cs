@@ -10,7 +10,7 @@ using MongoDB.Driver.Linq;
 
 namespace aspnetcore_spa.Controllers
 {
-  [Authorize(Policy = "AdminUser")]
+
   public class ClassesController : EntityController<Class>
   {
     private const int BarCodeLength = 9;
@@ -21,7 +21,7 @@ namespace aspnetcore_spa.Controllers
       classCollection = mongoDatabase.GetCollection<Class>(_collectionName);
     }
 
-    [Authorize(Policy = "VolunteerUser")]
+    [AllowAnonymous]
     [HttpGet]
     public async Task<IActionResult> Get()
     {
@@ -40,6 +40,7 @@ namespace aspnetcore_spa.Controllers
       });
     }
 
+    [Authorize(Policy = "AdminUser")]
     [HttpPost("{classId}/students")]
     public async Task<IActionResult> AddStudentToClass(string classId, [FromBody]StudentBody body)
     {
@@ -67,6 +68,7 @@ namespace aspnetcore_spa.Controllers
       return Ok(new { Data = @class });
     }
 
+    [Authorize(Policy = "VolunteerUser")]
     [HttpGet("/api/students/{studentBarCode}")]
     public async Task<IActionResult> GetStudentByBarCode(string studentBarCode)
     {

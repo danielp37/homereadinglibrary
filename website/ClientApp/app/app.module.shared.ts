@@ -1,3 +1,5 @@
+import { GlobalEventsManager } from './services/global-events-manager.service';
+import { AuthModule } from './modules/app-auth/app-auth.module';
 import { UploadStudentsComponent } from './components/upload-students/upload-students.component';
 import { CheckInBookComponent } from './components/check-in-book/check-in-book.component';
 import { ModalModule } from 'ngx-bootstrap/modal';
@@ -57,8 +59,9 @@ export const sharedConfig: NgModule = {
         HttpModule,
         InMemoryWebApiModule.forRoot(InMemoryDataService, {passThruUnknownUrl: true}),
         DataTableModule,
-        ModalModule.forRoot()
+        ModalModule.forRoot(),
+        AuthModule.forRoot()
     ],
-    providers: [BaggyBookService, BookLookupService ],
+    providers: [BaggyBookService, BookLookupService],
     schemas: [CUSTOM_ELEMENTS_SCHEMA]
 };

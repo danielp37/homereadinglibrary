@@ -1,3 +1,4 @@
+import { Router } from '@angular/router';
 import { ClassVolunteer } from './../../entities/class-volunteer';
 import { ClassWithVolunteers } from './../../entities/class-with-volunteers';
 import { Component, OnInit } from '@angular/core';
@@ -15,7 +16,8 @@ export class SigninVolunteerComponent implements OnInit {
   classes: ClassWithVolunteers[];
 
   constructor(
-    private baggyBookService: BaggyBookService
+    private baggyBookService: BaggyBookService,
+    private router: Router
   ) { }
 
   getDayOfWeek(volunteer: ClassVolunteer): string {
@@ -29,6 +31,7 @@ export class SigninVolunteerComponent implements OnInit {
 
   loginClicked(volunteerId: string) {
     this.baggyBookService.loginVolunteer(volunteerId)
+      .then(() => this.router.navigate(['/checkin']))
       .catch(error => alert(error));
   }
 

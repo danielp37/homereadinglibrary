@@ -7,7 +7,8 @@
                 <span class='icon-bar'></span>
                 <span class='icon-bar'></span>
             </button>
-            <a class='navbar-brand' [routerLink]="['/home']">Baggy Books</a>
+            <a class='navbar-brand' [routerLink]="['/home']">Grovecrest Home Reading Library</a>
+            <p class='navbar-text' *ngIf='authService.loggedInName'>Logged in as: {{authService.loggedInName}}</p>
         </div>
         <div class='clearfix'></div>
         <div class='navbar-collapse collapse'>
@@ -17,12 +18,12 @@
                         <span class='glyphicon glyphicon-home'></span> Home
                     </a>
                 </li>
-                <li [routerLinkActive]="['link-active']">
+                <li [routerLinkActive]="['link-active']" *ngIf="isAdmin">
                         <a [routerLink]="['/booklist']">
                             <span class='glyphicon glyphicon-book'></span> Book List
                         </a>
                 </li>
-                <li [routerLinkActive]="['link-active']">
+                <li [routerLinkActive]="['link-active']" *ngIf="isAdmin">
                         <a [routerLink]="['/classlists']">
                             <span class='glyphicon glyphicon-book'></span> Class Lists
                         </a>
@@ -37,22 +38,23 @@
                         <span class='glyphicon glyphicon-education'></span> Volunteer Signin
                     </a>
                 </li>
-                <li [routerLinkActive]="['link-active']">
+                <li [routerLinkActive]="['link-active']" *ngIf="isAdmin">
                     <a [routerLink]="['/bookscheckedout']">
                         <span class='glyphicon glyphicon-book'></span> Books Checked Out
                     </a>
                 </li>
-                <li [routerLinkActive]="['link-active']">
+                <li [routerLinkActive]="['link-active']" *ngIf="isAdmin || isVolunteer">
                     <a [routerLink]="['/checkout']">
                         <span class='glyphicon glyphicon-book'></span> Check Out
                     </a>
                 </li>
-                <li [routerLinkActive]="['link-active']">
+                <li [routerLinkActive]="['link-active']" *ngIf="isAdmin || isVolunteer">
                     <a [routerLink]="['/checkin']">
                         <span class='glyphicon glyphicon-book'></span> Check In
                     </a>
                 </li>
             </ul>
         </div>
+        <button type="button" class="btn btn-primary" (click)="logout()" *ngIf="loggedIn">Logout</button>
     </div>
 </div>

@@ -14,7 +14,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace aspnetcore_spa.Controllers
 {
-  [Authorize(Policy = "VolunteerUser")]
+  
   public class BooksController : EntityController<Book>
   {
     private readonly IMongoCollection<Book> bookCollection;
@@ -23,6 +23,7 @@ namespace aspnetcore_spa.Controllers
       bookCollection = mongoDatabase.GetCollection<Book>(_collectionName);
     }
 
+    [Authorize(Policy = "AdminUser")]
     [HttpGet]
     public async Task<IActionResult> Get([FromQuery]int offset = 0, [FromQuery]int pageSize = 10,
         [FromQuery]string title = null, [FromQuery]string author = null, [FromQuery]string boxNumber = null)
@@ -46,6 +47,7 @@ namespace aspnetcore_spa.Controllers
       });
     }
 
+    [Authorize(Policy = "AdminUser")]
     [HttpGet("ExportToTab")]
     public async Task<IActionResult> ExportToTab([FromQuery]string title = null, [FromQuery]string author = null, [FromQuery]string boxNumber = null)
     {
@@ -95,6 +97,7 @@ namespace aspnetcore_spa.Controllers
       return builder.Empty;
     }
 
+    [Authorize(Policy = "AdminUser")]
     [HttpGet("{bookId}")]
     public IActionResult Get(string bookId)
     {
@@ -105,6 +108,7 @@ namespace aspnetcore_spa.Controllers
       return Ok(new { Data = editedBook });
     }
 
+    [Authorize(Policy = "AdminUser")]
     [HttpPut("{bookId}")]
     public async Task<IActionResult> UpdateBook(string bookId, [FromBody]Book book)
     {
@@ -129,6 +133,7 @@ namespace aspnetcore_spa.Controllers
       return Ok(new { Data = editedBook });
     }
 
+    [Authorize(Policy = "AdminUser")]
     [HttpPost("{bookId}/bookcopy")]
     public async Task<IActionResult> AddBookCopy(string bookId, [FromBody]BarCodeBody body)
     {
@@ -150,6 +155,7 @@ namespace aspnetcore_spa.Controllers
       return Ok(new { Data = book });
     }
 
+    [Authorize(Policy = "AdminUser")]
     [HttpDelete("{bookId}/bookcopy/{barCode}")]
     public async Task<IActionResult> RemoveBookCopy(string bookId, string barCode)
     {
@@ -169,6 +175,7 @@ namespace aspnetcore_spa.Controllers
       return Ok(new { Data = book });
     }
 
+    [Authorize(Policy = "AdminUser")]
     [HttpGet("isbn/{isbn}")]
     public async Task<IActionResult> GetBookByIsbn(string isbn)
     {
@@ -183,6 +190,7 @@ namespace aspnetcore_spa.Controllers
       return Ok(new { Data = book });
     }
 
+    [Authorize(Policy = "VolunteerUser")]
     [HttpGet("bookcopies/{barCode}")]
     public async Task<IActionResult> GetBookCopyByBarCode(string barCode)
     {

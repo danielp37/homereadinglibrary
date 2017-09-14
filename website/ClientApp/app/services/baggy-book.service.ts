@@ -1,3 +1,6 @@
+import { AuthHttp } from 'angular2-jwt';
+import { AuthService } from './../modules/app-auth/services/auth.service';
+import { JwtResponse } from './../entities/jwt-response';
 import { ClassWithVolunteers } from './../entities/class-with-volunteers';
 import { BookCopyReservationWithData } from './../entities/book-copy-reservation-with-data';
 import { BookCopyWithBook } from './../entities/book-copy-with-book';
@@ -27,7 +30,9 @@ export class BaggyBookService {
   private headers = new Headers({'Content-Type': 'application/json'});
 
   constructor(private http: Http,
-    @Inject('ORIGIN_URL') private originUrl: string) { }
+    @Inject('ORIGIN_URL') private originUrl: string,
+    private authService: AuthService,
+    private authHttp: AuthHttp) { }
 
   createVolunteer(volunteer: Volunteer): Promise<Volunteer> {
     return this.http
@@ -63,7 +68,7 @@ export class BaggyBookService {
   }
 
   addClass(teacherName: string, grade: number): Promise<Class> {
-    return this.http
+    return this.authHttp
       .post(`${this.originUrl}${this.classesUrl}`, JSON.stringify({teacherName: teacherName, grade: grade}), {headers: this.headers})
       .toPromise()
       .then(res => Class.fromObject(res.json().data))
@@ -71,7 +76,7 @@ export class BaggyBookService {
   }
 
   getStudents(classId: string): Promise<Student[]> {
-    return this.http
+    return this.authHttp
       .get(`${this.originUrl}${this.classesUrl}/${classId}/students`)
       .toPromise()
       .then(response => response.json().data as Student[])
@@ -79,7 +84,7 @@ export class BaggyBookService {
   }
 
   addStudent(classId: string, newStudent: Student): Promise<Class> {
-    return this.http
+    return this.authHttp
       .post(`${this.originUrl}${this.classesUrl}/${classId}/students`, JSON.stringify(newStudent), {headers: this.headers})
       .toPromise()
       .then(res => Class.fromObject(res.json().data))
@@ -87,7 +92,7 @@ export class BaggyBookService {
   }
 
   getStudentByBarCode(barCode: string): Promise<StudentWithTeacher> {
-    return this.http
+    return this.authHttp
       .get(`${this.originUrl}${this.studentsUrl}/${barCode}`)
       .toPromise()
       .then(res => res.json() as StudentWithTeacher)
@@ -95,7 +100,7 @@ export class BaggyBookService {
   }
 
   getAllBooks(params: DataTableParams, searchParameters: BookSearchParameters): Promise<BookList> {
-    return this.http
+    return this.authHttp
       .get(`${this.originUrl}${this.booksUrl}?${this.paramsToQueryString(params, searchParameters)}`)
       .toPromise()
       .then(res => {
@@ -141,7 +146,7 @@ export class BaggyBookService {
   }
 
   addBook(book: Book): Promise<Book> {
-    return this.http
+    return this.authHttp
       .post(`${this.originUrl}${this.booksUrl}`, JSON.stringify(book), {headers: this.headers})
       .toPromise()
       .then(res => Book.fromObject(res.json().data))
@@ -149,7 +154,7 @@ export class BaggyBookService {
   }
 
   updateBook(book: Book): Promise<Book> {
-    return this.http
+    return this.authHttp
       .put(`${this.originUrl}${this.booksUrl}/${book.id}`, JSON.stringify(book), {headers: this.headers})
       .toPromise()
       .then(res => Book.fromObject(res.json().data))
@@ -157,7 +162,7 @@ export class BaggyBookService {
   }
 
   addBookCopy(bookId: string, barCode: string): Promise<Book> {
-    return this.http
+    return this.authHttp
       .post(`${this.originUrl}${this.booksUrl}/${bookId}/bookcopy`, JSON.stringify({ barCode: barCode }), {headers: this.headers})
       .toPromise()
       .then(book => Book.fromObject(book.json().data))
@@ -165,7 +170,7 @@ export class BaggyBookService {
   }
 
   removeBookCopy(bookId: string, barCode: string): Promise<Book> {
-    return this.http
+    return this.authHttp
       .delete(`${this.originUrl}${this.booksUrl}/${bookId}/bookcopy/${barCode}`)
       .toPromise()
       .then(book => Book.fromObject(book.json().data))
@@ -173,7 +178,7 @@ export class BaggyBookService {
   }
 
   getBook(bookId: string): Promise<Book> {
-    return this.http
+    return this.authHttp
       .get(`${this.originUrl}${this.booksUrl}/${bookId}`)
       .toPromise()
       .then(book => Book.fromObject(book.json().data))
@@ -186,7 +191,7 @@ export class BaggyBookService {
   }
 
   getBookByIsbn(isbn: string): Promise<Book> {
-    return this.http
+    return this.authHttp
       .get(`${this.originUrl}${this.booksUrl}/isbn/${isbn}`)
       .toPromise()
       .then(book => Book.fromObject(book.json().data))
@@ -199,7 +204,7 @@ export class BaggyBookService {
   }
 
   getBookCopyByBarCode(barCode: string): Promise<BookCopyWithBook> {
-    return this.http
+    return this.authHttp
       .get(`${this.originUrl}${this.booksUrl}/bookcopies/${barCode}`)
       .toPromise()
       .then(book => book.json() as BookCopyWithBook);
@@ -211,20 +216,20 @@ export class BaggyBookService {
       studentBarCode: studentBarCode
     };
 
-    return this.http
+    return this.authHttp
       .post(`${this.originUrl}${this.bookCheckOutUrl}`, JSON.stringify(bookCopyReservation), {headers: this.headers})
       .toPromise()
       .then(bcr => bcr.json().data as BookCopyReservation);
   }
 
   checkInBookCopy(bookCopyBarCode: string): Promise<any> {
-    return this.http
+    return this.authHttp
     .post(`${this.originUrl}${this.bookCheckOutUrl}/checkin/${bookCopyBarCode}`, JSON.stringify({}), {headers: this.headers})
     .toPromise();
   }
 
   getBookCopyReservations(): Promise<BookCopyReservationWithData[]> {
-    return this.http
+    return this.authHttp
       .get(`${this.originUrl}${this.bookCheckOutUrl}`)
       .toPromise()
       .then(bcr => bcr.json().data as BookCopyReservationWithData[]);
@@ -232,8 +237,13 @@ export class BaggyBookService {
 
   loginVolunteer(volunteerId: string): Promise<Response> {
     return this.http
-      .post(`${this.originUrl}${this.volunteersUrl}/login`, JSON.stringify({ volunteerId: volunteerId}), {headers: this.headers})
-      .toPromise();
+      .post(`${this.originUrl}${this.volunteersUrl}/jwtlogin`, JSON.stringify({ volunteerId: volunteerId}), {headers: this.headers})
+      .toPromise()
+      .then(resp => {
+        const jwtResponse = resp.json() as JwtResponse;
+        this.authService.logInWithJwtToken(jwtResponse.id, jwtResponse.auth_token);
+      })
+      .catch(this.handleError);
 
   }
 
