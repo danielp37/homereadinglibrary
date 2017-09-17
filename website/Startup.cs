@@ -6,6 +6,7 @@ using AspnetCore.Identity.MongoDb;
 using aspnetcore_spa.Startup;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Rewrite;
 using Microsoft.AspNetCore.SpaServices.Webpack;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -65,6 +66,10 @@ namespace WebApplicationBasic
       else
       {
         app.UseExceptionHandler("/Home/Error");
+        var options = new RewriteOptions()
+         .AddRedirectToHttpsPermanent();
+
+        app.UseRewriter(options);
       }
 
       app.UseStaticFiles();

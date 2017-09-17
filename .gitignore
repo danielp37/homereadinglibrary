@@ -237,3 +237,5 @@ _Pvt_Extensions
 .fake/
 
 .DS_Store
+website/localhost.cer
+website/localhost.key
