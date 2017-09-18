@@ -50,7 +50,9 @@ namespace AspnetCore.Identity.MongoDb.JwtModels
       return new ClaimsIdentity(new GenericIdentity(userName, "Token"), new[]
       {
         new Claim(Constants.Strings.JwtClaimIdentifiers.Id, id),
-        new Claim(Constants.Strings.JwtClaimIdentifiers.Rol, Constants.Strings.JwtClaims.VolunteerAccess),
+        new Claim(Constants.Strings.JwtClaimIdentifiers.Rol, volunteer.IsAdmin ? 
+                  Constants.Strings.JwtClaims.AdminAccess : 
+                  Constants.Strings.JwtClaims.VolunteerAccess),
         new Claim(JwtRegisteredClaimNames.GivenName, volunteer.FirstName),
         new Claim(JwtRegisteredClaimNames.FamilyName, volunteer.LastName)
       });

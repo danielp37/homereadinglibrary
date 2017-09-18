@@ -1,0 +1,9 @@
+<form #f="ngForm" (ngSubmit)="loginAdmin(f)" novalidate>
+  <label for="username">Username:</label>
+  <input class="form-control" id="username" name="username" ngModel required #username="ngModel">
+  <label for="password">Password:</label>
+  <input class="form-control" type="password" id="password" name="password" ngModel required #password="ngModel">
+  
+  <button type="submit" class="btn btn-primary" [disabled]="f.pristine || f.invalid">Login</button>
+  <p class="bg-warning" *ngFor="let item of errorStatus">{{item}}</p>
+</form>

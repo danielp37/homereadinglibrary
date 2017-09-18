@@ -13,7 +13,7 @@ namespace AspnetCore.Identity.MongoDb.Validators
 
     public Task<IdentityResult> ValidateAsync(UserManager<Volunteer> manager, Volunteer user, string password)
     {
-      throw new NotImplementedException();
+      return Task.FromResult(IdentityResult.Success);
     }
   }
 }

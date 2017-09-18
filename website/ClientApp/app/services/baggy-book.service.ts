@@ -235,13 +235,26 @@ export class BaggyBookService {
       .then(bcr => bcr.json().data as BookCopyReservationWithData[]);
   }
 
-  loginVolunteer(volunteerId: string): Promise<Response> {
+  loginVolunteer(volunteerId: string): Promise<boolean> {
     return this.http
       .post(`${this.originUrl}${this.volunteersUrl}/jwtlogin`, JSON.stringify({ volunteerId: volunteerId}), {headers: this.headers})
       .toPromise()
       .then(resp => {
         const jwtResponse = resp.json() as JwtResponse;
-        this.authService.logInWithJwtToken(jwtResponse.id, jwtResponse.auth_token);
+        return this.authService.logInWithJwtToken(jwtResponse.id, jwtResponse.auth_token);
+      })
+      .catch(this.handleError);
+
+  }
+
+  loginAdmin(username: string, password: string): Promise<boolean> {
+    return this.http
+      .post(`${this.originUrl}${this.volunteersUrl}/jwtlogin`, 
+        JSON.stringify({ username: username, password: password}), {headers: this.headers})
+      .toPromise()
+      .then(resp => {
+        const jwtResponse = resp.json() as JwtResponse;
+        return this.authService.logInWithJwtToken(jwtResponse.id, jwtResponse.auth_token);
       })
       .catch(this.handleError);
 

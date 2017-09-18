@@ -1,3 +1,4 @@
+import { SigninAdminComponent } from './components/signin-admin/signin-admin.component';
 import { GlobalEventsManager } from './services/global-events-manager.service';
 import { AuthModule } from './modules/app-auth/app-auth.module';
 import { UploadStudentsComponent } from './components/upload-students/upload-students.component';
@@ -49,7 +50,8 @@ export const sharedConfig: NgModule = {
         BookCopyReservationsComponent,
         AddClassComponent,
         CheckInBookComponent,
-        UploadStudentsComponent
+        UploadStudentsComponent,
+        SigninAdminComponent
     ],
     imports: [
         AppRoutingModule,

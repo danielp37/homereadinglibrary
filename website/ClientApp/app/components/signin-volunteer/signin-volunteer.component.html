@@ -13,4 +13,22 @@
         </div>
     </div>
 </div>
+<hr>
+<button type="button" class="btn btn-secondary" (click)="adminLoginClicked(signInAdmin)">Admin Login</button>
+
+<ng-template #signInAdmin>
+    <div class="modal-header">
+        <h4 class="modal-title pull-left">Admin Signin</h4>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+
+    <div class="modal-body">
+      <app-signin-admin (onLoggedIn)="adminLoggedIn()"></app-signin-admin>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline-dark" (click)="modalRef.hide()">Close</button>
+    </div>
+  </ng-template>
 

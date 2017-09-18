@@ -37,9 +37,9 @@ namespace AspnetCore.Identity.MongoDb.JwtModels
     public DateTime IssuedAt => DateTime.UtcNow;
 
     /// <summary>
-    /// Set the timespan the token will be valid for (default is 5 min/300 seconds)
+    /// Set the timespan the token will be valid for (default is 30 min)
     /// </summary>
-    public TimeSpan ValidFor => TimeSpan.FromMinutes(5);
+    public TimeSpan ValidFor => TimeSpan.FromMinutes(30);
 
     /// <summary>
     /// "jti" (JWT ID) Claim (default ID is a GUID)

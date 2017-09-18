@@ -88,9 +88,16 @@ namespace AspnetCore.Identity.MongoDb.Stores
       throw new NotImplementedException();
     }
 
-    public Task<IdentityResult> UpdateAsync(Volunteer user, CancellationToken cancellationToken)
+    public async Task<IdentityResult> UpdateAsync(Volunteer user, CancellationToken cancellationToken)
     {
-      throw new NotImplementedException();
+      var volunteers = GetVolunteerCollection();
+      var filter = Builders<Volunteer>.Filter.Eq(v => v.Id, user.Id);
+      var update = Builders<Volunteer>.Update.Set(v => v.PasswordHash, user.PasswordHash);
+      var result = await volunteers.UpdateOneAsync(filter, update, cancellationToken: cancellationToken);
+
+      return result.IsAcknowledged && result.ModifiedCount == 1 ? 
+                   IdentityResult.Success : 
+                   IdentityResult.Failed();
     }
 
     private IMongoCollection<Volunteer> GetVolunteerCollection()

@@ -22,19 +22,16 @@ namespace aspnetcore_spa.Controllers
   {
     private readonly IMongoDatabase mongodb;
     private readonly UserManager<Volunteer> userManager;
-    readonly SignInManager<Volunteer> signInManager;
     readonly IJwtFactory jwtFactory;
     readonly JwtIssuerOptions jwtOptions;
 
     public VolunteersController(IMongoDatabase mongodb
                                , UserManager<Volunteer> userManager
-                               , SignInManager<Volunteer> signInManager
                                , IJwtFactory jwtFactory
                                , IOptions<JwtIssuerOptions> jwtOptions)
     {
       this.jwtOptions = jwtOptions.Value;
       this.jwtFactory = jwtFactory;
-      this.signInManager = signInManager;
       this.userManager = userManager;
       this.mongodb = mongodb;
     }
@@ -84,38 +81,31 @@ namespace aspnetcore_spa.Controllers
     }
 
     [AllowAnonymous]
-    [HttpPost("login")]
-    public async Task<IActionResult> Login([FromBody]LoginVolunteerModel model)
+    [HttpPost("admin")]
+    public async Task<IActionResult> RegisterAdmin([FromBody]RegisterVolunteerModel model)
     {
-      if(ModelState.IsValid)
+      if (ModelState.IsValid)
       {
-        var volunteer = await userManager.FindByIdAsync(model.VolunteerId);
-        if (volunteer == null)
+        var newVolunteer = new Volunteer
         {
-          return Unauthorized();
-        }
-        if(string.IsNullOrWhiteSpace(model.Password))
+          FirstName = model.FirstName,
+          LastName = model.LastName,
+          UserName = model.Email,
+          Phone = model.Phone,
+          IsAdmin = true
+        };
+        var result = await userManager.CreateAsync(newVolunteer);
+
+        if (result.Succeeded)
         {
-          await signInManager.SignInAsync(volunteer, false, "RegularVolunteer");
-          return Ok();
+          await userManager.AddPasswordAsync(newVolunteer, model.Password);
+
+          return Ok(newVolunteer);
         }
         else
         {
-          var result = await signInManager.PasswordSignInAsync(volunteer, model.Password, false, true);
-          if(result.Succeeded)
-          {
-            return Ok();
-          }
-          else if (result.IsLockedOut)
-          {
-            return BadRequest($"UserId {model.VolunteerId} is locked out");
-          }
-          else
-          {
-            return Unauthorized();
-          }
+          return BadRequest(result);
         }
-
       }
 
       return BadRequest(ModelState);
@@ -127,17 +117,18 @@ namespace aspnetcore_spa.Controllers
     {
       if (ModelState.IsValid)
       {
-        var identity = await GetClaimsIdentity(model.VolunteerId, model.Password);
+        var identity = await GetClaimsIdentity(model.VolunteerId, model.Username, model.Password);
         if (identity == null)
         {
           ModelState.AddModelError("login_failure", "Invalid username or password");
           return BadRequest(ModelState);
         }
 
+        var id = identity.Claims.Single(c => c.Type == "id").Value;
         var response = new
         {
-          id = identity.Claims.Single(c => c.Type == "id").Value,
-          auth_token = await jwtFactory.GenerateEncodedToken(model.VolunteerId, identity),
+          id = id,
+          auth_token = await jwtFactory.GenerateEncodedToken(id, identity),
           expires_in = (int)jwtOptions.ValidFor.TotalSeconds
         };
 
@@ -147,21 +138,37 @@ namespace aspnetcore_spa.Controllers
       return BadRequest(ModelState);
     }
 
-    private async Task<ClaimsIdentity> GetClaimsIdentity(string userId, string password)
+    private async Task<ClaimsIdentity> GetClaimsIdentity(string userId, string username, string password)
     {
-      if (!string.IsNullOrEmpty(userId))
+      if (!string.IsNullOrWhiteSpace(userId) || !string.IsNullOrWhiteSpace(username))
       {
         // get the user to verifty
-        var userToVerify = await userManager.FindByIdAsync(userId);
+        var userToVerify = await GetUserToVerify(userId, username);
 
-        if (string.IsNullOrWhiteSpace(userToVerify.PasswordHash) ||
-            await userManager.CheckPasswordAsync(userToVerify, password))
+        if (userToVerify != null)
         {
-          return jwtFactory.GenerateClaimsIdentity(userToVerify.UserName, userToVerify.Id, userToVerify);
+          if (string.IsNullOrWhiteSpace(userToVerify.PasswordHash) ||
+              await userManager.CheckPasswordAsync(userToVerify, password))
+          {
+            return jwtFactory.GenerateClaimsIdentity(userToVerify.UserName, userToVerify.Id, userToVerify);
+          }
         }
       }
 
       // Credentials are invalid, or account doesn't exist
+      return null;
+    }
+
+    private async Task<Volunteer> GetUserToVerify(string userId, string username)
+    {
+      if (!string.IsNullOrWhiteSpace(userId))
+      {
+        return await userManager.FindByIdAsync(userId);
+      }
+      if (!string.IsNullOrWhiteSpace(username))
+      {
+        return await userManager.FindByNameAsync(username);
+      }
       return null;
     }
 
@@ -171,6 +178,7 @@ namespace aspnetcore_spa.Controllers
       public string LastName { get; set; }
       public string Email { get; set; }
       public string Phone { get; set; }
+      public string Password { get; set; }
       public List<RegisterVolunteerForClass> VolunteerForClasses { get; set; } = new List<RegisterVolunteerForClass>();
     }
 
@@ -183,6 +191,7 @@ namespace aspnetcore_spa.Controllers
     public class LoginVolunteerModel
     {
       public string VolunteerId { get; set; }
+      public string Username { get; set; }
       public string Password { get; set; }
     }
 
