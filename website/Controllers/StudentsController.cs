@@ -1,4 +1,4 @@
-using aspnetcore_spa.Entities;
+using website.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace aspnetcore_spa.Controllers

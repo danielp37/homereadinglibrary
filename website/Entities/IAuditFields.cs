@@ -1,6 +1,6 @@
 using System;
 
-namespace aspnetcore_spa.Entities
+namespace website.Entities
 {
     public interface IAuditFields
     {

@@ -1,12 +1,14 @@
 using System;
 using System.Threading.Tasks;
-using aspnetcore_spa.Entities;
+using website.Entities;
 using aspnetcore_spa.Startup;
-using homereadinglibrary.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using static AspnetCore.Identity.MongoDb.JwtModels.Constants.Strings;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace aspnetcore_spa.Controllers
 {
@@ -53,6 +55,7 @@ namespace aspnetcore_spa.Controllers
         BookCopyBarCode = body.BookCopyBarCode,
         StudentBarCode = body.StudentBarCode,
         CheckedOutDate = DateTime.Today,
+        CheckOutBy = GetVolunteerAuditForCurrentUser(),
         CreatedDate = DateTime.Now
       };
       await reservationCollection.InsertOneAsync(reservation);
@@ -67,6 +70,19 @@ namespace aspnetcore_spa.Controllers
       var isAcknowledged = await CheckInBookCopyImpl(bookBarCode);
 
       return isAcknowledged ? (IActionResult)Ok() : BadRequest();
+    }
+
+    private VolunteerAudit GetVolunteerAuditForCurrentUser() 
+    {
+      var id = User.FindFirst(JwtClaimIdentifiers.Id)?.Value;
+      var firstName = User.FindFirst(ClaimTypes.GivenName)?.Value;
+      var lastName = User.FindFirst(ClaimTypes.Surname)?.Value;
+
+      return new VolunteerAudit
+      {
+        VolunteerId = id,
+        Name = $"{firstName} {lastName}"
+      };
     }
 
     private async Task<bool> BookCopyBarCodeExists(string bookBarCode)
@@ -89,6 +105,7 @@ namespace aspnetcore_spa.Controllers
                       & Builders<BookCopyReservation>.Filter.Eq(b => b.CheckedInDate, null);
       var update = Builders<BookCopyReservation>.Update
                       .Set(b => b.CheckedInDate, DateTime.Today.ToLocalTime())
+                      .Set(b => b.CheckInBy, GetVolunteerAuditForCurrentUser())
                       .CurrentDate(b => b.ModifiedDate);
       var updateResult = await reservationCollection.UpdateManyAsync(filter, update);
 

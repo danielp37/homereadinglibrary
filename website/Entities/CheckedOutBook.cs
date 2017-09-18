@@ -1,7 +1,7 @@
 using System;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace homereadinglibrary.Entities
+namespace website.Entities
 {
     public class CheckedOutBook
     {

@@ -12,8 +12,6 @@
       <p>Student Name: {{currentStudent.student.firstName}} {{currentStudent.student.lastName}}</p>
     </div>
 
-    <p class="bg-warning">{{studentError}}</p>
-
     <div class="form-group" *ngIf="currentStudent">
       <label for="formBookBarcode">Book Barcode:</label>
       <input type="text" id="formBookBarcode" class="form-control" formControlName="bookCopyBarCode"
@@ -25,9 +23,20 @@
       <p>Book Author: {{currentBook.author}}</p>
     </div>
 
-    <p class="bg-warning">{{bookError}}</p>
-
     <audio style="display: none;" id="notificationSuccess" preload src="/media/success.wav"></audio>
     <audio style="display: none;" id="notificationFailure" preload src="/media/failure.wav"></audio>
   </form>
+  <div class="container-fluid">
+    <div class="row" *ngFor="let logEntry of checkoutLog">
+      <p>{{logEntry.logDate | date:'mediumTime'}}
+      <span class="bg-warning" *ngIf="logEntry.error && logEntry.book">Error checking out book <b><u>{{logEntry.book.title}}</u></b> 
+        for student <i>{{logEntry.student.student.firstName}} {{logEntry.student.student.lastName}}</i>: {{logEntry.error}}</span>
+      <span class="bg-warning" *ngIf="logEntry.error && (!logEntry.student)">{{logEntry.error}}</span>
+      <span class="bg-warning" *ngIf="logEntry.error && (logEntry.student && !logEntry.book)">While trying to check out book for 
+          <i>{{logEntry.student.student.firstName}} {{logEntry.student.student.lastName}}</i>: {{logEntry.error}}</span>
+      <span class="bg-success" *ngIf="!logEntry.error && logEntry.student && logEntry.book">Successfully checked out book <b><u>{{logEntry.book.title}}</u></b> 
+        for student <i>{{logEntry.student.student.firstName}} {{logEntry.student.student.lastName}}</i></span>
+      </p>
+    </div>
+  </div>
 </div>

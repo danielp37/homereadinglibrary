@@ -5,14 +5,13 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using AspnetCore.Identity.MongoDb.Entities;
 using AspnetCore.Identity.MongoDb.JwtModels;
-using aspnetcore_spa.Entities;
+using website.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using website.Entities;
 
 namespace aspnetcore_spa.Controllers
 {

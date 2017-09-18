@@ -1,3 +1,4 @@
+import { CheckinLogEntry } from './../../entities/checkin-log-entry';
 import { BaggyBookService } from './../../services/baggy-book.service';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { BookCopyWithBook } from './../../entities/book-copy-with-book';
@@ -13,17 +14,26 @@ export class CheckInBookComponent implements OnInit {
   checkInBookForm: FormGroup;
   currentBook: BookCopyWithBook;
   bookError: string;
+  checkinLog: CheckinLogEntry[];
 
   constructor(
     private baggyBookService: BaggyBookService,
     private fb: FormBuilder,
     private renderer: Renderer2
-  ) { }
+  ) {
+    this.checkinLog = new Array<CheckinLogEntry>();
+  }
 
   ngOnInit() {
     this.checkInBookForm = this.fb.group({
       bookCopyBarCode: ['']
     });
+    this.setFocusOnBookBarCode();
+  }
+
+  setFocusOnBookBarCode() {
+      const bookBarCodeInput = this.renderer.selectRootElement('#formBookBarcode');
+      bookBarCodeInput.focus();
   }
 
   onBookCopyEntered() {
@@ -34,19 +44,20 @@ export class CheckInBookComponent implements OnInit {
           this.currentBook = bookCopy;
           this.baggyBookService.checkInBookCopy(bookCopyValue)
             .then(result => {
+              this.checkinLog.unshift(new CheckinLogEntry(this.currentBook));
               this.playSuccessSound();
-              setTimeout(() => this.resetForm(), 2000);
+              setTimeout(() => this.resetForm(), 200);
             })
             .catch(error => {
+              this.checkinLog.unshift(new CheckinLogEntry(this.currentBook, error._body || error));
               this.playFailureSound();
-              this.setBookError(error._body || error);
-              setTimeout(() => this.resetForm(), 2000);
+              setTimeout(() => this.resetForm(), 200);
             });
       })
       .catch(error => {
+        this.checkinLog.unshift(new CheckinLogEntry(this.currentBook, error._body || error));
         this.playFailureSound();
-        this.setBookError(error._body || error);
-        setTimeout(() => this.resetForm(), 2000);
+        setTimeout(() => this.resetForm(), 200);
       });
 
   }
@@ -59,11 +70,6 @@ export class CheckInBookComponent implements OnInit {
   playFailureSound() {
     const notificationFailure = this.renderer.selectRootElement('#notificationFailure');
     notificationFailure.play();
-  }
-
-  setBookError(status: string) {
-    this.bookError = status;
-    setTimeout(() => this.bookError = null, 2000);
   }
 
   resetForm() {

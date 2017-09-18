@@ -1,3 +1,4 @@
+import { CheckoutLogEntry } from './../../entities/checkout-log-entry';
 import { BookCopyWithBook } from './../../entities/book-copy-with-book';
 import { StudentWithTeacher } from './../../entities/student-with-teacher';
 import { Book } from './../../entities/book';
@@ -18,6 +19,7 @@ export class CheckOutBookComponent implements OnInit {
   currentBook: BookCopyWithBook;
   studentError: string;
   bookError: string;
+  checkoutLog: CheckoutLogEntry[];
 
   resetForm() {
     this.checkOutBookForm.reset();
@@ -42,13 +44,16 @@ export class CheckOutBookComponent implements OnInit {
     private baggyBookService: BaggyBookService,
     private fb: FormBuilder,
     private renderer: Renderer2
-  ) { }
+  ) {
+    this.checkoutLog = new Array<CheckoutLogEntry>();
+  }
 
   ngOnInit() {
     this.checkOutBookForm = this.fb.group({
       studentBarCode: [''],
       bookCopyBarCode: ['']
     });
+    this.setFocusOnStudentBarCode();
   }
 
   onStudentBarCodeEntered() {
@@ -60,9 +65,9 @@ export class CheckOutBookComponent implements OnInit {
         this.currentStudent = student;
       })
       .catch(error => {
+        this.checkoutLog.unshift(new CheckoutLogEntry(this.currentStudent, this.currentBook, error._body || error));
         this.playFailureSound();
-        this.setStudentError(error._body || error);
-        setTimeout(() => this.resetForm(), 2000);
+        setTimeout(() => this.resetForm(), 200);
       });
   }
 
@@ -75,19 +80,20 @@ export class CheckOutBookComponent implements OnInit {
           this.currentBook = bookCopy;
           this.baggyBookService.checkOutBookForStudent(bookCopyValue, barCodeValue)
             .then(bookCopyReservation => {
+              this.checkoutLog.unshift(new CheckoutLogEntry(this.currentStudent, this.currentBook));
               this.playSuccessSound();
-              setTimeout(() => this.resetForm(), 2000);
+              setTimeout(() => this.resetForm(), 200);
             })
             .catch(error => {
+              this.checkoutLog.unshift(new CheckoutLogEntry(this.currentStudent, this.currentBook, error._body || error));
               this.playFailureSound();
-              this.setBookError(error._body || error);
-              setTimeout(() => this.resetForm(), 2000);
+              setTimeout(() => this.resetForm(), 200);
             });
       })
       .catch(error => {
+        this.checkoutLog.unshift(new CheckoutLogEntry(this.currentStudent, this.currentBook, error._body || error));
         this.playFailureSound();
-        this.setBookError(error._body || error);
-        setTimeout(() => this.resetForm(), 2000);
+        setTimeout(() => this.resetForm(), 200);
       });
 
   }
@@ -102,13 +108,4 @@ export class CheckOutBookComponent implements OnInit {
     notificationFailure.play();
   }
 
-  setStudentError(status: string) {
-    this.studentError = status;
-    setTimeout(() => this.studentError = null, 2000);
-  }
-
-  setBookError(status: string) {
-    this.bookError = status;
-    setTimeout(() => this.bookError = null, 2000);
-  }
 }

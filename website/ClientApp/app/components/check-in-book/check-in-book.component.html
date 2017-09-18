@@ -13,9 +13,17 @@
       <p>Book Author: {{currentBook.author}}</p>
     </div>
 
-    <p class="bg-warning">{{bookError}}</p>
-
     <audio style="display: none;" id="notificationSuccess" preload src="/media/success.wav"></audio>
     <audio style="display: none;" id="notificationFailure" preload src="/media/failure.wav"></audio>
   </form>
+
+  <div class="container-fluid">
+      <div class="row" *ngFor="let logEntry of checkinLog">
+        <p>{{logEntry.logDate | date:'mediumTime'}}
+        <span class="bg-warning" *ngIf="logEntry.error && logEntry.book">Error checking in book <b><u>{{logEntry.book.title}}</u></b>: {{logEntry.error}}</span>
+        <span class="bg-warning" *ngIf="logEntry.error && !logEntry.book">{{logEntry.error}}</span>
+        <span class="bg-success" *ngIf="!logEntry.error && logEntry.book">Successfully checked in book <b><u>{{logEntry.book.title}}</u></b></span>
+        </p>
+      </div>
+    </div>
 </div>

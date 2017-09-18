@@ -249,7 +249,7 @@ export class BaggyBookService {
 
   loginAdmin(username: string, password: string): Promise<boolean> {
     return this.http
-      .post(`${this.originUrl}${this.volunteersUrl}/jwtlogin`, 
+      .post(`${this.originUrl}${this.volunteersUrl}/jwtlogin`,
         JSON.stringify({ username: username, password: password}), {headers: this.headers})
       .toPromise()
       .then(resp => {

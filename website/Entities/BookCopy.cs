@@ -1,4 +1,4 @@
-namespace aspnetcore_spa.Entities
+namespace website.Entities
 {
     public class BookCopy
     {

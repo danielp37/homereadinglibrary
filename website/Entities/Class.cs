@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.IdGenerators;
 
-namespace aspnetcore_spa.Entities
+namespace website.Entities
 {
     public class Class : IAuditFields
     {
