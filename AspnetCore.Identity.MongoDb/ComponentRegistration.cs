@@ -31,6 +31,7 @@ namespace AspnetCore.Identity.MongoDb
         return new VolunteerStore(provider.GetService<IMongoDatabase>());
       });
       services.AddTransient<IRoleStore<VolunteerRole>, VolunteerRoleStore>();
+      services.AddTransient<IVolunteerLogonStore, VolunteerLogonStore>();
 
       ConfigureJwt(services, configuration);
       services.AddAuthorization(options =>

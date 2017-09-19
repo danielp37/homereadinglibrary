@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using AspnetCore.Identity.MongoDb.Stores;
 
 namespace aspnetcore_spa.Controllers
 {
@@ -23,12 +24,15 @@ namespace aspnetcore_spa.Controllers
     private readonly UserManager<Volunteer> userManager;
     readonly IJwtFactory jwtFactory;
     readonly JwtIssuerOptions jwtOptions;
+    readonly IVolunteerLogonStore volunteerLogonStore;
 
     public VolunteersController(IMongoDatabase mongodb
                                , UserManager<Volunteer> userManager
+                               , IVolunteerLogonStore volunteerLogonStore
                                , IJwtFactory jwtFactory
                                , IOptions<JwtIssuerOptions> jwtOptions)
     {
+      this.volunteerLogonStore = volunteerLogonStore;
       this.jwtOptions = jwtOptions.Value;
       this.jwtFactory = jwtFactory;
       this.userManager = userManager;
@@ -119,7 +123,8 @@ namespace aspnetcore_spa.Controllers
         var identity = await GetClaimsIdentity(model.VolunteerId, model.Username, model.Password);
         if (identity == null)
         {
-          ModelState.AddModelError("login_failure", "Invalid username or password");
+          const string invalidUsernameOrPassword = "Invalid username or password";
+          ModelState.AddModelError("login_failure", invalidUsernameOrPassword);
           return BadRequest(ModelState);
         }
 
@@ -149,11 +154,18 @@ namespace aspnetcore_spa.Controllers
           if (string.IsNullOrWhiteSpace(userToVerify.PasswordHash) ||
               await userManager.CheckPasswordAsync(userToVerify, password))
           {
+            await volunteerLogonStore.RecordSuccessfulLoginAsync(userId, username);
             return jwtFactory.GenerateClaimsIdentity(userToVerify.UserName, userToVerify.Id, userToVerify);
+          }
+          else
+          {
+            await volunteerLogonStore.RecordFailedLoginAsync(userId, username, "Invalid Password");
+            return null;
           }
         }
       }
 
+      await volunteerLogonStore.RecordFailedLoginAsync(userId, username, "Invalid UserId or Username");
       // Credentials are invalid, or account doesn't exist
       return null;
     }
