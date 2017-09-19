@@ -45,6 +45,8 @@ namespace WebApplicationBasic
       services.AddSingleton<IMongoDatabase>(MongoConfig.Database);
 
       services.ConfigureIdentity(Configuration);
+
+      services.AddApplicationInsightsTelemetry(Configuration);
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
