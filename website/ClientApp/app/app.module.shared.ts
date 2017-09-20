@@ -1,3 +1,4 @@
+import { LoaderService } from './services/loader.service';
 import { SigninAdminComponent } from './components/signin-admin/signin-admin.component';
 import { GlobalEventsManager } from './services/global-events-manager.service';
 import { AuthModule } from './modules/app-auth/app-auth.module';
@@ -64,6 +65,6 @@ export const sharedConfig: NgModule = {
         ModalModule.forRoot(),
         AuthModule.forRoot()
     ],
-    providers: [BaggyBookService, BookLookupService],
+    providers: [BaggyBookService, BookLookupService, LoaderService],
     schemas: [CUSTOM_ELEMENTS_SCHEMA]
 };

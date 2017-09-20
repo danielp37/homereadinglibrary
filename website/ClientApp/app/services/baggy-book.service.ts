@@ -1,3 +1,4 @@
+import { LoaderService } from './loader.service';
 import { AuthHttp } from 'angular2-jwt';
 import { AuthService } from './../modules/app-auth/services/auth.service';
 import { JwtResponse } from './../entities/jwt-response';
@@ -32,14 +33,15 @@ export class BaggyBookService {
   constructor(private http: Http,
     @Inject('ORIGIN_URL') private originUrl: string,
     private authService: AuthService,
-    private authHttp: AuthHttp) { }
+    private authHttp: AuthHttp,
+    private loaderService: LoaderService) { }
 
   createVolunteer(volunteer: Volunteer): Promise<Volunteer> {
     return this.http
       .post(`${this.originUrl}${this.volunteersUrl}`, JSON.stringify(volunteer), {headers: this.headers})
       .toPromise()
       .then(res => res.json().data as Volunteer)
-      .catch(this.handleError);
+      .catch(error => this.handleError(error));
   }
 
   getVolunteers(): Promise<Volunteer[]> {
@@ -47,7 +49,7 @@ export class BaggyBookService {
       .get(`${this.originUrl}${this.volunteersUrl}`)
       .toPromise()
       .then(response => response.json().data as Volunteer[])
-      .catch(this.handleError);
+      .catch(error => this.handleError(error));
   }
 
   getClasses(): Promise<Class[]> {
@@ -55,16 +57,20 @@ export class BaggyBookService {
       .get(`${this.originUrl}${this.classesUrl}`)
       .toPromise()
       .then(response => response.json().data.map(Class.fromObject))
-      .catch(this.handleError);
+      .catch(error => this.handleError(error));
 
   }
 
   getClassesWithVolunteers(): Promise<ClassWithVolunteers[]> {
+    this.loaderService.display(true);
     return this.http
     .get(`${this.originUrl}${this.volunteersUrl}/byclass`)
     .toPromise()
-    .then(response => response.json().data as ClassWithVolunteers[])
-    .catch(this.handleError);
+    .then(response => {
+      this.loaderService.display(false);
+      return response.json().data as ClassWithVolunteers[]
+    })
+    .catch(error => this.handleError(error));
   }
 
   addClass(teacherName: string, grade: number): Promise<Class> {
@@ -72,7 +78,7 @@ export class BaggyBookService {
       .post(`${this.originUrl}${this.classesUrl}`, JSON.stringify({teacherName: teacherName, grade: grade}), {headers: this.headers})
       .toPromise()
       .then(res => Class.fromObject(res.json().data))
-      .catch(this.handleError);
+      .catch(error => this.handleError(error));
   }
 
   getStudents(classId: string): Promise<Student[]> {
@@ -80,7 +86,7 @@ export class BaggyBookService {
       .get(`${this.originUrl}${this.classesUrl}/${classId}/students`)
       .toPromise()
       .then(response => response.json().data as Student[])
-      .catch(this.handleError);
+      .catch(error => this.handleError(error));
   }
 
   addStudent(classId: string, newStudent: Student): Promise<Class> {
@@ -88,15 +94,19 @@ export class BaggyBookService {
       .post(`${this.originUrl}${this.classesUrl}/${classId}/students`, JSON.stringify(newStudent), {headers: this.headers})
       .toPromise()
       .then(res => Class.fromObject(res.json().data))
-      .catch(this.handleError);
+      .catch(error => this.handleError(error));
   }
 
   getStudentByBarCode(barCode: string): Promise<StudentWithTeacher> {
+    this.loaderService.display(true);
     return this.authHttp
       .get(`${this.originUrl}${this.studentsUrl}/${barCode}`)
       .toPromise()
-      .then(res => res.json() as StudentWithTeacher)
-      .catch(this.handleError);
+      .then(res => {
+        this.loaderService.display(false);
+        return res.json() as StudentWithTeacher
+      })
+      .catch(error => this.handleError(error));
   }
 
   getAllBooks(params: DataTableParams, searchParameters: BookSearchParameters): Promise<BookList> {
@@ -110,7 +120,7 @@ export class BaggyBookService {
           books: obj.data.map(Book.fromObject)
         }
       })
-      .catch(this.handleError);
+      .catch(error => this.handleError(error));
   }
 
   exportBooks(searchParameters: BookSearchParameters) {
@@ -150,7 +160,7 @@ export class BaggyBookService {
       .post(`${this.originUrl}${this.booksUrl}`, JSON.stringify(book), {headers: this.headers})
       .toPromise()
       .then(res => Book.fromObject(res.json().data))
-      .catch(this.handleError);
+      .catch(error => this.handleError(error));
   }
 
   updateBook(book: Book): Promise<Book> {
@@ -158,7 +168,7 @@ export class BaggyBookService {
       .put(`${this.originUrl}${this.booksUrl}/${book.id}`, JSON.stringify(book), {headers: this.headers})
       .toPromise()
       .then(res => Book.fromObject(res.json().data))
-      .catch(this.handleError);
+      .catch(error => this.handleError(error));
   }
 
   addBookCopy(bookId: string, barCode: string): Promise<Book> {
@@ -166,7 +176,7 @@ export class BaggyBookService {
       .post(`${this.originUrl}${this.booksUrl}/${bookId}/bookcopy`, JSON.stringify({ barCode: barCode }), {headers: this.headers})
       .toPromise()
       .then(book => Book.fromObject(book.json().data))
-      .catch(this.handleError);
+      .catch(error => this.handleError(error));
   }
 
   removeBookCopy(bookId: string, barCode: string): Promise<Book> {
@@ -174,7 +184,7 @@ export class BaggyBookService {
       .delete(`${this.originUrl}${this.booksUrl}/${bookId}/bookcopy/${barCode}`)
       .toPromise()
       .then(book => Book.fromObject(book.json().data))
-      .catch(this.handleError);
+      .catch(error => this.handleError(error));
   }
 
   getBook(bookId: string): Promise<Book> {
@@ -215,17 +225,25 @@ export class BaggyBookService {
       bookCopyBarCode: bookCopyBarCode,
       studentBarCode: studentBarCode
     };
-
+    this.loaderService.display(true);
     return this.authHttp
       .post(`${this.originUrl}${this.bookCheckOutUrl}`, JSON.stringify(bookCopyReservation), {headers: this.headers})
       .toPromise()
-      .then(bcr => bcr.json().data as BookCopyReservation);
+      .then(bcr => {
+        this.loaderService.display(false);
+        return bcr.json().data as BookCopyReservation
+      });
   }
 
   checkInBookCopy(bookCopyBarCode: string): Promise<any> {
+    this.loaderService.display(true);
     return this.authHttp
     .post(`${this.originUrl}${this.bookCheckOutUrl}/checkin/${bookCopyBarCode}`, JSON.stringify({}), {headers: this.headers})
-    .toPromise();
+    .toPromise()
+    .then(resp => {
+      this.loaderService.display(false);
+      return resp;
+    });
   }
 
   getBookCopyReservations(): Promise<BookCopyReservationWithData[]> {
@@ -236,32 +254,37 @@ export class BaggyBookService {
   }
 
   loginVolunteer(volunteerId: string): Promise<boolean> {
+    this.loaderService.display(true);
     return this.http
       .post(`${this.originUrl}${this.volunteersUrl}/jwtlogin`, JSON.stringify({ volunteerId: volunteerId}), {headers: this.headers})
       .toPromise()
       .then(resp => {
         const jwtResponse = resp.json() as JwtResponse;
+        this.loaderService.display(false);
         return this.authService.logInWithJwtToken(jwtResponse.id, jwtResponse.auth_token);
       })
-      .catch(this.handleError);
+      .catch(error => this.handleError(error));
 
   }
 
   loginAdmin(username: string, password: string): Promise<boolean> {
+    this.loaderService.display(true);
     return this.http
       .post(`${this.originUrl}${this.volunteersUrl}/jwtlogin`,
         JSON.stringify({ username: username, password: password}), {headers: this.headers})
       .toPromise()
       .then(resp => {
         const jwtResponse = resp.json() as JwtResponse;
+        this.loaderService.display(false);
         return this.authService.logInWithJwtToken(jwtResponse.id, jwtResponse.auth_token);
       })
-      .catch(this.handleError);
+      .catch(error => this.handleError(error));
 
   }
 
   private handleError(error: any): Promise<any> {
     console.error('An error occurred', error);
+    this.loaderService.display(false);
     return Promise.reject(error.message || error);
   }
 }
