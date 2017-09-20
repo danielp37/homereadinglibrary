@@ -5,7 +5,7 @@
     <div class="form-group">
       <label for="formBookBarcode">Book Barcode:</label>
       <input type="text" id="formBookBarcode" class="form-control" formControlName="bookCopyBarCode"
-        (keyup.enter)="onBookCopyEntered()">
+        (keyup.enter)="onBookCopyEntered()" autocomplete="off">
     </div>
 
     <div class="form-group bg-success" *ngIf="currentBook">
