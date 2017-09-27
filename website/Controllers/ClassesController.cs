@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
+using System.ComponentModel.DataAnnotations;
 
 namespace aspnetcore_spa.Controllers
 {
@@ -44,12 +45,37 @@ namespace aspnetcore_spa.Controllers
     [HttpPost("{classId}/students")]
     public async Task<IActionResult> AddStudentToClass(string classId, [FromBody]StudentBody body)
     {
+      return await AddStudentToClass(classId, body.FirstName, body.LastName, await GenerateUniqueBarCode());
+    }
+
+
+    [Authorize(Policy = "VolunteerUser")]
+    [HttpPost("{classId}/newstudent")]
+    public async Task<IActionResult> AddNewStudent(string classId, [FromBody]NewStudentBody newStudent)
+    {
+      if (ModelState.IsValid)
+      {
+        if (!await DoesBarCodeAlreadyExist(newStudent.BarCode))
+        {
+          return await AddStudentToClass(classId, newStudent.FirstName, newStudent.LastName, newStudent.BarCode);
+        }
+        else
+        {
+          ModelState.AddModelError("BarCode", $"BarCode {newStudent.BarCode} already exists. Maybe they've already been added.");
+        }
+      }
+
+      return this.BadRequest(ModelState);
+    }
+
+    private async Task<IActionResult> AddStudentToClass(string classId, string firstName, string lastName, string barCode)
+    {
       var filter = Builders<Class>.Filter.Eq(c => c.ClassId, classId);
       var update = Builders<Class>.Update.AddToSet(c => c.Students, new Student
       {
-        BarCode = await GenerateUniqueBarCode(),
-        FirstName = body.FirstName,
-        LastName = body.LastName,
+        BarCode = barCode,
+        FirstName = firstName,
+        LastName = lastName,
         CreatedDate = DateTime.Now
       })
           .CurrentDate(c => c.ModifiedDate);
@@ -67,6 +93,7 @@ namespace aspnetcore_spa.Controllers
 
       return Ok(new { Data = @class });
     }
+
 
     [Authorize(Policy = "VolunteerUser")]
     [HttpGet("/api/students/{studentBarCode}")]
@@ -97,8 +124,7 @@ namespace aspnetcore_spa.Controllers
       do
       {
         barCode = GetBarCode();
-        var filter = Builders<Class>.Filter.ElemMatch(cls => cls.Students, student => student.BarCode == barCode);
-        isMatch = await classCollection.Find(filter).AnyAsync();
+        isMatch = await DoesBarCodeAlreadyExist(barCode);
         attempts++;
       } while (isMatch || attempts < 10);
 
@@ -107,6 +133,12 @@ namespace aspnetcore_spa.Controllers
         return "CouldNotFindBarCode";
       }
       return barCode;
+    }
+
+    private async Task<bool> DoesBarCodeAlreadyExist(string barCode)
+    {
+      var filter = Builders<Class>.Filter.ElemMatch(cls => cls.Students, student => student.BarCode == barCode);
+      return await classCollection.Find(filter).AnyAsync();
     }
 
     private string GetBarCode()
@@ -121,6 +153,17 @@ namespace aspnetcore_spa.Controllers
     {
       public string FirstName { get; set; }
       public string LastName { get; set; }
+    }
+
+    public class NewStudentBody
+    {
+      [Required]
+      public string FirstName { get; set; }
+      [Required]
+      public string LastName { get; set; }
+      [Required]
+      [RegularExpression(@"2017\d{9}")]
+      public string BarCode { get; set; }
     }
   }
 }

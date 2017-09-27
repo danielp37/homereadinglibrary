@@ -1,9 +1,17 @@
-<div class="container">
-  <form [formGroup]="addStudentForm" (ngSubmit)="onSubmit()" class=form-inline>
-      <input type="text" class="form-control mr-sm-2" formControlName="firstName" placeholder="First Name" 
-        id="firstName" required>
-      <input type="text" class="form-control mr-sm-2" formControlName="lastName" placeholder="Last Name" required>
+<div>
+  <form [formGroup]="addStudentForm" (ngSubmit)="onSubmit()">
+      <div *ngIf="allowBarCodeEntry" class="form-group">
+        <label for="barCode">New Student Bar Code</label>
+        <input type="text" class="form-control" formControlName="barCode" id="barCode" required 
+          (keyup.enter)="onBarCodeEntered()" placeholder="Scan barcode on new student bag" autocomplete="off">
+      </div>
+      <div class="form-inline">
+        <input type="text" class="form-control mr-sm-2" formControlName="firstName" placeholder="First Name" 
+          id="firstName" required  autocomplete="off">
+        <input type="text" class="form-control mr-sm-2" formControlName="lastName" placeholder="Last Name" required  autocomplete="off">
+        <button type="submit" [disabled]="addStudentForm.pristine || addStudentForm.invalid || !classId" class="btn btn-primary">Add Student</button>
+      </div>
     
-      <button type="submit" [disabled]="addStudentForm.pristine || addStudentForm.invalid" class="btn btn-primary">Add Student</button>
+      <pre class="bg-warning" *ngIf="errorMessage">{{errorMessage}}</pre>
   </form>
 </div>

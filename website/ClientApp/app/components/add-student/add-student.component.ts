@@ -13,7 +13,10 @@ export class AddStudentComponent implements OnInit {
     addStudentForm: FormGroup;
 
   @Input()classId: string;
+  @Input()allowBarCodeEntry: boolean;
   @Output()onSaved = new EventEmitter<Class>();
+
+  errorMessage: string;
 
   constructor(
     private fb: FormBuilder,
@@ -22,13 +25,16 @@ export class AddStudentComponent implements OnInit {
     ) {
         this.addStudentForm = this.fb.group({
           firstName : ['', Validators.required],
-          lastName : ['', Validators.required]
+          lastName : ['', Validators.required],
+          barCode : ['', Validators.required]
         });
      }
 
   ngOnInit() {
-
-    this.focusFirstName();
+    if (!this.allowBarCodeEntry) {
+      this.focusFirstName();
+    }
+    this.errorMessage = '';
   }
 
   focusFirstName() {
@@ -36,14 +42,45 @@ export class AddStudentComponent implements OnInit {
     firstNameInput.focus();
   }
 
+
+  onBarCodeEntered() {
+    this.focusFirstName();
+  }
+
   onSubmit() {
+    this.errorMessage = '';
     const newStudent = this.prepareNewStudent();
-    this.baggyBookService.addStudent(this.classId, newStudent)
-      .then(cls => {
-        this.addStudentForm.reset();
-        this.focusFirstName();
-        this.onSaved.emit(cls);
-      });
+    if (this.allowBarCodeEntry) {
+      this.baggyBookService.addNewStudent(this.classId, newStudent)
+        .then(cls => {
+          this.addStudentForm.reset();
+          this.onSaved.emit(cls);
+        })
+        .catch(err => this.errorMessage = this.processError(err));
+    } else {
+      this.baggyBookService.addStudent(this.classId, newStudent)
+        .then(cls => {
+          this.addStudentForm.reset();
+          this.focusFirstName();
+          this.onSaved.emit(cls);
+        })
+        .catch(err => this.errorMessage = this.processError(err));
+    }
+  }
+
+  processError(error: any): string {
+    let errorText = 'Error adding new student:\n';
+    if (error._body) {
+      const errorBody = JSON.parse(error._body);
+      for (const prop in errorBody) {
+        if (errorBody.hasOwnProperty(prop)) {
+          errorText += `${prop}: ${errorBody[prop]}\n`
+        }
+      }
+    } else {
+      errorText += error;
+    }
+    return errorText;
   }
 
   prepareNewStudent(): Student {
@@ -53,6 +90,9 @@ export class AddStudentComponent implements OnInit {
       firstName : formModel.firstName,
       lastName : formModel.lastName,
     };
+    if (this.allowBarCodeEntry) {
+      newStudent.barCode = formModel.barCode;
+    }
 
     return newStudent;
   }

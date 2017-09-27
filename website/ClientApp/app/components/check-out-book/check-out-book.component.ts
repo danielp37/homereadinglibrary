@@ -1,3 +1,5 @@
+import { Class } from './../../entities/class';
+import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 import { CheckoutLogEntry } from './../../entities/checkout-log-entry';
 import { BookCopyWithBook } from './../../entities/book-copy-with-book';
 import { StudentWithTeacher } from './../../entities/student-with-teacher';
@@ -5,7 +7,7 @@ import { Book } from './../../entities/book';
 import { Student } from './../../entities/student';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { BaggyBookService } from './../../services/baggy-book.service';
-import { Component, OnInit, Renderer2 } from '@angular/core';
+import { Component, OnInit, Renderer2, TemplateRef } from '@angular/core';
 
 @Component({
   selector: 'app-check-out-book',
@@ -20,6 +22,9 @@ export class CheckOutBookComponent implements OnInit {
   studentError: string;
   bookError: string;
   checkoutLog: CheckoutLogEntry[];
+  public modalRef: BsModalRef;
+  classes: Class[];
+  selectedClassId: string;
 
   resetForm() {
     this.checkOutBookForm.reset();
@@ -43,7 +48,8 @@ export class CheckOutBookComponent implements OnInit {
   constructor(
     private baggyBookService: BaggyBookService,
     private fb: FormBuilder,
-    private renderer: Renderer2
+    private renderer: Renderer2,
+    private modalService: BsModalService
   ) {
     this.checkoutLog = new Array<CheckoutLogEntry>();
   }
@@ -108,4 +114,19 @@ export class CheckOutBookComponent implements OnInit {
     notificationFailure.play();
   }
 
+  displayAddNewStudentModal(content: TemplateRef<any>) {
+    this.baggyBookService.getClasses()
+      .then(classes => {
+        this.classes = classes;
+        this.selectedClassId = '';
+        this.modalRef = this.modalService.show(content);
+      });
+  }
+
+  studentSaved() {
+    this.modalRef.hide();
+    this.setFocusOnStudentBarCode();
+    this.resetForm();
+    alert(`Student successfully added!`);
+  }
 }

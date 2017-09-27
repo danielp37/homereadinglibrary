@@ -97,6 +97,14 @@ export class BaggyBookService {
       .catch(error => this.handleError(error));
   }
 
+  addNewStudent(classId: string, newStudent: Student): Promise<Class> {
+    return this.authHttp
+      .post(`${this.originUrl}${this.classesUrl}/${classId}/newstudent`, JSON.stringify(newStudent), {headers: this.headers})
+      .toPromise()
+      .then(res => Class.fromObject(res.json().data))
+      .catch(error => this.handleError(error));
+  }
+
   getStudentByBarCode(barCode: string): Promise<StudentWithTeacher> {
     this.loaderService.display(true);
     return this.authHttp
