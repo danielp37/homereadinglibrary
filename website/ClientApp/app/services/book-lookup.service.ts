@@ -1,3 +1,4 @@
+import { AuthHttp } from 'angular2-jwt';
 import {Http} from '@angular/http';
 import { Injectable, Inject } from '@angular/core';
 import { Book } from '../entities/book';
@@ -8,12 +9,12 @@ export class BookLookupService {
   private isbnUrl = '/api/booklookup/';
 
   constructor(
-    private http: Http,
+    private authHttp: AuthHttp,
     @Inject('ORIGIN_URL') private originUrl: string
   ) { }
 
   getBookFromIsbn(isbn: string): Promise<Book> {
-    return this.http.get(`${this.originUrl}${this.isbnUrl}${isbn}`)
+    return this.authHttp.get(`${this.originUrl}${this.isbnUrl}${isbn}`)
       .toPromise()
       .then(resp => {
         const isbnEntry = resp.json() as IsbnEntry;
