@@ -13,6 +13,7 @@ using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using AspnetCore.Identity.MongoDb.Stores;
+using System.ComponentModel.DataAnnotations;
 
 namespace aspnetcore_spa.Controllers
 {
@@ -137,6 +138,53 @@ namespace aspnetcore_spa.Controllers
         };
 
         return Ok(response);
+      }
+
+      return BadRequest(ModelState);
+    }
+
+    //[Authorize(Policy = "AdminOnly")]
+    [AllowAnonymous]
+    [HttpGet("logons")]
+    public async Task<IActionResult> VolunteerLogonsSinceDate([FromQuery][Required]int? daysBack)
+    {
+      if (ModelState.IsValid)
+      {
+        var volunteerLogons = mongodb.GetCollection<VolunteerLogon>("volunteerlogons");
+
+        var volunteersWithLogonsQuery = volunteerLogons.Aggregate()
+                       .Match(
+                          Builders<VolunteerLogon>.Filter.Gte(vl => vl.LogonTime, DateTime.UtcNow.Date.AddDays(-daysBack.Value)) &
+                          Builders<VolunteerLogon>.Filter.Eq(vl => vl.Status, LogonStatus.Success) &
+                          Builders<VolunteerLogon>.Filter.Ne(vl => vl.VolunteerId, null)
+                        )
+                       .Lookup("volunteers", "volunteerId", "_id", "volunteer")
+                       .Unwind("volunteer")
+                       .Unwind("volunteer.volunteerForClasses")
+                       .Lookup("classes", "volunteer.volunteerForClasses.classId", "_id", "class")
+                       .Group(@"{_id : { volunteerId: '$volunteerId', firstName: '$volunteer.firstName', lastName: '$volunteer.lastName', class: '$class.teacherName', grade: '$class.grade' }, 
+                    logons : { $addToSet: {
+                            logonTime: ""$logonTime"",
+                            dayOfWeek: { $dayOfWeek: ""$logonTime"" }
+                    }},
+                    firstLoginDate : { $first: '$logonTime'},
+                    lastLoginDate : { $last: '$logonTime'}}")
+                       .Project<VolunteerWithLogons>(
+                          @"{
+                              '_id' : 0,
+                              'volunteerId' : '$_id.volunteerId',
+                              'firstName' : '$_id.firstName',
+                              'lastName' : '$_id.lastName',
+                              'classes' : '$_id.class',
+                              'grades' : '$_id.grade',
+                              'logons' : 1,
+                              'firstLoginDate' : 1,
+                              'lastLoginDate' : 1
+                            }");  
+        var volunteersWithLogons = await volunteersWithLogonsQuery
+                       .ToListAsync();
+
+        return Ok(volunteersWithLogons);
       }
 
       return BadRequest(ModelState);

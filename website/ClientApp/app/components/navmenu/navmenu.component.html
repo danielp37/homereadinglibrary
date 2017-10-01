@@ -25,17 +25,22 @@
                 </li>
                 <li [routerLinkActive]="['link-active']" *ngIf="isAdmin">
                         <a [routerLink]="['/classlists']">
-                            <span class='glyphicon glyphicon-book'></span> Class Lists
+                            <span class='glyphicon glyphicon-list'></span> Class Lists
+                        </a>
+                </li>
+                <li [routerLinkActive]="['link-active']" *ngIf="isAdmin">
+                        <a [routerLink]="['/logons']">
+                            <span class='glyphicon glyphicon-user'></span> Volunteer Logons
                         </a>
                 </li>
                 <li [routerLinkActive]="['link-active']">
                     <a [routerLink]="['/signup']">
-                        <span class='glyphicon glyphicon-education'></span> Volunteer Signup
+                        <span class='glyphicon glyphicon-user'></span> Volunteer Signup
                     </a>
                 </li>
                 <li [routerLinkActive]="['link-active']">
                     <a [routerLink]="['/signin']">
-                        <span class='glyphicon glyphicon-education'></span> Volunteer Signin
+                        <span class='glyphicon glyphicon-user'></span> Volunteer Signin
                     </a>
                 </li>
                 <li [routerLinkActive]="['link-active']" *ngIf="isAdmin">

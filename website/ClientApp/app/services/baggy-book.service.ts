@@ -1,3 +1,4 @@
+import { VolunteerWithLogons } from './../entities/volunteer-with-logons';
 import { LoaderService } from './loader.service';
 import { AuthHttp } from 'angular2-jwt';
 import { AuthService } from './../modules/app-auth/services/auth.service';
@@ -288,6 +289,18 @@ export class BaggyBookService {
       })
       .catch(error => this.handleError(error));
 
+  }
+
+  getVolunteerLoginsSinceDate(daysBack: number): Promise<VolunteerWithLogons[]> {
+    this.loaderService.display(true);
+    return this.authHttp
+      .get(`${this.originUrl}${this.volunteersUrl}/logons?daysBack=${daysBack}`)
+      .toPromise()
+      .then(resp => {
+        this.loaderService.display(false);
+        return resp.json() as VolunteerWithLogons[];
+      })
+      .catch(error => this.handleError(error));
   }
 
   private handleError(error: any): Promise<any> {

@@ -1,3 +1,5 @@
+import { SortNamePipe } from './pipes/sort-name.pipe';
+import { VolunteerLogonsComponent } from './components/volunteer-logons/volunteer-logons.component';
 import { LoaderService } from './services/loader.service';
 import { SigninAdminComponent } from './components/signin-admin/signin-admin.component';
 import { GlobalEventsManager } from './services/global-events-manager.service';
@@ -47,12 +49,14 @@ export const sharedConfig: NgModule = {
         AddStudentComponent,
         ClassListsComponent,
         SortClassPipe,
+        SortNamePipe,
         CheckOutBookComponent,
         BookCopyReservationsComponent,
         AddClassComponent,
         CheckInBookComponent,
         UploadStudentsComponent,
-        SigninAdminComponent
+        SigninAdminComponent,
+        VolunteerLogonsComponent
     ],
     imports: [
         AppRoutingModule,

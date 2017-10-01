@@ -1,3 +1,4 @@
+import { VolunteerLogonsComponent } from './../../components/volunteer-logons/volunteer-logons.component';
 import { AuthGuard } from './../app-auth/services/authguard.service';
 import { AuthModule } from './../app-auth/app-auth.module';
 import { CheckInBookComponent } from './../../components/check-in-book/check-in-book.component';
@@ -23,6 +24,7 @@ const routes: Routes = [
             { path: 'checkout',  component: CheckOutBookComponent, canActivate: [AuthGuard] },
             { path: 'checkin',  component: CheckInBookComponent, canActivate: [AuthGuard] },
             { path: 'bookscheckedout', component: BookCopyReservationsComponent, canActivate: [AuthGuard]},
+            { path: 'logons', component: VolunteerLogonsComponent, canActivate: [AuthGuard]},
             { path: '**', redirectTo: 'home' }
         ];
 /*[

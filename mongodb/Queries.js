@@ -63,6 +63,85 @@ db.volunteerlogons.aggregate(
         // Created with Studio 3T, the IDE for MongoDB - https://studio3t.com/
     
     );
+
+// Volunteer Logons since date
+db.volunteerlogons.aggregate(
+    
+        // Pipeline
+        [
+            // Stage 1
+            {
+                $match: {
+                    $and: [
+                          {"logonTime" : { "$gt" : new ISODate('2017-09-19T00:00:00.000') }},
+                          {"status" : NumberInt(0)},
+                          {"volunteerId" : { "$ne" : null }}
+                          ]    
+                }
+            },
+    
+            // Stage 2
+            {
+                $lookup: {
+                    "from" : "volunteers",
+                    "localField" : "volunteerId",
+                    "foreignField" : "_id",
+                    "as" : "volunteer"
+                }
+            },
+    
+            // Stage 3
+            {
+                $unwind: {
+                    path : "$volunteer"
+                }
+            },
+    
+            // Stage 4
+            {
+                $lookup: {
+                    "from" : "classes",
+                    "localField" : "volunteer.volunteerForClasses.classId",
+                    "foreignField" : "_id",
+                    "as" : "class"
+                }
+            },
+    
+            // Stage 5
+            {
+                $group: {
+                    _id : { volunteerId: '$volunteerId', firstName: '$volunteer.firstName', lastName: '$volunteer.lastName', class: '$class.teacherName', grade: '$class.grade' }, 
+                    logons : { $addToSet: {
+                            logonTime: "$logonTime",
+                            dayOfWeek: { $dayOfWeek: "$logonTime" }
+                    }},
+                    firstLoginDate : { $first: '$logonTime'},
+                    lastLoginDate : { $last: '$logonTime'}
+                }
+            },
+    
+            // Stage 6
+            {
+                $project: {
+                    "_id" : 0,
+                    "volunteerId" : "$_id.volunteerId",
+                    "firstName" : "$_id.firstName",
+                    "lastName" : "$_id.lastName",
+                    "class" : "$_id.classes",
+                    "grade" : "$_id.grades",
+                    "logons" : 1,
+                    "firstLoginDate" : 1,
+                    "lastLoginDate" : 1
+                }
+            },
+    
+        ]
+    
+        // Created with Studio 3T, the IDE for MongoDB - https://studio3t.com/
+    
+    );
+    
+    
     
 // Check-ins per volunteer
 db.currentreservations.aggregate(
@@ -326,4 +405,38 @@ db.currentreservations.aggregate(
 
     // Checked out books by teacher
 
+   // Book checkout history for a student
+   db.currentreservations.aggregate(
+    
+        // Pipeline
+        [
+            // Stage 1
+            {
+                $match: {
+                 studentBarCode: "2017506404122"
+                }
+            },
+    
+            // Stage 2
+            {
+                $lookup: {
+                    "from" : "booksByBookCopies",
+                    "localField" : "bookCopyBarCode",
+                    "foreignField" : "_id",
+                    "as" : "book"
+                }
+            },
+    
+            // Stage 3
+            {
+                $unwind: {
+                    path : "$book",
+                }
+            },
+    
+        ]
+    
+        // Created with Studio 3T, the IDE for MongoDB - https://studio3t.com/
+    
+    );
     
