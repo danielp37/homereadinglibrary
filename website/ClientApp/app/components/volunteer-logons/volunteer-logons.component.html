@@ -23,11 +23,11 @@
               {{class}} Grade: {{volunteer.grades[i]}}
             </div>
           </td>
-          <td>{{volunteer.firstLoginDate | date:'short'}}</td>
-          <td>{{volunteer.lastLoginDate | date:'short'}}</td>
+          <td>{{volunteer.firstLoginDate | date:'M/d/y, h:mm a EEEE'}}</td>
+          <td>{{volunteer.lastLoginDate | date:'M/d/y, h:mm a EEEE'}}</td>
           <td>
             <div *ngFor="let logon of volunteer.logons">
-              {{logon.logonTime | date:'short'}} {{getDayOfWeekString(logon.dayOfWeek)}}
+              {{logon.logonTime | date:'M/d/y, h:mm a EEEE'}}
             </div>
           </td>
         </tr>
