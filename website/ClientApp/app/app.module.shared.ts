@@ -1,3 +1,4 @@
+import { SortDatePipe } from './pipes/sort-date.pipe';
 import { SortNamePipe } from './pipes/sort-name.pipe';
 import { VolunteerLogonsComponent } from './components/volunteer-logons/volunteer-logons.component';
 import { LoaderService } from './services/loader.service';
@@ -50,6 +51,7 @@ export const sharedConfig: NgModule = {
         ClassListsComponent,
         SortClassPipe,
         SortNamePipe,
+        SortDatePipe,
         CheckOutBookComponent,
         BookCopyReservationsComponent,
         AddClassComponent,

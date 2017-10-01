@@ -26,7 +26,7 @@
           <td>{{volunteer.firstLoginDate | date:'M/d/y, h:mm a EEEE'}}</td>
           <td>{{volunteer.lastLoginDate | date:'M/d/y, h:mm a EEEE'}}</td>
           <td>
-            <div *ngFor="let logon of volunteer.logons">
+            <div *ngFor="let logon of volunteer.logons | sortDate:'logonTime'">
               {{logon.logonTime | date:'M/d/y, h:mm a EEEE'}}
             </div>
           </td>
