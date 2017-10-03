@@ -255,13 +255,17 @@ export class BaggyBookService {
     });
   }
 
-  getBookCopyReservations(): Promise<BookCopyReservationWithData[]> {
+  getBookCopyReservations(studentId?: string): Promise<BookCopyReservationWithData[]> {
+    this.loaderService.display(true);
     return this.authHttp
-      .get(`${this.originUrl}${this.bookCheckOutUrl}`)
+      .get(`${this.originUrl}${this.bookCheckOutUrl}${studentId ? `?studentBarCode=${studentId}&fullhistory=true` : ''}`)
       .toPromise()
-      .then(bcr => bcr.json().data as BookCopyReservationWithData[]);
+      .then(bcr => {
+        this.loaderService.display(false);
+        return bcr.json().data as BookCopyReservationWithData[]
+      })
+      .catch(error => this.handleError(error));
   }
-
   loginVolunteer(volunteerId: string): Promise<boolean> {
     this.loaderService.display(true);
     return this.http

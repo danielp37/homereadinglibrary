@@ -9,6 +9,7 @@ using MongoDB.Driver;
 using static AspnetCore.Identity.MongoDb.JwtModels.Constants.Strings;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Linq;
 
 namespace aspnetcore_spa.Controllers
 {
@@ -23,16 +24,28 @@ namespace aspnetcore_spa.Controllers
       reservationCollection = mongoDatabase.GetCollection<BookCopyReservation>("currentreservations");
     }
 
-    [Authorize(Policy = "AdminUser")]
+    [Authorize(Policy = "VolunteerUser")]
     [HttpGet]
-    public async Task<IActionResult> GetCheckedOutBookCopies()
+    public async Task<IActionResult> GetCheckedOutBookCopies([FromQuery]string studentBarCode, [FromQuery]bool fullHistory = false)
     {
-      var checkedOutBooksCollection = mongoDatabase.GetCollection<CheckedOutBook>("bookscheckedout");
-      var filter = Builders<CheckedOutBook>.Filter.Eq(bcr => bcr.CheckedInDate, null);
+      var checkedOutBooksCollection = mongoDatabase.GetCollection<CheckedOutBook>(fullHistory ? "bookcheckouthistory" : "bookscheckedout");
+      var filter = CreateBookHistoryFilter(studentBarCode, fullHistory);
 
       var checkedOutBooks = await checkedOutBooksCollection.Find(filter).ToListAsync();
 
-      return Ok(new { Data = checkedOutBooks });
+      return Ok(new { Data = checkedOutBooks.OrderByDescending(cob => cob.CheckedOutDate) });
+    }
+
+    private FilterDefinition<CheckedOutBook> CreateBookHistoryFilter(string studentBarCode, bool fullHistory)
+    {
+      var filter = fullHistory ? Builders<CheckedOutBook>.Filter.Empty 
+                               : Builders<CheckedOutBook>.Filter.Eq(bcr => bcr.CheckedInDate, null);
+      if (!string.IsNullOrWhiteSpace(studentBarCode))
+      {
+        filter &= Builders<CheckedOutBook>.Filter.Eq(bcr => bcr.StudentBarCode, studentBarCode);
+      }
+
+      return filter;
     }
 
     [Authorize(Policy = "VolunteerUser")]

@@ -6,7 +6,7 @@ import { Pipe, PipeTransform } from '@angular/core';
 export class SortNamePipe implements PipeTransform {
 
   transform(allObjs: ObjectWithFirstAndLastName[], args?: any): any[] {
-    const sortedObjs = allObjs.slice(0);
+    const sortedObjs = allObjs ? allObjs.slice(0) : [];
     sortedObjs.sort((obj1, obj2) => {
         if (obj1.lastName < obj2.lastName) { return -1; }
         if (obj1.lastName > obj2.lastName) { return 1; }

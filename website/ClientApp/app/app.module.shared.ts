@@ -1,3 +1,5 @@
+import { UtcDatePipe } from './pipes/utc-date.pipe';
+import { StudentReservationHistoryComponent } from './components/student-reservation-history/student-reservation-history.component';
 import { SortDatePipe } from './pipes/sort-date.pipe';
 import { SortNamePipe } from './pipes/sort-name.pipe';
 import { VolunteerLogonsComponent } from './components/volunteer-logons/volunteer-logons.component';
@@ -52,13 +54,15 @@ export const sharedConfig: NgModule = {
         SortClassPipe,
         SortNamePipe,
         SortDatePipe,
+        UtcDatePipe,
         CheckOutBookComponent,
         BookCopyReservationsComponent,
         AddClassComponent,
         CheckInBookComponent,
         UploadStudentsComponent,
         SigninAdminComponent,
-        VolunteerLogonsComponent
+        VolunteerLogonsComponent,
+        StudentReservationHistoryComponent
     ],
     imports: [
         AppRoutingModule,

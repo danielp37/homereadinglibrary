@@ -18,7 +18,7 @@
           [header]="'Checked Out'"
           [resizable]="true">
           <ng-template #dataTableCell let-item="item">
-              {{item.checkedOutDate | date:'MM-dd-yyyy'}}
+              {{item.checkedOutDate | utcDate | date:'shortDate'}}
           </ng-template>
         </data-table-column>
         <data-table-column

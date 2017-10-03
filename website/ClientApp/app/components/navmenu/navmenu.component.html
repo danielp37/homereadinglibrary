@@ -58,6 +58,11 @@
                         <span class='glyphicon glyphicon-book'></span> Check In
                     </a>
                 </li>
+                <li [routerLinkActive]="['link-active']" *ngIf="isAdmin || isVolunteer">
+                    <a [routerLink]="['/checkouthistory']">
+                        <span class='glyphicon glyphicon-book'></span> Student Check Out History
+                    </a>
+                </li>
             </ul>
         </div>
         <button type="button" class="btn btn-primary" (click)="logout()" *ngIf="loggedIn">Logout</button>
