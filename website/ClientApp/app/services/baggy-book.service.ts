@@ -255,17 +255,50 @@ export class BaggyBookService {
     });
   }
 
-  getBookCopyReservations(studentId?: string): Promise<BookCopyReservationWithData[]> {
+  getBookCopyReservations(studentId?: string, params?: DataTableParams):
+    Promise<{count: number, reservations: BookCopyReservationWithData[]}> {
     this.loaderService.display(true);
+    const checkoutParams = this.bookCopyParamsToQueryString(params, studentId, studentId !== undefined);
     return this.authHttp
-      .get(`${this.originUrl}${this.bookCheckOutUrl}${studentId ? `?studentBarCode=${studentId}&fullhistory=true` : ''}`)
+      .get(`${this.originUrl}${this.bookCheckOutUrl}${checkoutParams ? `?${checkoutParams}` : ''}`)
       .toPromise()
       .then(bcr => {
         this.loaderService.display(false);
-        return bcr.json().data as BookCopyReservationWithData[]
+        const result = bcr.json();
+        return {
+          count: result.count,
+          reservations: result.data as BookCopyReservationWithData[]
+        }
       })
       .catch(error => this.handleError(error));
   }
+
+  bookCopyParamsToQueryString(params?: DataTableParams, studentId?: string, fullhistory?: boolean): string {
+    const result = [];
+
+    if (params) {
+      if (params.offset) {
+          result.push(['offset', params.offset]);
+      }
+      if (params.limit) {
+          result.push(['pageSize', params.limit]);
+      }
+      if (params.sortBy) {
+          result.push(['sort', params.sortBy]);
+      }
+      if (params.sortAsc) {
+          result.push(['order', params.sortAsc ? 'ASC' : 'DESC']);
+      }
+    }
+    if (studentId) {
+      result.push(['studentBarCode', studentId]);
+    }
+    if (fullhistory) {
+      result.push(['fullhistory', 'true']);
+    }
+    return result.map(param => param.join('=')).join('&');
+  }
+
   loginVolunteer(volunteerId: string): Promise<boolean> {
     this.loaderService.display(true);
     return this.http

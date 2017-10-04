@@ -26,14 +26,41 @@ namespace aspnetcore_spa.Controllers
 
     [Authorize(Policy = "VolunteerUser")]
     [HttpGet]
-    public async Task<IActionResult> GetCheckedOutBookCopies([FromQuery]string studentBarCode, [FromQuery]bool fullHistory = false)
+    public async Task<IActionResult> GetCheckedOutBookCopies([FromQuery]string studentBarCode, [FromQuery]bool fullHistory = false
+                                                            , [FromQuery]int? offset = null, [FromQuery]int? pageSize = null
+                                                            , [FromQuery]string sortBy = null, [FromQuery]string sortOrder = null)
     {
       var checkedOutBooksCollection = mongoDatabase.GetCollection<CheckedOutBook>(fullHistory ? "bookcheckouthistory" : "bookscheckedout");
       var filter = CreateBookHistoryFilter(studentBarCode, fullHistory);
 
-      var checkedOutBooks = await checkedOutBooksCollection.Find(filter).ToListAsync();
+      var checkedOutBooksFind = checkedOutBooksCollection.Find(filter);
+      var totalCount = await checkedOutBooksFind.CountAsync();
 
-      return Ok(new { Data = checkedOutBooks.OrderByDescending(cob => cob.CheckedOutDate) });
+      if(!string.IsNullOrWhiteSpace(sortBy))
+      {
+        checkedOutBooksFind = checkedOutBooksFind.Sort(
+          string.Equals(sortOrder, "asc", StringComparison.InvariantCultureIgnoreCase) ?
+          Builders<CheckedOutBook>.Sort.Ascending(sortBy) :
+          Builders<CheckedOutBook>.Sort.Descending(sortBy));
+      }
+      else
+      {
+        checkedOutBooksFind = checkedOutBooksFind.SortByDescending(cob => cob.CheckedOutDate);
+      }
+
+      if (offset != null)
+      {
+        checkedOutBooksFind = checkedOutBooksFind.Skip(offset);
+      }
+
+      if (pageSize != null)
+      {
+        checkedOutBooksFind = checkedOutBooksFind.Limit(pageSize);
+      }
+
+      var checkedOutBooks = await checkedOutBooksFind.ToListAsync();
+
+      return Ok(new { Count = totalCount, Data = checkedOutBooks });
     }
 
     private FilterDefinition<CheckedOutBook> CreateBookHistoryFilter(string studentBarCode, bool fullHistory)

@@ -1,9 +1,9 @@
 <div>
-  <div *ngIf="!bookCopyReservations">No books found!</div>
-  <div *ngIf="bookCopyReservations">
+  <div>
       <data-table id="books-grid" headerTitle="Books Checked Out"
         [items]="bookCopyReservations"
-        [itemCount]="bookCopyReservations.length"
+        [itemCount]="totalCount"
+        (reload)="refreshBookList($event)"
         >
         <data-table-column
           [property]="'bookCopy.bookCopyBarCode'"

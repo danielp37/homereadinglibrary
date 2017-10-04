@@ -37,6 +37,6 @@ export class StudentReservationHistoryComponent implements OnInit {
 
   displayStudentReservationHistory(): void {
     this.baggyBookService.getBookCopyReservations(this.selectedStudentId)
-      .then(reservations => this.reservations = reservations);
+      .then(reservations => this.reservations = reservations.reservations);
   }
 }
