@@ -255,10 +255,10 @@ export class BaggyBookService {
     });
   }
 
-  getBookCopyReservations(studentId?: string, params?: DataTableParams):
+  getBookCopyReservations(studentId?: string, params?: DataTableParams, daysBack?: number):
     Promise<{count: number, reservations: BookCopyReservationWithData[]}> {
     this.loaderService.display(true);
-    const checkoutParams = this.bookCopyParamsToQueryString(params, studentId, studentId !== undefined);
+    const checkoutParams = this.bookCopyParamsToQueryString(params, studentId, studentId !== undefined, daysBack);
     return this.authHttp
       .get(`${this.originUrl}${this.bookCheckOutUrl}${checkoutParams ? `?${checkoutParams}` : ''}`)
       .toPromise()
@@ -273,7 +273,7 @@ export class BaggyBookService {
       .catch(error => this.handleError(error));
   }
 
-  bookCopyParamsToQueryString(params?: DataTableParams, studentId?: string, fullhistory?: boolean): string {
+  bookCopyParamsToQueryString(params?: DataTableParams, studentId?: string, fullhistory?: boolean, daysBack?: number): string {
     const result = [];
 
     if (params) {
@@ -295,6 +295,9 @@ export class BaggyBookService {
     }
     if (fullhistory) {
       result.push(['fullhistory', 'true']);
+    }
+    if (daysBack) {
+      result.push(['daysBack', daysBack])
     }
     return result.map(param => param.join('=')).join('&');
   }

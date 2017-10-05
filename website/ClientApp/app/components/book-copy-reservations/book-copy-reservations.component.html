@@ -1,4 +1,12 @@
 <div>
+
+  <form class="form-inline" #showReservationsForm="ngForm" (ngSubmit)="updateBookList(daysBack.value)">
+      <label for="daysBack">Show books checked out more than&nbsp;</label>
+      <input type="text" id="daysBack" name="daysBack" [ngModel]="defaultDaysBack" #daysBack="ngModel">
+      <label for="daysBack">&nbsp;days</label>
+      <button type="submit" class="btn btn-primary">Submit</button>
+  </form>
+
   <div>
       <data-table id="books-grid" headerTitle="Books Checked Out"
         [items]="bookCopyReservations"
@@ -16,7 +24,8 @@
         <data-table-column
           [property]="'checkedOutDate'"
           [header]="'Checked Out'"
-          [resizable]="true">
+          [resizable]="true"
+          [sortable]="true">
           <ng-template #dataTableCell let-item="item">
               {{item.checkedOutDate | utcDate | date:'shortDate'}}
           </ng-template>
@@ -24,7 +33,8 @@
         <data-table-column
           [property]="'bookCopy.title'"
           [header]="'Book Title'"
-          [resizable]="true">
+          [resizable]="true"
+          [sortable]="true">
           <ng-template #dataTableCell let-item="item">
               {{item.bookCopy.title}}
           </ng-template>
@@ -32,15 +42,26 @@
         <data-table-column
           [property]="'bookCopy.author'"
           [header]="'Book Author'"
-          [resizable]="true">
+          [resizable]="true"
+          [sortable]="true">
           <ng-template #dataTableCell let-item="item">
               {{item.bookCopy.author}}
           </ng-template>
         </data-table-column>
         <data-table-column
+          [property]="'bookCopy.guidedReadingLevel'"
+          [header]="'Box'"
+          [resizable]="true"
+          [sortable]="true">
+          <ng-template #dataTableCell let-item="item">
+              {{item.bookCopy.guidedReadingLevel}}{{item.bookCopy.boxNumber}}
+          </ng-template>
+        </data-table-column>
+        <data-table-column
           [property]="'student.teacherName'"
           [header]="'Teacher'"
-          [resizable]="true">
+          [resizable]="true"
+          [sortable]="true">
           <ng-template #dataTableCell let-item="item">
             {{item.student.teacherName}} Grade: {{item.student.grade}}
           </ng-template>
@@ -48,7 +69,8 @@
         <data-table-column
           [property]="'student.lastName'"
           [header]="'Student'"
-          [resizable]="true">
+          [resizable]="true"
+          [sortable]="true">
           <ng-template #dataTableCell let-item="item">
             {{item.student.firstName}} {{item.student.lastName}}<br>
             {{item.student.studentBarCode}}

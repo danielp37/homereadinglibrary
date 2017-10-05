@@ -14,6 +14,8 @@ export class BookCopyReservationsComponent implements OnInit {
   totalCount: number;
   bookCopyReservations: BookCopyReservationWithData[];
   lastSearchParams: DataTableParams;
+  defaultDaysBack = 21;
+  currentDaysBack = this.defaultDaysBack;
 
   constructor(
     private baggyBookService: BaggyBookService
@@ -31,7 +33,7 @@ export class BookCopyReservationsComponent implements OnInit {
   }
 
   getBookCopyReservations() {
-    this.baggyBookService.getBookCopyReservations(undefined, this.lastSearchParams)
+    this.baggyBookService.getBookCopyReservations(undefined, this.lastSearchParams, this.currentDaysBack)
       .then(bcr => {
         this.totalCount = bcr.count;
         this.bookCopyReservations = bcr.reservations;
@@ -43,5 +45,9 @@ export class BookCopyReservationsComponent implements OnInit {
     this.getBookCopyReservations();
   }
 
+  updateBookList(daysBack: number) {
+    this.currentDaysBack = daysBack;
+    this.refreshBookList({offset: 0, limit: 10});
+  }
 
 }

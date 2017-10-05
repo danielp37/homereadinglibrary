@@ -27,21 +27,22 @@ namespace aspnetcore_spa.Controllers
     [Authorize(Policy = "VolunteerUser")]
     [HttpGet]
     public async Task<IActionResult> GetCheckedOutBookCopies([FromQuery]string studentBarCode, [FromQuery]bool fullHistory = false
+                                                            , [FromQuery]int? daysBack = null
                                                             , [FromQuery]int? offset = null, [FromQuery]int? pageSize = null
-                                                            , [FromQuery]string sortBy = null, [FromQuery]string sortOrder = null)
+                                                            , [FromQuery]string sort = null, [FromQuery]string order = null)
     {
       var checkedOutBooksCollection = mongoDatabase.GetCollection<CheckedOutBook>(fullHistory ? "bookcheckouthistory" : "bookscheckedout");
-      var filter = CreateBookHistoryFilter(studentBarCode, fullHistory);
+      var filter = CreateBookHistoryFilter(studentBarCode, fullHistory, daysBack);
 
       var checkedOutBooksFind = checkedOutBooksCollection.Find(filter);
       var totalCount = await checkedOutBooksFind.CountAsync();
 
-      if(!string.IsNullOrWhiteSpace(sortBy))
+      if(!string.IsNullOrWhiteSpace(sort))
       {
         checkedOutBooksFind = checkedOutBooksFind.Sort(
-          string.Equals(sortOrder, "asc", StringComparison.InvariantCultureIgnoreCase) ?
-          Builders<CheckedOutBook>.Sort.Ascending(sortBy) :
-          Builders<CheckedOutBook>.Sort.Descending(sortBy));
+          string.Equals(order, "asc", StringComparison.InvariantCultureIgnoreCase) ?
+          Builders<CheckedOutBook>.Sort.Ascending(sort) :
+          Builders<CheckedOutBook>.Sort.Descending(sort));
       }
       else
       {
@@ -63,13 +64,18 @@ namespace aspnetcore_spa.Controllers
       return Ok(new { Count = totalCount, Data = checkedOutBooks });
     }
 
-    private FilterDefinition<CheckedOutBook> CreateBookHistoryFilter(string studentBarCode, bool fullHistory)
+    private FilterDefinition<CheckedOutBook> CreateBookHistoryFilter(string studentBarCode, bool fullHistory, int? daysBack)
     {
       var filter = fullHistory ? Builders<CheckedOutBook>.Filter.Empty 
                                : Builders<CheckedOutBook>.Filter.Eq(bcr => bcr.CheckedInDate, null);
       if (!string.IsNullOrWhiteSpace(studentBarCode))
       {
         filter &= Builders<CheckedOutBook>.Filter.Eq(bcr => bcr.StudentBarCode, studentBarCode);
+      }
+
+      if (daysBack != null)
+      {
+        filter &= Builders<CheckedOutBook>.Filter.Lte(bcr => bcr.CheckedOutDate, DateTime.UtcNow.Date.AddDays(-daysBack.Value));
       }
 
       return filter;
