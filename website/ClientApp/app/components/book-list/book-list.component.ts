@@ -61,6 +61,8 @@ export class BookListComponent implements OnInit {
           return { author: searchText };
         case 'ReadingLevel/Box':
           return { boxNumber: searchText };
+        case 'Book BarCode':
+          return { bookBarCode: searchText };
       }
     }
     return {};

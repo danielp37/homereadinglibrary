@@ -25,13 +25,14 @@ namespace aspnetcore_spa.Controllers
 
     [Authorize(Policy = "AdminUser")]
     [HttpGet]
-    public async Task<IActionResult> Get([FromQuery]int offset = 0, [FromQuery]int pageSize = 10,
-        [FromQuery]string title = null, [FromQuery]string author = null, [FromQuery]string boxNumber = null)
+    public async Task<IActionResult> Get([FromQuery]int offset = 0, [FromQuery]int pageSize = 10
+        , [FromQuery]string title = null, [FromQuery]string author = null, [FromQuery]string boxNumber = null
+        , [FromQuery]string bookBarCode = null)
     {
       if (offset < 0) offset = 0;
       if (pageSize < 1) pageSize = 1;
 
-      var filter = BuildFilter(title, author, boxNumber);
+      var filter = BuildFilter(title, author, boxNumber, bookBarCode);
 
       var entityCount = await bookCollection.Find(filter).CountAsync();
       var entities = await bookCollection.Find(filter)
@@ -49,9 +50,10 @@ namespace aspnetcore_spa.Controllers
 
     [Authorize(Policy = "AdminUser")]
     [HttpGet("ExportToTab")]
-    public async Task<IActionResult> ExportToTab([FromQuery]string title = null, [FromQuery]string author = null, [FromQuery]string boxNumber = null)
+    public async Task<IActionResult> ExportToTab([FromQuery]string title = null, [FromQuery]string author = null, [FromQuery]string boxNumber = null
+          , [FromQuery]string bookBarCode = null)
     {
-      var filter = BuildFilter(title, author, boxNumber);
+      var filter = BuildFilter(title, author, boxNumber, bookBarCode);
       var entities = await bookCollection.Find(filter)
           .SortByDescending(b => b.CreatedDate)
           .ToListAsync();
@@ -75,7 +77,7 @@ namespace aspnetcore_spa.Controllers
       return File(file, "text/tab-separated-values", "book-list.txt");
     }
 
-    private FilterDefinition<Book> BuildFilter(string title, string author, string boxNumber)
+    private FilterDefinition<Book> BuildFilter(string title, string author, string boxNumber, string bookBarCode)
     {
       var builder = Builders<Book>.Filter;
       if (!string.IsNullOrWhiteSpace(title))
@@ -93,6 +95,10 @@ namespace aspnetcore_spa.Controllers
         return number != null ? builder.Eq(b => b.GuidedReadingLevel, readingLevel) &
                                 builder.Eq(b => b.BoxNumber, number)
                             : builder.Eq(b => b.GuidedReadingLevel, readingLevel);
+      }
+      if (!string.IsNullOrWhiteSpace(bookBarCode))
+      {
+        return $"{{ \"bookCopies.barCode\" : \"{bookBarCode}\"}}";
       }
       return builder.Empty;
     }

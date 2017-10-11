@@ -146,20 +146,17 @@ export class BaggyBookService {
         result.push(['pageSize', params.limit]);
     }
     if (searchParameters.title) {
-        result.push(['title', searchParameters.title])
+        result.push(['title', searchParameters.title]);
     }
     if (searchParameters.author) {
-      result.push(['author', searchParameters.author])
+      result.push(['author', searchParameters.author]);
     }
     if (searchParameters.boxNumber) {
-      result.push(['boxNumber', searchParameters.boxNumber])
+      result.push(['boxNumber', searchParameters.boxNumber]);
     }
-// if (params.sortBy != null) {
-    //     result.push(['_sort', params.sortBy]);
-    // }
-    // if (params.sortAsc != null) {
-    //     result.push(['_order', params.sortAsc ? 'ASC' : 'DESC']);
-    // }
+    if (searchParameters.bookBarCode) {
+      result.push(['bookBarCode', searchParameters.bookBarCode]);
+    }
 
     return result.map(param => param.join('=')).join('&');
   }
