@@ -2,7 +2,7 @@ import { DataTableParams } from 'angular-2-data-table';
 import { BookCopyReservationWithData } from './../../entities/book-copy-reservation-with-data';
 import { BaggyBookService } from './../../services/baggy-book.service';
 import { BookCopyReservation } from './../../entities/book-copy-reservation';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Renderer2 } from '@angular/core';
 
 @Component({
   selector: 'app-book-copy-reservations',
@@ -16,9 +16,11 @@ export class BookCopyReservationsComponent implements OnInit {
   lastSearchParams: DataTableParams;
   defaultDaysBack = 21;
   currentDaysBack = this.defaultDaysBack;
+  downloadLink: string;
 
   constructor(
-    private baggyBookService: BaggyBookService
+    private baggyBookService: BaggyBookService,
+    private renderer: Renderer2
   ) {
     this.lastSearchParams = {
       offset: 0,
@@ -38,6 +40,19 @@ export class BookCopyReservationsComponent implements OnInit {
         this.totalCount = bcr.count;
         this.bookCopyReservations = bcr.reservations;
       });
+  }
+
+  exportToTab() {
+    this.baggyBookService.downloadBookCopyReservations(undefined, this.lastSearchParams, this.currentDaysBack)
+      .then(b => {
+        this.downloadLink = b.downloadLink;
+        setTimeout(() => this.clickDownloadLink(), 0);
+      });
+  }
+
+  clickDownloadLink() {
+    const downloadReport = this.renderer.selectRootElement('#downloadReport');
+    downloadReport.click();
   }
 
   refreshBookList(params: DataTableParams) {

@@ -273,7 +273,23 @@ export class BaggyBookService {
       .catch(error => this.handleError(error));
   }
 
-  bookCopyParamsToQueryString(params?: DataTableParams, studentId?: string, fullhistory?: boolean, daysBack?: number): string {
+  downloadBookCopyReservations(studentId?: string, params?: DataTableParams, daysBack?: number): Promise<{ downloadLink: string}> {
+    this.loaderService.display(true);
+    const checkoutParams = this.bookCopyParamsToQueryString(params, studentId, studentId !== undefined, daysBack, true);
+    return this.authHttp
+    .get(`${this.originUrl}${this.bookCheckOutUrl}${checkoutParams ? `?${checkoutParams}` : ''}`)
+    .toPromise()
+    .then(bcr => {
+      this.loaderService.display(false);
+      const result = bcr.json() as { downloadLink: string };
+      return result;
+    })
+    .catch(error => this.handleError(error));
+
+  }
+
+  bookCopyParamsToQueryString(params?: DataTableParams, studentId?: string, fullhistory?: boolean, daysBack?: number
+    , exportAsTab?: boolean): string {
     const result = [];
 
     if (params) {
@@ -297,7 +313,10 @@ export class BaggyBookService {
       result.push(['fullhistory', 'true']);
     }
     if (daysBack) {
-      result.push(['daysBack', daysBack])
+      result.push(['daysBack', daysBack]);
+    }
+    if (exportAsTab) {
+      result.push(['exportAsTab', 'true']);
     }
     return result.map(param => param.join('=')).join('&');
   }

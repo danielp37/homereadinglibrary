@@ -10,6 +10,10 @@ using static AspnetCore.Identity.MongoDb.JwtModels.Constants.Strings;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Linq;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace aspnetcore_spa.Controllers
 {
@@ -18,10 +22,13 @@ namespace aspnetcore_spa.Controllers
   {
     protected readonly IMongoDatabase mongoDatabase;
     protected readonly IMongoCollection<BookCopyReservation> reservationCollection;
-    public BookCopyReservationsController()
+    private readonly IMemoryCache memoryCache;
+
+    public BookCopyReservationsController(IMemoryCache memoryCache)
     {
       mongoDatabase = MongoConfig.Database;
       reservationCollection = mongoDatabase.GetCollection<BookCopyReservation>("currentreservations");
+      this.memoryCache = memoryCache;
     }
 
     [Authorize(Policy = "VolunteerUser")]
@@ -29,7 +36,8 @@ namespace aspnetcore_spa.Controllers
     public async Task<IActionResult> GetCheckedOutBookCopies([FromQuery]string studentBarCode, [FromQuery]bool fullHistory = false
                                                             , [FromQuery]int? daysBack = null
                                                             , [FromQuery]int? offset = null, [FromQuery]int? pageSize = null
-                                                            , [FromQuery]string sort = null, [FromQuery]string order = null)
+                                                            , [FromQuery]string sort = null, [FromQuery]string order = null
+                                                            , [FromQuery]bool exportAsTab = false)
     {
       var checkedOutBooksCollection = mongoDatabase.GetCollection<CheckedOutBook>(fullHistory ? "bookcheckouthistory" : "bookscheckedout");
       var filter = CreateBookHistoryFilter(studentBarCode, fullHistory, daysBack);
@@ -49,19 +57,65 @@ namespace aspnetcore_spa.Controllers
         checkedOutBooksFind = checkedOutBooksFind.SortByDescending(cob => cob.CheckedOutDate);
       }
 
-      if (offset != null)
+      if (!exportAsTab)
       {
-        checkedOutBooksFind = checkedOutBooksFind.Skip(offset);
-      }
+        if (offset != null)
+        {
+          checkedOutBooksFind = checkedOutBooksFind.Skip(offset);
+        }
 
-      if (pageSize != null)
-      {
-        checkedOutBooksFind = checkedOutBooksFind.Limit(pageSize);
+        if (pageSize != null)
+        {
+          checkedOutBooksFind = checkedOutBooksFind.Limit(pageSize);
+        }
       }
 
       var checkedOutBooks = await checkedOutBooksFind.ToListAsync();
 
+      if (exportAsTab)
+      {
+        return CheckedOutBooksAsTabDelimited(checkedOutBooks);
+      }
       return Ok(new { Count = totalCount, Data = checkedOutBooks });
+    }
+
+    [AllowAnonymous]
+    [HttpGet("download")]
+    public IActionResult DownloadCheckedOutBookCopies(string guid)
+    {
+      var file = memoryCache.Get<byte[]>(guid);
+      if (file != null)
+      {
+        memoryCache.Remove(guid);
+        return File(file, "text/tab-separated-values", "book-reservations.txt");
+      }
+
+      return NotFound();
+    }
+
+    private IActionResult CheckedOutBooksAsTabDelimited(List<CheckedOutBook> checkedOutBooks)
+    {
+      var resultsAsTab = new[] { "BookCopyBarCode\tCheckOutDate\tCheckedInDate\tTitle\tAuthor\tReadingLevel\tTeacher Name\tGrade\tStudent First Name\tStudent Last Name" }
+          .Union(checkedOutBooks.Select(cob =>
+          $"{cob.BookCopy.BookCopyBarCode}\t{cob.CheckedOutDate.ToString("d")}\t{cob.CheckedInDate?.ToString("d")}\t{cob.BookCopy.Title}\t" +
+          $"{cob.BookCopy.Author}\t{cob.BookCopy.GuidedReadingLevel}{cob.BookCopy.BoxNumber}\t{cob.BookCopy.Author}\t" +
+          $"{cob.Student.TeacherName}\t{cob.Student.Grade}\t{cob.Student.FirstName}\t{cob.Student.LastName}"));
+      byte[] file = null;
+      using (var stream = new MemoryStream())
+      {
+        using (var writer = new StreamWriter(stream, Encoding.UTF8))
+        {
+          writer.Write(string.Join("\r\n", resultsAsTab));
+          writer.Flush();
+          file = stream.ToArray();
+        }
+      }
+
+      var cacheKey = Guid.NewGuid();
+      memoryCache.Set(cacheKey.ToString(), file);
+
+      return Ok(new { DownloadLink = $"/api/bookcopyreservations/download?guid={cacheKey.ToString()}" });
+      //return File(file, "text/tab-separated-values", "book-reservations.txt");
     }
 
     private FilterDefinition<CheckedOutBook> CreateBookHistoryFilter(string studentBarCode, bool fullHistory, int? daysBack)
