@@ -16,6 +16,7 @@
 
 <table class="table" *ngIf="selectedStudentId">
     <thead>
+      <th>Bar Code</th>
       <th>Title</th>
       <th>Author</th>
       <th>Box</th>
@@ -24,6 +25,7 @@
     </thead>
     <tbody>
       <tr *ngFor="let res of reservations">
+        <td>{{res.bookCopy.bookCopyBarCode}}</td>
         <td>{{res.bookCopy.title}}</td>
         <td>{{res.bookCopy.author}}</td>
         <td>{{res.bookCopy.guidedReadingLevel}}{{res.bookCopy.boxNumber}}</td>
