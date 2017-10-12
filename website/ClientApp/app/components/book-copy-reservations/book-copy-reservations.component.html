@@ -7,7 +7,22 @@
       <button type="submit" class="btn btn-primary">Submit</button>
       <button class="btn btn-secondary" (click)="exportToTab()">Export To File</button>
       <a [href]="downloadLink" id="downloadReport"></a>
-  </form>
+      <hr>
+
+      <label for="searchType">Book Search</label>
+      <select id="searchType" class="form-control" name="searchType" [(ngModel)]="searchType">
+        <option>Title</option>
+        <option>Author</option>
+        <option>Teacher</option>
+        <option>Grade</option>
+        <option>Student Name</option>
+        <option>ReadingLevel/Box</option>
+        <option>Book BarCode</option>
+      </select>
+      <input id="searchText" class="form-control" name="searchText" [(ngModel)]="searchText" >
+      <button type="submit" class="btn btn-primary">Search</button>
+      <hr>
+    </form>
 
   <div>
       <data-table id="books-grid" headerTitle="Books Checked Out"

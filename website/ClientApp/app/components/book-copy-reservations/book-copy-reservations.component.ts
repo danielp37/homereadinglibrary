@@ -1,3 +1,4 @@
+import { BookSearchParameters } from './../../services/Book-Search-Parameters';
 import { DataTableParams } from 'angular-2-data-table';
 import { BookCopyReservationWithData } from './../../entities/book-copy-reservation-with-data';
 import { BaggyBookService } from './../../services/baggy-book.service';
@@ -17,6 +18,8 @@ export class BookCopyReservationsComponent implements OnInit {
   defaultDaysBack = 21;
   currentDaysBack = this.defaultDaysBack;
   downloadLink: string;
+  searchType = 'Title';
+  searchText = '';
 
   constructor(
     private baggyBookService: BaggyBookService,
@@ -35,7 +38,7 @@ export class BookCopyReservationsComponent implements OnInit {
   }
 
   getBookCopyReservations() {
-    this.baggyBookService.getBookCopyReservations(undefined, this.lastSearchParams, this.currentDaysBack)
+    this.baggyBookService.getBookCopyReservations(undefined, this.lastSearchParams, this.currentDaysBack, this.getBookSearchParameters())
       .then(bcr => {
         this.totalCount = bcr.count;
         this.bookCopyReservations = bcr.reservations;
@@ -43,7 +46,8 @@ export class BookCopyReservationsComponent implements OnInit {
   }
 
   exportToTab() {
-    this.baggyBookService.downloadBookCopyReservations(undefined, this.lastSearchParams, this.currentDaysBack)
+    this.baggyBookService.downloadBookCopyReservations(undefined, this.lastSearchParams, this.currentDaysBack
+      , this.getBookSearchParameters())
       .then(b => {
         this.downloadLink = b.downloadLink;
         setTimeout(() => this.clickDownloadLink(), 0);
@@ -65,4 +69,27 @@ export class BookCopyReservationsComponent implements OnInit {
     this.refreshBookList({offset: 0, limit: 10});
   }
 
+  getBookSearchParameters(): BookSearchParameters {
+    if (this.searchText) {
+      switch (this.searchType) {
+        case 'Title':
+          return { title: this.searchText };
+        case 'Author':
+          return { author: this.searchText };
+        case 'ReadingLevel/Box':
+          return { boxNumber: this.searchText };
+        case 'Book BarCode':
+          return { bookBarCode: this.searchText };
+        case 'Teacher':
+          return { teacherName: this.searchText };
+        case 'Student Name':
+          return { studentName: this.searchText };
+        case 'Book BarCode':
+          return { bookBarCode: this.searchText };
+        case 'Grade':
+          return { grade: this.searchText };
+      }
+    }
+    return {};
+  }
 }

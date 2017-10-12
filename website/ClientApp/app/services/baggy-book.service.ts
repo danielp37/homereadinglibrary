@@ -252,10 +252,12 @@ export class BaggyBookService {
     });
   }
 
-  getBookCopyReservations(studentId?: string, params?: DataTableParams, daysBack?: number):
-    Promise<{count: number, reservations: BookCopyReservationWithData[]}> {
+  getBookCopyReservations(studentId?: string, params?: DataTableParams, daysBack?: number
+      , bookSearchParameters?: BookSearchParameters):
+      Promise<{count: number, reservations: BookCopyReservationWithData[]}> {
     this.loaderService.display(true);
-    const checkoutParams = this.bookCopyParamsToQueryString(params, studentId, studentId !== undefined, daysBack);
+    const checkoutParams = this.bookCopyParamsToQueryString(params, studentId, studentId !== undefined, daysBack
+      , false, bookSearchParameters);
     return this.authHttp
       .get(`${this.originUrl}${this.bookCheckOutUrl}${checkoutParams ? `?${checkoutParams}` : ''}`)
       .toPromise()
@@ -270,9 +272,12 @@ export class BaggyBookService {
       .catch(error => this.handleError(error));
   }
 
-  downloadBookCopyReservations(studentId?: string, params?: DataTableParams, daysBack?: number): Promise<{ downloadLink: string}> {
+  downloadBookCopyReservations(studentId?: string, params?: DataTableParams, daysBack?: number
+      , bookSearchParameters?: BookSearchParameters):
+      Promise<{ downloadLink: string}> {
     this.loaderService.display(true);
-    const checkoutParams = this.bookCopyParamsToQueryString(params, studentId, studentId !== undefined, daysBack, true);
+    const checkoutParams = this.bookCopyParamsToQueryString(params, studentId, studentId !== undefined, daysBack
+      , true, bookSearchParameters);
     return this.authHttp
     .get(`${this.originUrl}${this.bookCheckOutUrl}${checkoutParams ? `?${checkoutParams}` : ''}`)
     .toPromise()
@@ -286,7 +291,7 @@ export class BaggyBookService {
   }
 
   bookCopyParamsToQueryString(params?: DataTableParams, studentId?: string, fullhistory?: boolean, daysBack?: number
-    , exportAsTab?: boolean): string {
+    , exportAsTab?: boolean, bookSearchParameters?: BookSearchParameters): string {
     const result = [];
 
     if (params) {
@@ -301,6 +306,13 @@ export class BaggyBookService {
       }
       if (params.sortAsc) {
           result.push(['order', params.sortAsc ? 'ASC' : 'DESC']);
+      }
+    }
+    if (bookSearchParameters) {
+      for (const key in bookSearchParameters) {
+        if (bookSearchParameters.hasOwnProperty(key)) {
+          result.push([key, bookSearchParameters[key]]);
+        }
       }
     }
     if (studentId) {

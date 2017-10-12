@@ -14,6 +14,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using Microsoft.Extensions.Caching.Memory;
+using System.ComponentModel;
+using System.Text.RegularExpressions;
 
 namespace aspnetcore_spa.Controllers
 {
@@ -37,10 +39,11 @@ namespace aspnetcore_spa.Controllers
                                                             , [FromQuery]int? daysBack = null
                                                             , [FromQuery]int? offset = null, [FromQuery]int? pageSize = null
                                                             , [FromQuery]string sort = null, [FromQuery]string order = null
-                                                            , [FromQuery]bool exportAsTab = false)
+                                                            , [FromQuery]bool exportAsTab = false
+                                                            , [FromQuery]BookSearchParameters parameters = null)
     {
       var checkedOutBooksCollection = mongoDatabase.GetCollection<CheckedOutBook>(fullHistory ? "bookcheckouthistory" : "bookscheckedout");
-      var filter = CreateBookHistoryFilter(studentBarCode, fullHistory, daysBack);
+      var filter = CreateBookHistoryFilter(studentBarCode, fullHistory, daysBack, parameters);
 
       var checkedOutBooksFind = checkedOutBooksCollection.Find(filter);
       var totalCount = await checkedOutBooksFind.CountAsync();
@@ -118,18 +121,57 @@ namespace aspnetcore_spa.Controllers
       //return File(file, "text/tab-separated-values", "book-reservations.txt");
     }
 
-    private FilterDefinition<CheckedOutBook> CreateBookHistoryFilter(string studentBarCode, bool fullHistory, int? daysBack)
+    private FilterDefinition<CheckedOutBook> CreateBookHistoryFilter(string studentBarCode, bool fullHistory, int? daysBack
+                                                                     , BookSearchParameters bookSearchParameters)
     {
-      var filter = fullHistory ? Builders<CheckedOutBook>.Filter.Empty 
-                               : Builders<CheckedOutBook>.Filter.Eq(bcr => bcr.CheckedInDate, null);
+      var builder = Builders<CheckedOutBook>.Filter;
+      var filter = fullHistory ? builder.Empty 
+                               : builder.Eq(bcr => bcr.CheckedInDate, null);
       if (!string.IsNullOrWhiteSpace(studentBarCode))
       {
-        filter &= Builders<CheckedOutBook>.Filter.Eq(bcr => bcr.StudentBarCode, studentBarCode);
+        filter &= builder.Eq(bcr => bcr.StudentBarCode, studentBarCode);
       }
 
       if (daysBack != null)
       {
-        filter &= Builders<CheckedOutBook>.Filter.Lte(bcr => bcr.CheckedOutDate, DateTime.UtcNow.Date.AddDays(-daysBack.Value));
+        filter &= builder.Lte(bcr => bcr.CheckedOutDate, DateTime.UtcNow.Date.AddDays(-daysBack.Value));
+      }
+
+      if (bookSearchParameters != null)
+      {
+        if (!string.IsNullOrWhiteSpace(bookSearchParameters.Title))
+        {
+          filter &= builder.Regex(b => b.BookCopy.Title, new Regex($".*{bookSearchParameters.Title}.*", RegexOptions.IgnoreCase));
+        }
+        if (!string.IsNullOrWhiteSpace(bookSearchParameters.Author))
+        {
+          filter &= builder.Regex(b => b.BookCopy.Author, new Regex($".*{bookSearchParameters.Author}.*", RegexOptions.IgnoreCase));
+        }
+        if (!string.IsNullOrWhiteSpace(bookSearchParameters.BookBarCode))
+        {
+          filter &= builder.Regex(b => b.BookCopy.BookCopyBarCode, new Regex($".*{bookSearchParameters.BookBarCode}.*", RegexOptions.IgnoreCase));
+        }
+        if (!string.IsNullOrWhiteSpace(bookSearchParameters.TeacherName))
+        {
+          filter &= builder.Regex(b => b.Student.TeacherName, new Regex($".*{bookSearchParameters.TeacherName}.*", RegexOptions.IgnoreCase));
+        }
+        if (!string.IsNullOrWhiteSpace(bookSearchParameters.StudentName))
+        {
+          filter &= builder.Regex(b => b.Student.FirstName, new Regex($".*{bookSearchParameters.StudentName}.*", RegexOptions.IgnoreCase))
+                                            | builder.Regex(b => b.Student.LastName, new Regex($".*{bookSearchParameters.StudentName}.*", RegexOptions.IgnoreCase));
+        }
+        if (!string.IsNullOrWhiteSpace(bookSearchParameters.Grade))
+        {
+          filter &= builder.Eq(b => b.Student.Grade, Convert.ToInt32(bookSearchParameters.Grade));
+        }
+        if (!string.IsNullOrWhiteSpace(bookSearchParameters.BoxNumber))
+        {
+          var readingLevel = bookSearchParameters.BoxNumber.Substring(0, 1);
+          var number = bookSearchParameters.BoxNumber.Length > 1 ? bookSearchParameters.BoxNumber.Substring(1) : null;
+          return number != null ? builder.Eq(b => b.BookCopy.GuidedReadingLevel, readingLevel) &
+                                  builder.Eq(b => b.BookCopy.BoxNumber, number)
+                              : builder.Eq(b => b.BookCopy.GuidedReadingLevel, readingLevel);        
+        }
       }
 
       return filter;
@@ -216,6 +258,17 @@ namespace aspnetcore_spa.Controllers
     {
       public string BookCopyBarCode { get; set; }
       public string StudentBarCode { get; set; }
+    }
+
+    public class BookSearchParameters
+    {
+      public string Title { get; set; }
+      public string Author { get; set; }
+      public string BoxNumber { get; set; }
+      public string BookBarCode { get; set; }
+      public string TeacherName { get; set; }
+      public string StudentName { get; set; }
+      public string Grade { get; set; }
     }
   }
 }
