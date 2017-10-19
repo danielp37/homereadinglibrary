@@ -44,7 +44,7 @@
           [resizable]="true"
           [sortable]="true">
           <ng-template #dataTableCell let-item="item">
-              {{item.checkedOutDate | utcDate | date:'shortDate'}}
+              {{item.checkedOutDate | utcDate | date:'shortDate'}}<br>{{item.checkedOutBy}}
           </ng-template>
         </data-table-column>
         <data-table-column

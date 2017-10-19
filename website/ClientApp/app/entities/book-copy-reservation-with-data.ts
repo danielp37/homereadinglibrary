@@ -5,5 +5,7 @@ export interface BookCopyReservationWithData {
     bookCopy: BookCopyWithBook;
     student: StudentWithTeacher;
     checkedOutDate: Date;
+    checkedOutBy: string;
     checkedInDate?: Date;
+    checkedInBy: string;
 }

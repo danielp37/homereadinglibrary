@@ -272,6 +272,23 @@ export class BaggyBookService {
       .catch(error => this.handleError(error));
   }
 
+  getBookCopyReservationsForBookCopy(bookBarCode: string):
+    Promise<{count: number, reservations: BookCopyReservationWithData[]}> {
+    this.loaderService.display(true);
+    return this.authHttp
+      .get(`${this.originUrl}${this.bookCheckOutUrl}?bookBarCode=${bookBarCode}&fullHistory=true`)
+      .toPromise()
+      .then(bcr => {
+        this.loaderService.display(false);
+        const result = bcr.json();
+        return {
+          count: result.count,
+          reservations: result.data as BookCopyReservationWithData[]
+        }
+      })
+      .catch(error => this.handleError(error));
+  }
+
   downloadBookCopyReservations(studentId?: string, params?: DataTableParams, daysBack?: number
       , bookSearchParameters?: BookSearchParameters):
       Promise<{ downloadLink: string}> {

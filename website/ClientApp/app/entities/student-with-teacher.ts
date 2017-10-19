@@ -3,6 +3,7 @@ export interface StudentWithTeacher {
     studentBarCode: string;
     teacherName: string;
     grade: number;
-    student: Student;
+    firstName: string;
+    lastName: string;
     teacherId: string;
 }

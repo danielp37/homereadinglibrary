@@ -149,7 +149,7 @@ namespace aspnetcore_spa.Controllers
         }
         if (!string.IsNullOrWhiteSpace(bookSearchParameters.BookBarCode))
         {
-          filter &= builder.Regex(b => b.BookCopy.BookCopyBarCode, new Regex($".*{bookSearchParameters.BookBarCode}.*", RegexOptions.IgnoreCase));
+          filter &= builder.Eq(b => b.BookCopyBarCode, bookSearchParameters.BookBarCode);
         }
         if (!string.IsNullOrWhiteSpace(bookSearchParameters.TeacherName))
         {

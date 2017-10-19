@@ -1,3 +1,4 @@
+import { BookReservationHistoryComponent } from './../../components/book-reservation-history/book-reservation-history.component';
 import { StudentReservationHistoryComponent } from './../../components/student-reservation-history/student-reservation-history.component';
 import { VolunteerLogonsComponent } from './../../components/volunteer-logons/volunteer-logons.component';
 import { AuthGuard } from './../app-auth/services/authguard.service';
@@ -27,6 +28,7 @@ const routes: Routes = [
             { path: 'bookscheckedout', component: BookCopyReservationsComponent, canActivate: [AuthGuard]},
             { path: 'logons', component: VolunteerLogonsComponent, canActivate: [AuthGuard]},
             { path: 'checkouthistory', component: StudentReservationHistoryComponent, canActivate: [AuthGuard]},
+            { path: 'bookcheckouthistory', component: BookReservationHistoryComponent, canActivate: [AuthGuard]},
             { path: '**', redirectTo: 'home' }
         ];
 /*[

@@ -12,6 +12,9 @@
       <option value="">(Select a student)</option>
       <option *ngFor="let student of (selectedClass?.students | sortName)" [ngValue]="student.barCode">{{student.lastName}}, {{student.firstName}}</option>
     </select>
+    <div *ngIf="selectedStudentId">
+      Student Bar Code: {{selectedStudentId}}
+    </div>
 </div>
 
 <table class="table" *ngIf="selectedStudentId">
@@ -29,8 +32,8 @@
         <td>{{res.bookCopy.title}}</td>
         <td>{{res.bookCopy.author}}</td>
         <td>{{res.bookCopy.guidedReadingLevel}}{{res.bookCopy.boxNumber}}</td>
-        <td>{{res.checkedOutDate | utcDate | date:'shortDate'}}</td>
-        <td>{{res.checkedInDate | utcDate | date:'shortDate'}}</td>
+        <td>{{res.checkedOutDate | utcDate | date:'shortDate'}}<br>{{res.checkedOutBy}}</td>
+        <td>{{res.checkedInDate | utcDate | date:'shortDate'}}<br>{{res.checkedInBy}}</td>
       </tr>
     </tbody>
   </table>

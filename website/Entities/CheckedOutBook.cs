@@ -7,8 +7,11 @@ namespace website.Entities
   {
     public string Id { get; set; }
     public DateTime CheckedOutDate { get; set; }
+    public string CheckedOutBy { get; set; }
+    public string CheckedInBy { get; set; }
     public DateTime? CheckedInDate { get; set; }
     public string StudentBarCode { get; set; }
+    public string BookCopyBarCode { get; set; }
     public CheckedOutBookCopy BookCopy { get; set; }
     public CheckedOutStudent Student { get; set; }
 
