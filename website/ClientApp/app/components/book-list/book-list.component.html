@@ -1,5 +1,5 @@
 <div>
-  <app-add-book (onBookAdded)="bookAdded($event)"></app-add-book>
+  <app-add-book (onBookAdded)="bookAdded($event)" [currentBookIsbn]="currentBookIsbn"></app-add-book>
 
   <hr>
 
@@ -13,7 +13,7 @@
     </select>
     <input id="searchText" class="form-control" formControlName="searchText" (keyup.enter)="searchBooks()" >
     <button class="btn btn-primary" (click)="searchBooks()">Search</button>
-    <button class="btn btn-secondary" (click)="exportToTab()">Export To File</button>
+    <button class="btn btn-default" (click)="exportToTab()">Export To File</button>
   </form>
 
   <div>
@@ -21,6 +21,7 @@
         [items]="bookList.books"
         [itemCount]="bookList.count"
         (reload)="refreshBookList($event)"
+        (rowClick)="rowClicked($event)"
         >
         <data-table-column
           [property]="'title'"

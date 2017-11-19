@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AspnetCore.Identity.MongoDb;
+using aspnetcore_spa.Controllers;
 using aspnetcore_spa.Startup;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -12,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
+using website.Services;
 
 namespace WebApplicationBasic
 {
@@ -49,6 +51,9 @@ namespace WebApplicationBasic
       services.AddApplicationInsightsTelemetry(Configuration);
 
       services.AddMemoryCache();
+
+      services.AddTransient<IBookCopyReservationService, BookCopyReservationService>();
+      services.AddTransient<IBookService, BookService>();
 
     }
 

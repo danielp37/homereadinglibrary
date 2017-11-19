@@ -16,6 +16,7 @@ export class BookListComponent implements OnInit {
   bookList: BookList;
   lastSearchParams: DataTableParams;
   searchBookForm: FormGroup;
+  currentBookIsbn: string;
 
   constructor(
     private baggyBookService: BaggyBookService,
@@ -74,5 +75,9 @@ export class BookListComponent implements OnInit {
 
   exportToTab() {
     this.baggyBookService.exportBooks(this.getBookSearchParameters());
+  }
+
+  rowClicked(rowEvent) {
+    this.currentBookIsbn = rowEvent.row.item.isbn;
   }
 }

@@ -11,6 +11,7 @@ using Microsoft.Net.Http.Headers;
 using System.IO;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
+using website.Services;
 
 namespace aspnetcore_spa.Controllers
 {
@@ -18,8 +19,11 @@ namespace aspnetcore_spa.Controllers
   public class BooksController : EntityController<Book>
   {
     private readonly IMongoCollection<Book> bookCollection;
-    public BooksController() : base("books")
+    private readonly IBookService bookService;
+
+    public BooksController(IBookService bookService) : base("books")
     {
+      this.bookService = bookService;
       bookCollection = mongoDatabase.GetCollection<Book>(_collectionName);
     }
 
@@ -172,6 +176,35 @@ namespace aspnetcore_spa.Controllers
       var book = bookCollection.AsQueryable()
                       .Where(b => b.Id == bookId)
                       .SingleOrDefault();
+
+      if (book == null)
+      {
+        return NotFound();
+      }
+
+      return Ok(new { Data = book });
+    }
+
+    [Authorize(Policy = "AdminUser")]
+    [HttpPut("{bookId}/bookcopy/{barCode}/marklost")]
+    public async Task<IActionResult> MarkBookCopyLost(string bookId, string barCode)
+    {
+      var book = await bookService.MarkBookCopyLostAsync(bookId, barCode, User);
+
+      if (book == null)
+      {
+        return NotFound();
+      }
+
+      return Ok(new { Data = book });
+    }
+
+    [Authorize(Policy = "AdminUser")]
+    [HttpPut("{bookId}/bookcopy/{barCode}/markdamaged")]
+    public async Task<IActionResult> MarkBookCopyDamaged(string bookId, string barCode)
+    {
+      var book = await bookService.MarkBookCopyDamagedAsync(bookId, barCode, User);
+
 
       if (book == null)
       {

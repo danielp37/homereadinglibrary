@@ -1,6 +1,6 @@
 import { BookCopy } from './../../entities/book-copy';
 import { BaggyBookService } from './../../services/baggy-book.service';
-import { Component, OnInit, Output, EventEmitter, Renderer2 } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, Renderer2, Input } from '@angular/core';
 import { BookLookupService } from '../../services/book-lookup.service';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { Book } from '../../entities/book';
@@ -86,6 +86,17 @@ export class AddBookComponent implements OnInit {
     this._currentBook = book;
   }
 
+  @Input()set currentBookIsbn(isbn: string) {
+    if (isbn) {
+      this.baggyBookService.getBookByIsbn(isbn)
+        .then(existingBook => {
+          this.currentBook = existingBook;
+          this.addBookForm.value.isbn = isbn;
+          this.focusBookBarCode();
+        });
+    }
+  }
+
   enableNewBookEntry() {
     this.currentBook = null;
     this.addBookForm.get('author').setValue('');
@@ -138,7 +149,23 @@ export class AddBookComponent implements OnInit {
       .then(book => {
         this.onBookAdded.emit(book);
         this.currentBook = book;
-      })
+      });
+  }
+
+  markBookCopyLost(barCode: string) {
+    this.baggyBookService.markBookCopyLost(this.currentBook.id, barCode)
+      .then(book => {
+        this.onBookAdded.emit(book);
+        this.currentBook = book;
+      });
+  }
+
+  markBookCopyDamaged(barCode: string) {
+    this.baggyBookService.markBookCopyDamaged(this.currentBook.id, barCode)
+      .then(book => {
+        this.onBookAdded.emit(book);
+        this.currentBook = book;
+      });
   }
 
   addNewBook() {

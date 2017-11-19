@@ -193,6 +193,22 @@ export class BaggyBookService {
       .catch(error => this.handleError(error));
   }
 
+  markBookCopyLost(bookId: string, barCode: string): Promise<Book> {
+    return this.authHttp
+      .put(`${this.originUrl}${this.booksUrl}/${bookId}/bookcopy/${barCode}/marklost`, '', {headers: this.headers})
+      .toPromise()
+      .then(book => Book.fromObject(book.json().data))
+      .catch(error => this.handleError(error));
+  }
+
+  markBookCopyDamaged(bookId: string, barCode: string): Promise<Book> {
+    return this.authHttp
+      .put(`${this.originUrl}${this.booksUrl}/${bookId}/bookcopy/${barCode}/markdamaged`, '', {headers: this.headers})
+      .toPromise()
+      .then(book => Book.fromObject(book.json().data))
+      .catch(error => this.handleError(error));
+  }
+
   getBook(bookId: string): Promise<Book> {
     return this.authHttp
       .get(`${this.originUrl}${this.booksUrl}/${bookId}`)

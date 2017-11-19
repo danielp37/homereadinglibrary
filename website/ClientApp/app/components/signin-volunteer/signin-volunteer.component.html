@@ -14,7 +14,7 @@
     </div>
 </div>
 <hr>
-<button type="button" class="btn btn-secondary" (click)="adminLoginClicked(signInAdmin)">Admin Login</button>
+<button type="button" class="btn btn-info" (click)="adminLoginClicked(signInAdmin)">Admin Login</button>
 
 <ng-template #signInAdmin>
     <div class="modal-header">
@@ -28,7 +28,7 @@
       <app-signin-admin (onLoggedIn)="adminLoggedIn()"></app-signin-admin>
     </div>
     <div class="modal-footer">
-        <button type="button" class="btn btn-outline-dark" (click)="modalRef.hide()">Close</button>
+        <button type="button" class="btn btn-default" (click)="modalRef.hide()">Close</button>
     </div>
   </ng-template>
 

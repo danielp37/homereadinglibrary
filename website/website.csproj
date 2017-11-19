@@ -46,6 +46,10 @@
   <ItemGroup>
     <ProjectReference Include="..\AspnetCore.Identity.MongoDb\AspnetCore.Identity.MongoDb.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Services\" />
+    <Folder Include="Repositories\" />
+  </ItemGroup>
   <Target Name="RunWebpack" AfterTargets="ComputeFilesToPublish">
     <!-- As part of publishing, ensure the JS resources are freshly built in production mode -->
     <Exec Command="npm install" />

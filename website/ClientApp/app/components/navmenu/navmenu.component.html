@@ -8,7 +8,9 @@
                 <span class='icon-bar'></span>
             </button>
             <a class='navbar-brand' [routerLink]="['/home']">Grovecrest Home Reading Library</a>
-            <p class='navbar-text' *ngIf='authService.loggedInName'>Logged in as: {{authService.loggedInName}}</p>
+            <p class='navbar-text' *ngIf='authService.loggedInName'>Logged in as: {{authService.loggedInName}}
+                <button type="button" class="btn btn-primary btn-xs" (click)="logout()" *ngIf="loggedIn">Logout</button>
+            </p>
         </div>
         <div class='clearfix'></div>
         <div class='navbar-collapse collapse'>
@@ -70,6 +72,5 @@
                 </li>
             </ul>
         </div>
-        <button type="button" class="btn btn-primary" (click)="logout()" *ngIf="loggedIn">Logout</button>
     </div>
 </div>

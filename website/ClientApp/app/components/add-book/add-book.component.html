@@ -76,7 +76,12 @@
         <p>Existing Bar Codes</p>
         <ul>
           <li *ngFor="let bookCopy of currentBook.bookCopies">
-            {{bookCopy.barCode}} <button type="button" (click)="removeBookCopy(bookCopy.barCode)">Delete</button>
+            {{bookCopy.barCode}} 
+            <span *ngIf="bookCopy.isLost">Lost: {{bookCopy.lostDate | utcDate | date:'shortDate'}}</span>
+            <span *ngIf="bookCopy.isDamaged">Damaged: {{bookCopy.damagedDate | utcDate | date:'shortDate'}}</span>
+            <button *ngIf="!bookCopy.isLost && !bookCopy.isDamaged" type="button" class="btn btn-danger btn-xs" (click)="removeBookCopy(bookCopy.barCode)">Delete</button>
+            <button *ngIf="!bookCopy.isLost && !bookCopy.isDamaged" type="button" class="btn btn-info btn-xs" (click)="markBookCopyLost(bookCopy.barCode)">Mark Lost</button>
+            <button *ngIf="!bookCopy.isLost && !bookCopy.isDamaged" type="button" class="btn btn-info btn-xs" (click)="markBookCopyDamaged(bookCopy.barCode)">Mark Damaged</button>
           </li>
         </ul>
       </div>
