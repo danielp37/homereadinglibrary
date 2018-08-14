@@ -25,9 +25,9 @@ namespace HomeReadingLibrary.Controllers.Controllers
     protected readonly IMongoCollection<BookCopyReservation> reservationCollection;
     private readonly IMemoryCache memoryCache;
 
-    public BookCopyReservationsController(IMemoryCache memoryCache)
+    public BookCopyReservationsController(IMemoryCache memoryCache, IMongoDatabase mongoDatabase)
     {
-      mongoDatabase = MongoConfig.Database;
+      this.mongoDatabase = mongoDatabase;
       reservationCollection = mongoDatabase.GetCollection<BookCopyReservation>("currentreservations");
       this.memoryCache = memoryCache;
     }
@@ -45,7 +45,7 @@ namespace HomeReadingLibrary.Controllers.Controllers
       var filter = CreateBookHistoryFilter(studentBarCode, fullHistory, daysBack, parameters);
 
       var checkedOutBooksFind = checkedOutBooksCollection.Find(filter);
-      var totalCount = await checkedOutBooksFind.CountAsync();
+      var totalCount = await checkedOutBooksFind.CountDocumentsAsync();
 
       if(!string.IsNullOrWhiteSpace(sort))
       {

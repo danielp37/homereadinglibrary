@@ -13,10 +13,10 @@ namespace HomeReadingLibrary.Controllers.Controllers
     {
         protected readonly IMongoDatabase mongoDatabase;
         protected string _collectionName;
-        public EntityController(string collectionName)
+        public EntityController(string collectionName, IMongoDatabase mongoDatabase)
         {
             _collectionName = collectionName;
-            mongoDatabase = MongoConfig.Database;
+            this.mongoDatabase = mongoDatabase;
         }
 
         [HttpPost]

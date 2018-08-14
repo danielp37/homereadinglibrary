@@ -17,9 +17,9 @@ namespace HomeReadingLibrary.Controllers.Controllers
     private const int BarCodeLength = 9;
     private static readonly Random rand = new Random();
     private readonly IMongoCollection<Class> classCollection;
-    public ClassesController() : base("classes")
+    public ClassesController(IMongoDatabase mongoDatabase) : base("classes", mongoDatabase)
     {
-      classCollection = mongoDatabase.GetCollection<Class>(_collectionName);
+      classCollection = this.mongoDatabase.GetCollection<Class>(_collectionName);
     }
 
     [AllowAnonymous]
@@ -28,7 +28,7 @@ namespace HomeReadingLibrary.Controllers.Controllers
     {
       var filter = Builders<Class>.Filter.Empty;
 
-      var entityCount = await classCollection.Find(filter).CountAsync();
+      var entityCount = await classCollection.Find(filter).CountDocumentsAsync();
       var entities = await classCollection.Find(filter)
           .SortBy(b => b.Grade)
           .ThenBy(b => b.TeacherName)

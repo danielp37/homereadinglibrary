@@ -20,10 +20,10 @@ namespace HomeReadingLibrary.Controllers.Controllers
     private readonly IMongoCollection<Book> bookCollection;
     private readonly IBookService bookService;
 
-    public BooksController(IBookService bookService) : base("books")
+    public BooksController(IBookService bookService, IMongoDatabase mongoDatabase) : base("books", mongoDatabase)
     {
       this.bookService = bookService;
-      bookCollection = mongoDatabase.GetCollection<Book>(_collectionName);
+      bookCollection = this.mongoDatabase.GetCollection<Book>(_collectionName);
     }
 
     [Authorize(Policy = "AdminUser")]
@@ -37,7 +37,7 @@ namespace HomeReadingLibrary.Controllers.Controllers
 
       var filter = BuildFilter(title, author, boxNumber, bookBarCode);
 
-      var entityCount = await bookCollection.Find(filter).CountAsync();
+      var entityCount = await bookCollection.Find(filter).CountDocumentsAsync();
       var entities = await bookCollection.Find(filter)
           .SortByDescending(b => b.CreatedDate)
           .Skip(offset)

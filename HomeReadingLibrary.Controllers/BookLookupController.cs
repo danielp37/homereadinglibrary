@@ -1,3 +1,4 @@
+using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -11,11 +12,12 @@ namespace WebApplicationBasic.Controllers
   public partial class BookLookupController : Controller
   {
     private static string IsbnUrl = "http://isbndb.com/api/v2/json/QQ6LFTNI/book/";
+    private static HttpClient HttpClient = new HttpClient { BaseAddress = new Uri(IsbnUrl) };
 
     [HttpGet("{isbn}")]
     public async Task<IActionResult> GetIsbnEntryForBook(string isbn)
     {
-      var result = await Program.HttpClient.GetAsync($"{IsbnUrl}{isbn}");
+      var result = await HttpClient.GetAsync($"{isbn}");
       if (result.IsSuccessStatusCode)
       {
         var jsonString = await result.Content.ReadAsStringAsync();
