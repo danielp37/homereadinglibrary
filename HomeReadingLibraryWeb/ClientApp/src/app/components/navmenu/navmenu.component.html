@@ -1,0 +1,70 @@
+    <div>    
+        <div class="navbar navbar-expand-lg navbar-dark bg-dark navbar-fixed-top">
+            <a class="navbar-brand" href="/home">Home Reading Library</a>
+            <button class="navbar-toggler" type="button"
+                (click)="isCollapsed = !isCollapsed"
+                [attr.aria-expanded]="isCollapsed" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" [collapse]="isCollapsed" id="navbarNav">
+                <ul class='navbar-nav'>
+                    <li [routerLinkActive]="['active']" class="nav-item">
+                        <a [routerLink]="['/home']" class="nav-link">
+                            <span class='glyphicon glyphicon-home'></span> Home
+                        </a>
+                    </li>
+                    <li [routerLinkActive]="['active']" *ngIf="isAdmin" class="nav-item">
+                            <a [routerLink]="['/booklist']" class="nav-link">
+                                <span class='glyphicon glyphicon-book'></span> Book List
+                            </a>
+                    </li>
+                    <li [routerLinkActive]="['active']" *ngIf="isAdmin" class="nav-item">
+                            <a [routerLink]="['/classlists']" class="nav-link">
+                                <span class='glyphicon glyphicon-list'></span> Class Lists
+                            </a>
+                    </li>
+                    <li [routerLinkActive]="['active']" *ngIf="isAdmin" class="nav-item">
+                            <a [routerLink]="['/logons']" class="nav-link">
+                                <span class='glyphicon glyphicon-user'></span> Volunteer Logons
+                            </a>
+                    </li>
+                    <li [routerLinkActive]="['active']" class="nav-item">
+                        <a [routerLink]="['/signup']" class="nav-link">
+                            <span class='glyphicon glyphicon-user'></span> Volunteer Signup
+                        </a>
+                    </li>
+                    <li [routerLinkActive]="['active']" class="nav-item">
+                        <a [routerLink]="['/signin']" class="nav-link">
+                            <span class='glyphicon glyphicon-user'></span> Volunteer Signin
+                        </a>
+                    </li>
+                    <li [routerLinkActive]="['active']" *ngIf="isAdmin" class="nav-item">
+                        <a [routerLink]="['/bookscheckedout']" class="nav-link">
+                            <span class='glyphicon glyphicon-book'></span> Books Checked Out
+                        </a>
+                    </li>
+                    <li [routerLinkActive]="['active']" *ngIf="isAdmin || isVolunteer" class="nav-item">
+                        <a [routerLink]="['/checkout']" class="nav-link">
+                            <span class='glyphicon glyphicon-book'></span> Check Out
+                        </a>
+                    </li>
+                    <li [routerLinkActive]="['active']" *ngIf="isAdmin || isVolunteer" class="nav-item">
+                        <a [routerLink]="['/checkin']" class="nav-link">
+                            <span class='glyphicon glyphicon-book'></span> Check In
+                        </a>
+                    </li>
+                    <li [routerLinkActive]="['active']" *ngIf="isAdmin || isVolunteer" class="nav-item">
+                        <a [routerLink]="['/checkouthistory']" class="nav-link">
+                            <span class='glyphicon glyphicon-book'></span> Student Check Out History
+                        </a>
+                    </li>
+                    <li [routerLinkActive]="['active']" *ngIf="isAdmin || isVolunteer" class="nav-item">
+                        <a [routerLink]="['/bookcheckouthistory']" class="nav-link">
+                            <span class='glyphicon glyphicon-book'></span> Book Check Out History
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+

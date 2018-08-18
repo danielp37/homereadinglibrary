@@ -1,0 +1,8 @@
+<div class='container-fluid'>
+    <app-nav-menu></app-nav-menu>
+    <div class='body-content'>
+        <router-outlet>
+            <div *ngIf="showLoader" class="loading"></div>
+        </router-outlet>
+    </div>
+</div>
