@@ -1,0 +1,33 @@
+﻿@model HomeReadingLibraryWeb.Identity.Accounts.VolunteerByClassViewModel
+
+<h2>Click on your name to login</h2>
+
+@await Html.PartialAsync("_ValidationSummary")
+
+@if (Model.Classes.Any())
+{
+    <div class="row" *ngIf="classes">
+        <form asp-route="account/signin" method="post" class="form-inline">
+            @foreach (var cls in Model.Classes.OrderBy(c => c.Grade).ThenBy(c => c.TeacherName))
+            {
+
+                <div class="col-sm-6">
+                    <div class="card border-0">
+                        <div class="card-block">
+                            <h3 class="card-title">@cls.TeacherName Grade: @cls.Grade</h3>
+                            @foreach (var volunteer in cls.Volunteers)
+                            {
+                                <p>
+                                    <button type="submit" class="btn btn-primary" name="volunteer" value="@volunteer.VolunteerId">@volunteer.LastName, @volunteer.FirstName</button>
+                                </p>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </form>
+    </div>
+
+
+}
+

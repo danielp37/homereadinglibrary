@@ -19,6 +19,45 @@ namespace AspnetCore.Identity.MongoDb
 {
   public static class ComponentRegistration
   {
+    public static void ConfigureMongoImplementation(this IServiceCollection services, IConfiguration configuration)
+    {
+      services.AddSingleton<IUserStore<Volunteer>>(provider =>
+      {
+        return new VolunteerStore(provider.GetService<IMongoDatabase>());
+      });
+      services.AddSingleton<IUserPasswordStore<Volunteer>>(provider =>
+      {
+        return new VolunteerStore(provider.GetService<IMongoDatabase>());
+      });
+      services.AddTransient<IRoleStore<VolunteerRole>, VolunteerRoleStore>();
+      services.AddTransient<IVolunteerLogonStore, VolunteerLogonStore>();
+
+      services.AddTransient<IJwtFactory, JwtFactory>();
+      var jwtAppSettingOptions = configuration.GetSection(nameof(JwtIssuerOptions));
+      var secretKey = Environment.GetEnvironmentVariable("JWT_Key");
+      var signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secretKey));
+      services.Configure<JwtIssuerOptions>(options =>
+      {
+        options.Issuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)];
+        options.Audience = jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)];
+        options.SigningCredentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);
+      });
+
+      // Hosting doesn't add IHttpContextAccessor by default
+      services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+      services.TryAddScoped<IUserValidator<Volunteer>, VolunteerValidator>();
+      services.TryAddScoped<IPasswordValidator<Volunteer>, PasswordValidator>();
+      services.TryAddScoped<IPasswordHasher<Volunteer>, PasswordHasher>();
+      services.TryAddScoped<UserManager<Volunteer>, AspNetUserManager<Volunteer>>();
+      services.TryAddScoped<SignInManager<Volunteer>, SignInManager<Volunteer>>();
+      services.TryAddScoped<ILookupNormalizer, UpperInvariantLookupNormalizer>();
+      services.TryAddScoped<IdentityErrorDescriber>();
+      services.TryAddScoped<IUserClaimsPrincipalFactory<Volunteer>, UserClaimsPrincipalFactory<Volunteer, VolunteerRole>>();
+      services.TryAddScoped<RoleManager<VolunteerRole>, AspNetRoleManager<VolunteerRole>>();
+
+    }
+
     public static void ConfigureIdentity(this IServiceCollection services, IConfiguration configuration)
     {
       // Identity Services

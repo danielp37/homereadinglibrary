@@ -1,5 +1,7 @@
 import { LoaderService } from './../../services/loader.service';
 import { Component, OnInit } from '@angular/core';
+import { OAuthService, JwksValidationHandler } from 'angular-oauth2-oidc';
+import { authConfig } from '../../modules/app-auth/services/auth.config';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -14,8 +16,12 @@ export class AppComponent implements OnInit {
         this.loaderService.status.subscribe((val: boolean) => {
             this.showLoader = val;
         });
+        this.oauthService.configure(authConfig);
+        this.oauthService.tokenValidationHandler = new JwksValidationHandler();
+        this.oauthService.loadDiscoveryDocumentAndTryLogin();
     }
     constructor(
-        private loaderService: LoaderService
+        private loaderService: LoaderService,
+        private oauthService: OAuthService
     ) {}
 }

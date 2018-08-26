@@ -2,6 +2,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { CollapseModule } from "ngx-bootstrap/collapse";
 import { HttpClientModule } from "@angular/common/http";
+import { OAuthModule } from "angular-oauth2-oidc";
 
 //import { AppComponent } from './app.component';
 import { AppRoutingModule } from './modules/app-routing/app-routing.module';
@@ -29,7 +30,8 @@ import { BaggyBookService } from './services/baggy-book.service';
     CollapseModule.forRoot(),
     AuthModule,
     HttpClientModule,
-    ModalModule.forRoot()
+    ModalModule.forRoot(),
+    OAuthModule.forRoot()
   ],
   providers: [LoaderService, BaggyBookService],
   bootstrap: [AppComponent]

@@ -23,5 +23,10 @@ namespace AspnetCore.Identity.MongoDb.Entities
     public string PasswordHash { get; set; }
     public bool IsAdmin { get; set; }
     public List<VolunteerForClass> VolunteerForClasses { get; set; } = new List<VolunteerForClass>();
+
+    [BsonIgnore]
+    public string FullName => $"{FirstName} {LastName}";
+    [BsonIgnore]
+    public string FullNameReversed => $"{LastName}, {FirstName}";
   }
 }

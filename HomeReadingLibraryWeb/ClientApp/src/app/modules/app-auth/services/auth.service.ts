@@ -1,6 +1,7 @@
 import { JwtToken } from './../../../entities/jwt-token';
 import { Router } from '@angular/router';
 import { Injectable, PLATFORM_ID, Inject } from '@angular/core';
+import { OAuthService } from 'angular-oauth2-oidc';
 // import { tokenNotExpired, JwtHelper } from 'angular2-jwt';
 
 @Injectable()
@@ -10,8 +11,16 @@ export class AuthService {
     private role: string;
     private _loggedInName: string;
 
+
+
     constructor(private router: Router,
-        @Inject(PLATFORM_ID) private platformId: Object) { }
+        @Inject(PLATFORM_ID) private platformId: Object,
+        private oauthService: OAuthService) { 
+        }
+
+    public volunteerSignin() {
+        this.oauthService.initImplicitFlow();
+    }
 
     public loggedIn(): boolean {
         if (this.platformId === 'browser') {
@@ -51,11 +60,7 @@ export class AuthService {
     }
 
     public logout() {
-        this.token = null;
-        this.role = null;
-        this._loggedInName = null;
-        localStorage.removeItem('token');
-        this.router.navigate(['/home']);
+        this.oauthService.logOut();
     }
 
     public get isVolunteer(): boolean {

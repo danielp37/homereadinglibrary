@@ -14,6 +14,7 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using AspnetCore.Identity.MongoDb.Stores;
 using System.ComponentModel.DataAnnotations;
+using HomeReadingLibrary.Domain.Services;
 
 namespace HomeReadingLibrary.Controllers.Controllers
 {
@@ -22,12 +23,14 @@ namespace HomeReadingLibrary.Controllers.Controllers
   public class VolunteersController : Controller
   {
     private readonly IMongoDatabase mongodb;
+    private readonly IVolunteerService volunteerService;
     private readonly UserManager<Volunteer> userManager;
     readonly IJwtFactory jwtFactory;
     readonly JwtIssuerOptions jwtOptions;
     readonly IVolunteerLogonStore volunteerLogonStore;
 
     public VolunteersController(IMongoDatabase mongodb
+                               , IVolunteerService volunteerService
                                , UserManager<Volunteer> userManager
                                , IVolunteerLogonStore volunteerLogonStore
                                , IJwtFactory jwtFactory
@@ -38,15 +41,14 @@ namespace HomeReadingLibrary.Controllers.Controllers
       this.jwtFactory = jwtFactory;
       this.userManager = userManager;
       this.mongodb = mongodb;
+      this.volunteerService = volunteerService;
     }
 
     [AllowAnonymous]
     [HttpGet("byclass")]
     public async Task<IActionResult> GetVolunteersByClass()
     {
-      var collection = mongodb.GetCollection<ClassWithVolunteers>("volunteersByClass");
-
-      var classes = await (await collection.FindAsync(new BsonDocument())).ToListAsync();
+      var classes = await volunteerService.GetVolunteersByClassAsync().ConfigureAwait(false);
 
       return Ok(new { Data = classes });
     }

@@ -13,6 +13,7 @@ namespace HomeReadingLibrary.Domain
       services.AddSingleton(MongoConfig.Database);
       services.AddTransient<IBookCopyReservationService, BookCopyReservationService>();
       services.AddTransient<IBookService, BookService>();
+      services.AddTransient<IVolunteerService, VolunteerService>();
     }
   }
 }

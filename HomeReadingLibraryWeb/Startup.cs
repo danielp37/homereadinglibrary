@@ -1,5 +1,6 @@
 using AspnetCore.Identity.MongoDb;
 using HomeReadingLibrary.Controllers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -31,7 +32,35 @@ namespace HomeReadingLibraryWeb
         configuration.RootPath = "ClientApp/dist";
       });
 
-      services.ConfigureIdentity(Configuration);
+      //services.ConfigureIdentity(Configuration);
+      services.ConfigureMongoImplementation(Configuration);
+      services.AddIdentityServer(options =>
+          {
+            options.UserInteraction.LoginUrl = "~/account/signin";
+          })
+        .AddDeveloperSigningCredential()
+        .AddInMemoryClients(IdentityServerConfig.Clients)
+        .AddInMemoryIdentityResources(IdentityServerConfig.IdentityResources)
+        .AddInMemoryApiResources(IdentityServerConfig.Apis);
+
+      services.AddAuthentication()
+       .AddJwtBearer(jwt =>
+       {
+         jwt.Authority = "https://localhost:5001";
+         jwt.RequireHttpsMetadata = true;
+         jwt.Audience = "library";
+       });
+
+      services.AddAuthorization(options =>
+      {
+        options.AddPolicy("VolunteerUser", policy => {
+          policy.RequireScope("library.VolunteerAccess");
+        });
+        options.AddPolicy("AdminUser", policy =>
+        {
+          policy.RequireScope("library.AdminAccess");
+        });
+      });
 
       //services.AddApplicationInsightsTelemetry();
       services.AddMemoryCache();
@@ -40,11 +69,8 @@ namespace HomeReadingLibraryWeb
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-    public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+    public void Configure(IApplicationBuilder app, IHostingEnvironment env)
     {
-      loggerFactory.AddConsole(Configuration.GetSection("Logging"));
-      loggerFactory.AddDebug();
-
       if (env.IsDevelopment())
       {
         app.UseDeveloperExceptionPage();
@@ -58,6 +84,9 @@ namespace HomeReadingLibraryWeb
       app.UseHttpsRedirection();
       app.UseStaticFiles();
       app.UseSpaStaticFiles();
+
+      app.UseIdentityServer();
+
       app.UseAuthentication();
 
       app.UseMvc(routes =>
@@ -69,10 +98,10 @@ namespace HomeReadingLibraryWeb
 
       app.UseSpa(spa =>
       {
-              // To learn more about options for serving an Angular SPA from ASP.NET Core,
-              // see https://go.microsoft.com/fwlink/?linkid=864501
+        // To learn more about options for serving an Angular SPA from ASP.NET Core,
+        // see https://go.microsoft.com/fwlink/?linkid=864501
 
-              spa.Options.SourcePath = "ClientApp";
+        spa.Options.SourcePath = "ClientApp";
 
         if (env.IsDevelopment())
         {
