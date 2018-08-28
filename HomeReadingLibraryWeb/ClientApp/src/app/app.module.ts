@@ -3,6 +3,7 @@ import { NgModule } from '@angular/core';
 import { CollapseModule } from "ngx-bootstrap/collapse";
 import { HttpClientModule } from "@angular/common/http";
 import { OAuthModule } from "angular-oauth2-oidc";
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 //import { AppComponent } from './app.component';
 import { AppRoutingModule } from './modules/app-routing/app-routing.module';
@@ -15,6 +16,7 @@ import { BsModalService, ModalModule } from 'ngx-bootstrap/modal';
 import { SigninVolunteerComponent } from './components/signin-volunteer/signin-volunteer.component';
 import { SortClassPipe } from './pipes/sort-class.pipe';
 import { BaggyBookService } from './services/baggy-book.service';
+import { CheckInBookComponent } from './components/check-in-book/check-in-book.component';
 
 @NgModule({
   declarations: [
@@ -22,7 +24,8 @@ import { BaggyBookService } from './services/baggy-book.service';
     HomeComponent,
     NavMenuComponent,
     SigninVolunteerComponent,
-    SortClassPipe
+    SortClassPipe,
+    CheckInBookComponent
   ],
   imports: [
     BrowserModule,
@@ -31,7 +34,9 @@ import { BaggyBookService } from './services/baggy-book.service';
     AuthModule,
     HttpClientModule,
     ModalModule.forRoot(),
-    OAuthModule.forRoot()
+    OAuthModule.forRoot(),
+    FormsModule,
+    ReactiveFormsModule
   ],
   providers: [LoaderService, BaggyBookService],
   bootstrap: [AppComponent]

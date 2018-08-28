@@ -14,6 +14,8 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
 using System.Threading.Tasks;
+using IdentityServer4.Services;
+using AspnetCore.Identity.MongoDb.Services;
 
 namespace AspnetCore.Identity.MongoDb
 {
@@ -55,7 +57,7 @@ namespace AspnetCore.Identity.MongoDb
       services.TryAddScoped<IdentityErrorDescriber>();
       services.TryAddScoped<IUserClaimsPrincipalFactory<Volunteer>, UserClaimsPrincipalFactory<Volunteer, VolunteerRole>>();
       services.TryAddScoped<RoleManager<VolunteerRole>, AspNetRoleManager<VolunteerRole>>();
-
+      services.AddTransient<IProfileService, VolunteerProfileService>();
     }
 
     public static void ConfigureIdentity(this IServiceCollection services, IConfiguration configuration)

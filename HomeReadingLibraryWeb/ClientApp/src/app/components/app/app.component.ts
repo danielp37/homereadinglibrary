@@ -24,4 +24,14 @@ export class AppComponent implements OnInit {
         private loaderService: LoaderService,
         private oauthService: OAuthService
     ) {}
+
+    public get name() {
+        let claims = this.oauthService.getIdentityClaims() as any;
+        if (!claims) return null;
+        return claims.name;
+    }
+
+    public get claims() {
+        return this.oauthService.getIdentityClaims();
+    }
 }

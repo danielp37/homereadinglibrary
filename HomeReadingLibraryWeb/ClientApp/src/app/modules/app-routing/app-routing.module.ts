@@ -14,6 +14,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
 import { HomeComponent } from './../../components/home/home.component';
+import { CheckInBookComponent } from '../../components/check-in-book/check-in-book.component';
 
 
 const routes: Routes = [
@@ -24,7 +25,7 @@ const routes: Routes = [
             // { path: 'classlists',  component: ClassListsComponent, canActivate: [AuthGuard] },
             // { path: 'booklist',  component: BookListComponent, canActivate: [AuthGuard] },
             // { path: 'checkout',  component: CheckOutBookComponent, canActivate: [AuthGuard] },
-            // { path: 'checkin',  component: CheckInBookComponent, canActivate: [AuthGuard] },
+            { path: 'checkin',  component: CheckInBookComponent/*, canActivate: [AuthGuard] */},
             // { path: 'bookscheckedout', component: BookCopyReservationsComponent, canActivate: [AuthGuard]},
             // { path: 'logons', component: VolunteerLogonsComponent, canActivate: [AuthGuard]},
             // { path: 'checkouthistory', component: StudentReservationHistoryComponent, canActivate: [AuthGuard]},

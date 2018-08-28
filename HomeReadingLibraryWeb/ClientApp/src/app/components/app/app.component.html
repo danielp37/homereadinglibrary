@@ -1,8 +1,12 @@
 <div class='container-fluid'>
     <app-nav-menu></app-nav-menu>
     <div class='body-content'>
+        <h1 *ngIf="name">Welcome {{name}}</h1>
         <router-outlet>
             <div *ngIf="showLoader" class="loading"></div>
         </router-outlet>
+        <pre>
+            {{claims | json}}
+        </pre>
     </div>
 </div>

@@ -228,7 +228,7 @@ namespace HomeReadingLibrary.Controllers.Controllers
       return Ok(new { Data = book });
     }
 
-    [Authorize(Policy = "VolunteerUser")]
+    [Authorize(/*Policy = "VolunteerUser"*/)]
     [HttpGet("bookcopies/{barCode}")]
     public async Task<IActionResult> GetBookCopyByBarCode(string barCode)
     {

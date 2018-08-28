@@ -21,6 +21,7 @@ import { Class } from '../entities/class';
 import { Book } from '../entities/book';
 import { BookCopy } from '../entities/book-copy';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { OAuthService } from 'angular-oauth2-oidc';
 
 interface ClassWithVolunteersResult {
     data : ClassWithVolunteers[]
@@ -38,8 +39,19 @@ export class BaggyBookService {
   constructor(private http: HttpClient,
     // @Inject('ORIGIN_URL') private originUrl: string,
     private authService: AuthService,
+    private oauthService: OAuthService,
     // private authHttp: AuthHttp,
     private loaderService: LoaderService) { }
+
+  private getAuthHeaders(includeContentType: boolean) : HttpHeaders {
+    const authHeader = new HttpHeaders({
+      "Authorization": "Bearer " + this.oauthService.getAccessToken()
+    });
+    if(includeContentType) {
+      authHeader.append("Content-Type", "application/json");
+    }
+    return authHeader;
+  }
 
   createVolunteer(volunteer: Volunteer): Promise<Volunteer> {
     return this.http
@@ -239,12 +251,11 @@ export class BaggyBookService {
   //     });
   // }
 
-  // getBookCopyByBarCode(barCode: string): Promise<BookCopyWithBook> {
-  //   return this.authHttp
-  //     .get(`${this.originUrl}${this.booksUrl}/bookcopies/${barCode}`)
-  //     .toPromise()
-  //     .then(book => book.json() as BookCopyWithBook);
-  // }
+  getBookCopyByBarCode(barCode: string): Promise<BookCopyWithBook> {
+    return this.http
+      .get<BookCopyWithBook>(`${this.booksUrl}/bookcopies/${barCode}`, {headers: this.getAuthHeaders(false)})
+      .toPromise();
+  }
 
   // checkOutBookForStudent(bookCopyBarCode: string, studentBarCode: string): Promise<BookCopyReservation> {
   //   const bookCopyReservation: BookCopyReservation = {
@@ -261,16 +272,16 @@ export class BaggyBookService {
   //     });
   // }
 
-  // checkInBookCopy(bookCopyBarCode: string): Promise<any> {
-  //   this.loaderService.display(true);
-  //   return this.authHttp
-  //   .post(`${this.originUrl}${this.bookCheckOutUrl}/checkin/${bookCopyBarCode}`, JSON.stringify({}), {headers: this.headers})
-  //   .toPromise()
-  //   .then(resp => {
-  //     this.loaderService.display(false);
-  //     return resp;
-  //   });
-  // }
+  checkInBookCopy(bookCopyBarCode: string): Promise<any> {
+    this.loaderService.display(true);
+    return this.http
+    .post(`${this.bookCheckOutUrl}/checkin/${bookCopyBarCode}`, JSON.stringify({}), {headers: this.getAuthHeaders(true)})
+    .toPromise()
+    .then(resp => {
+      this.loaderService.display(false);
+      return resp;
+    });
+  }
 
   // getBookCopyReservations(studentId?: string, params?: DataTableParams, daysBack?: number
   //     , bookSearchParameters?: BookSearchParameters):

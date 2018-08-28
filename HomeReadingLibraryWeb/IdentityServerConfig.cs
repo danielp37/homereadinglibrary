@@ -25,7 +25,8 @@ namespace HomeReadingLibraryWeb
             "http://localhost:5000/home",
             "https://localhost:5001/home"
           },
-          AllowedScopes = { "openid", "profile", "email", "library" },
+          AllowedScopes = { "openid", "profile", "email", "library", "library.VolunteerAccess", "library.AdminAccess" },
+          AlwaysIncludeUserClaimsInIdToken = true
           //AllowedCorsOrigins = { "http://localhost:5000" }
         }
       };

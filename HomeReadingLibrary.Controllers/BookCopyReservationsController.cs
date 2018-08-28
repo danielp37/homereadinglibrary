@@ -204,7 +204,7 @@ namespace HomeReadingLibrary.Controllers.Controllers
       return Ok(new { Data = reservation });
     }
 
-    [Authorize(Policy = "VolunteerUser")]
+    [Authorize(/*Policy = "VolunteerUser"*/)]
     [HttpPost("checkin/{bookBarCode}")]
     public async Task<IActionResult> CheckinBookCopy(string bookBarCode)
     {

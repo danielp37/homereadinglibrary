@@ -33,7 +33,6 @@ namespace HomeReadingLibraryWeb
       });
 
       //services.ConfigureIdentity(Configuration);
-      services.ConfigureMongoImplementation(Configuration);
       services.AddIdentityServer(options =>
           {
             options.UserInteraction.LoginUrl = "~/account/signin";
@@ -41,7 +40,10 @@ namespace HomeReadingLibraryWeb
         .AddDeveloperSigningCredential()
         .AddInMemoryClients(IdentityServerConfig.Clients)
         .AddInMemoryIdentityResources(IdentityServerConfig.IdentityResources)
-        .AddInMemoryApiResources(IdentityServerConfig.Apis);
+        .AddInMemoryApiResources(IdentityServerConfig.Apis)
+        .AddJwtBearerClientAuthentication();
+
+      services.ConfigureMongoImplementation(Configuration);
 
       services.AddAuthentication()
        .AddJwtBearer(jwt =>
