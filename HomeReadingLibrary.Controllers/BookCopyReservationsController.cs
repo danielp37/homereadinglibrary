@@ -32,7 +32,7 @@ namespace HomeReadingLibrary.Controllers.Controllers
       this.memoryCache = memoryCache;
     }
 
-    [Authorize(Policy = "VolunteerUser")]
+    [Authorize(AuthenticationSchemes = "Bearer", Policy = "VolunteerUser")]
     [HttpGet]
     public async Task<IActionResult> GetCheckedOutBookCopies([FromQuery]string studentBarCode, [FromQuery]bool fullHistory = false
                                                             , [FromQuery]int? daysBack = null
@@ -176,7 +176,7 @@ namespace HomeReadingLibrary.Controllers.Controllers
       return filter;
     }
 
-    [Authorize(Policy = "VolunteerUser")]
+    [Authorize(AuthenticationSchemes = "Bearer", Policy = "VolunteerUser")]
     [HttpPost]
     public async Task<IActionResult> CheckoutBookCopy([FromBody]ReservationBody body)
     {
@@ -204,7 +204,7 @@ namespace HomeReadingLibrary.Controllers.Controllers
       return Ok(new { Data = reservation });
     }
 
-    [Authorize(/*Policy = "VolunteerUser"*/)]
+    [Authorize(AuthenticationSchemes = "Bearer", Policy = "VolunteerUser")]
     [HttpPost("checkin/{bookBarCode}")]
     public async Task<IActionResult> CheckinBookCopy(string bookBarCode)
     {

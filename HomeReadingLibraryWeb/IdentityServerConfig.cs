@@ -26,7 +26,8 @@ namespace HomeReadingLibraryWeb
             "https://localhost:5001/home"
           },
           AllowedScopes = { "openid", "profile", "email", "library", "library.VolunteerAccess", "library.AdminAccess" },
-          AlwaysIncludeUserClaimsInIdToken = true
+          AlwaysIncludeUserClaimsInIdToken = true,
+          UpdateAccessTokenClaimsOnRefresh = true,
           //AllowedCorsOrigins = { "http://localhost:5000" }
         }
       };
@@ -42,6 +43,7 @@ namespace HomeReadingLibraryWeb
         {
             new ApiResource("library", "Book Checkout and Checkin API")
             {
+              UserClaims = new [] { "role" },
               Scopes =
               {
                 new Scope("library.VolunteerAccess", "Volunteer Access") { ShowInDiscoveryDocument = true },

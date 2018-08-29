@@ -26,7 +26,7 @@ namespace HomeReadingLibrary.Controllers.Controllers
       bookCollection = this.mongoDatabase.GetCollection<Book>(_collectionName);
     }
 
-    [Authorize(Policy = "AdminUser")]
+    [Authorize(AuthenticationSchemes = "Bearer", Policy = "AdminUser")]
     [HttpGet]
     public async Task<IActionResult> Get([FromQuery]int offset = 0, [FromQuery]int pageSize = 10
         , [FromQuery]string title = null, [FromQuery]string author = null, [FromQuery]string boxNumber = null
@@ -51,7 +51,7 @@ namespace HomeReadingLibrary.Controllers.Controllers
       });
     }
 
-    [Authorize(Policy = "AdminUser")]
+    [Authorize(AuthenticationSchemes = "Bearer", Policy = "AdminUser")]
     [HttpGet("ExportToTab")]
     public async Task<IActionResult> ExportToTab([FromQuery]string title = null, [FromQuery]string author = null, [FromQuery]string boxNumber = null
           , [FromQuery]string bookBarCode = null)
@@ -106,7 +106,7 @@ namespace HomeReadingLibrary.Controllers.Controllers
       return builder.Empty;
     }
 
-    [Authorize(Policy = "AdminUser")]
+    [Authorize(AuthenticationSchemes = "Bearer", Policy = "AdminUser")]
     [HttpGet("{bookId}")]
     public IActionResult Get(string bookId)
     {
@@ -117,7 +117,7 @@ namespace HomeReadingLibrary.Controllers.Controllers
       return Ok(new { Data = editedBook });
     }
 
-    [Authorize(Policy = "AdminUser")]
+    [Authorize(AuthenticationSchemes = "Bearer", Policy = "AdminUser")]
     [HttpPut("{bookId}")]
     public async Task<IActionResult> UpdateBook(string bookId, [FromBody]Book book)
     {
@@ -142,7 +142,7 @@ namespace HomeReadingLibrary.Controllers.Controllers
       return Ok(new { Data = editedBook });
     }
 
-    [Authorize(Policy = "AdminUser")]
+    [Authorize(AuthenticationSchemes = "Bearer", Policy = "AdminUser")]
     [HttpPost("{bookId}/bookcopy")]
     public async Task<IActionResult> AddBookCopy(string bookId, [FromBody]BarCodeBody body)
     {
@@ -164,7 +164,7 @@ namespace HomeReadingLibrary.Controllers.Controllers
       return Ok(new { Data = book });
     }
 
-    [Authorize(Policy = "AdminUser")]
+    [Authorize(AuthenticationSchemes = "Bearer", Policy = "AdminUser")]
     [HttpDelete("{bookId}/bookcopy/{barCode}")]
     public async Task<IActionResult> RemoveBookCopy(string bookId, string barCode)
     {
@@ -184,7 +184,7 @@ namespace HomeReadingLibrary.Controllers.Controllers
       return Ok(new { Data = book });
     }
 
-    [Authorize(Policy = "AdminUser")]
+    [Authorize(AuthenticationSchemes = "Bearer", Policy = "AdminUser")]
     [HttpPut("{bookId}/bookcopy/{barCode}/marklost")]
     public async Task<IActionResult> MarkBookCopyLost(string bookId, string barCode)
     {
@@ -198,7 +198,7 @@ namespace HomeReadingLibrary.Controllers.Controllers
       return Ok(new { Data = book });
     }
 
-    [Authorize(Policy = "AdminUser")]
+    [Authorize(AuthenticationSchemes = "Bearer", Policy = "AdminUser")]
     [HttpPut("{bookId}/bookcopy/{barCode}/markdamaged")]
     public async Task<IActionResult> MarkBookCopyDamaged(string bookId, string barCode)
     {
@@ -213,7 +213,7 @@ namespace HomeReadingLibrary.Controllers.Controllers
       return Ok(new { Data = book });
     }
 
-    [Authorize(Policy = "AdminUser")]
+    [Authorize(AuthenticationSchemes = "Bearer", Policy = "AdminUser")]
     [HttpGet("isbn/{isbn}")]
     public async Task<IActionResult> GetBookByIsbn(string isbn)
     {
@@ -228,7 +228,7 @@ namespace HomeReadingLibrary.Controllers.Controllers
       return Ok(new { Data = book });
     }
 
-    [Authorize(/*Policy = "VolunteerUser"*/)]
+    [Authorize(AuthenticationSchemes = "Bearer", Policy = "VolunteerUser")]
     [HttpGet("bookcopies/{barCode}")]
     public async Task<IActionResult> GetBookCopyByBarCode(string barCode)
     {

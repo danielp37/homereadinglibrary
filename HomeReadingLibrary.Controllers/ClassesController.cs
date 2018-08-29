@@ -41,7 +41,7 @@ namespace HomeReadingLibrary.Controllers.Controllers
       });
     }
 
-    [Authorize(Policy = "AdminUser")]
+    [Authorize(AuthenticationSchemes = "Bearer", Policy = "AdminUser")]
     [HttpPost("{classId}/students")]
     public async Task<IActionResult> AddStudentToClass(string classId, [FromBody]StudentBody body)
     {
@@ -49,7 +49,7 @@ namespace HomeReadingLibrary.Controllers.Controllers
     }
 
 
-    [Authorize(Policy = "VolunteerUser")]
+    [Authorize(AuthenticationSchemes = "Bearer", Policy = "VolunteerUser")]
     [HttpPost("{classId}/newstudent")]
     public async Task<IActionResult> AddNewStudent(string classId, [FromBody]NewStudentBody newStudent)
     {
@@ -95,7 +95,7 @@ namespace HomeReadingLibrary.Controllers.Controllers
     }
 
 
-    [Authorize(Policy = "VolunteerUser")]
+    [Authorize(AuthenticationSchemes = "Bearer", Policy = "VolunteerUser")]
     [HttpGet("/api/students/{studentBarCode}")]
     public async Task<IActionResult> GetStudentByBarCode(string studentBarCode)
     {

@@ -30,13 +30,13 @@ namespace AspnetCore.Identity.MongoDb.Services
     {
       context.LogProfileRequest(logger);
 
-      if (context.RequestedResources.IdentityResources.Any())
+      if (context.RequestedClaimTypes.Any())
       {
         var user = await volunteerStore.FindByIdAsync(context.Subject.GetSubjectId(), CancellationToken.None);
         if (user != null)
         {
           var requestedClaims = new List<Claim>();
-          foreach (var claimType in context.RequestedResources.IdentityResources.SelectMany(ir => ir.UserClaims))
+          foreach (var claimType in context.RequestedClaimTypes)
           {
             logger.LogDebug("Requesting ClaimType: {claimType}", claimType);
             switch (claimType)
@@ -55,6 +55,13 @@ namespace AspnetCore.Identity.MongoDb.Services
                 break;
               case JwtClaimTypes.PreferredUserName:
                 requestedClaims.Add(new Claim(claimType, user.UserName));
+                break;
+              case JwtClaimTypes.Role:
+                if(user.IsAdmin)
+                {
+                  requestedClaims.Add(new Claim(claimType, "AdminAccess"));
+                }
+                requestedClaims.Add(new Claim(claimType, "VolunteerAccess"));
                 break;
             }
           }

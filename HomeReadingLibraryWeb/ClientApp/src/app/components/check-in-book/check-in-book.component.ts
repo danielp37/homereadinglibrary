@@ -46,18 +46,18 @@ export class CheckInBookComponent implements OnInit {
             .then(result => {
               this.checkinLog.unshift(new CheckinLogEntry(this.currentBook));
               this.playSuccessSound();
-              setTimeout(() => this.resetForm(), 200);
+              setTimeout(() => this.resetForm(), 500);
             })
             .catch(error => {
               this.checkinLog.unshift(new CheckinLogEntry(this.currentBook, error.error || error));
               this.playFailureSound();
-              setTimeout(() => this.resetForm(), 200);
+              setTimeout(() => this.resetForm(), 500);
             });
       })
       .catch(error => {
         this.checkinLog.unshift(new CheckinLogEntry(this.currentBook, error.error || error));
         this.playFailureSound();
-        setTimeout(() => this.resetForm(), 200);
+        setTimeout(() => this.resetForm(), 500);
       });
 
   }

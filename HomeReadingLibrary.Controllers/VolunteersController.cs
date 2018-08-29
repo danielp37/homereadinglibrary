@@ -145,7 +145,7 @@ namespace HomeReadingLibrary.Controllers.Controllers
       return BadRequest(ModelState);
     }
 
-    //[Authorize(Policy = "AdminOnly")]
+    //[Authorize(AuthenticationSchemes = "Bearer", Policy = "AdminOnly")]
     [AllowAnonymous]
     [HttpGet("logons")]
     public async Task<IActionResult> VolunteerLogonsSinceDate([FromQuery][Required]int? daysBack)

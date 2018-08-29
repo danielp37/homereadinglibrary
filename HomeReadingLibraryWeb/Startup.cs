@@ -1,9 +1,11 @@
 using AspnetCore.Identity.MongoDb;
 using HomeReadingLibrary.Controllers;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.Extensions.Configuration;
@@ -45,7 +47,10 @@ namespace HomeReadingLibraryWeb
 
       services.ConfigureMongoImplementation(Configuration);
 
-      services.AddAuthentication()
+      services.AddAuthentication(cfg =>
+      {
+        cfg.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+      })
        .AddJwtBearer(jwt =>
        {
          jwt.Authority = "https://localhost:5001";
@@ -56,11 +61,13 @@ namespace HomeReadingLibraryWeb
       services.AddAuthorization(options =>
       {
         options.AddPolicy("VolunteerUser", policy => {
-          policy.RequireScope("library.VolunteerAccess");
+          policy.RequireScope("library");
+          policy.RequireRole("VolunteerAccess");
         });
         options.AddPolicy("AdminUser", policy =>
         {
-          policy.RequireScope("library.AdminAccess");
+          policy.RequireScope("library");
+          policy.RequireRole("AdminAccess");
         });
       });
 

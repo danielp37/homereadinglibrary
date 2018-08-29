@@ -34,4 +34,12 @@ export class AppComponent implements OnInit {
     public get claims() {
         return this.oauthService.getIdentityClaims();
     }
+
+    public get scope() {
+        return this.oauthService.scope;
+    }
+
+    public get accessToken() {
+        return this.oauthService.getAccessToken();
+    }
 }

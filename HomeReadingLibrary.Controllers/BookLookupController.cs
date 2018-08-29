@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 
 namespace WebApplicationBasic.Controllers
 {
-  [Authorize(Policy = "AdminUser")]
+  [Authorize(AuthenticationSchemes = "Bearer", Policy = "AdminUser")]
   [Route("/api/[controller]")]
   public partial class BookLookupController : Controller
   {
