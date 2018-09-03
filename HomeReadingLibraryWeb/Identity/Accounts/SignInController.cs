@@ -14,7 +14,7 @@ using Microsoft.Extensions.Logging;
 
 namespace HomeReadingLibraryWeb.Identity.Accounts
 {
-  [Route("account/signin")]
+  [Route("account")]
   public class SignInController : Controller
   {
     private readonly IVolunteerService volunteerService;
@@ -34,7 +34,7 @@ namespace HomeReadingLibraryWeb.Identity.Accounts
       this.events = events;
     }
 
-    [HttpGet]
+    [HttpGet("signin")]
     public async Task<IActionResult> Index()
     {
       var vm = new VolunteerByClassViewModel(await volunteerService.GetVolunteersByClassAsync());
@@ -42,7 +42,7 @@ namespace HomeReadingLibraryWeb.Identity.Accounts
       return View(vm);
     }
 
-    [HttpPost]
+    [HttpPost("signin")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Index([FromForm]string volunteer, [FromQuery]string returnUrl)
     {
@@ -96,15 +96,30 @@ namespace HomeReadingLibraryWeb.Identity.Accounts
       return await Index();
     }
 
+    [HttpGet("logout")]
+    public async Task<IActionResult> Logout(string logoutId)
+    {
+      var logoutViewModel = await BuildLogoutViewModelAsync(logoutId);
+
+      if(!logoutViewModel.ShowLogoutPrompt)
+      {
+        // if the request for logout was properly authenticated from IdentityServer, then
+        // we don't need to show the prompt and can just log the user out directly.
+        return await Logout(logoutViewModel);
+      }
+
+      return View(logoutViewModel);
+    }
+
     /// <summary>
     /// Handle logout page postback
     /// </summary>
     [HttpPost("logout")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Logout(string volunteerId)
+    public async Task<IActionResult> Logout(LogoutViewModel logoutViewModel)
     {
       // build a model so the logged out page knows what to display
-      var vm = await BuildLoggedOutViewModelAsync(volunteerId);
+      var vm = await BuildLoggedOutViewModelAsync(logoutViewModel.LogoutId);
 
       var user = User;
       if (user?.Identity.IsAuthenticated == true)
@@ -132,10 +147,36 @@ namespace HomeReadingLibraryWeb.Identity.Accounts
       return View("LoggedOut", vm);
     }
 
-    private async Task<LoggedOutViewModel> BuildLoggedOutViewModelAsync(string volunteerId)
+
+    private async Task<LogoutViewModel> BuildLogoutViewModelAsync(string logoutId)
+    {
+      var vm = new LogoutViewModel { LogoutId = logoutId, ShowLogoutPrompt = false };
+
+      var user = HttpContext.User;
+      if (user?.Identity.IsAuthenticated != true)
+      {
+        // if the user is not authenticated, then just show logged out page
+        vm.ShowLogoutPrompt = false;
+        return vm;
+      }
+
+      var context = await interaction.GetLogoutContextAsync(logoutId);
+      if (context?.ShowSignoutPrompt == false)
+      {
+        // it's safe to automatically sign-out
+        vm.ShowLogoutPrompt = false;
+        return vm;
+      }
+
+      // show the logout prompt. this prevents attacks where the user
+      // is automatically signed out by another malicious web page.
+      return vm;
+    }
+
+    private async Task<LoggedOutViewModel> BuildLoggedOutViewModelAsync(string logoutId)
     {
       // get context information (client name, post logout redirect URI and iframe for federated signout)
-      var logout = await interaction.GetLogoutContextAsync(volunteerId);
+      var logout = await interaction.GetLogoutContextAsync(logoutId);
 
       var vm = new LoggedOutViewModel
       {
@@ -143,7 +184,7 @@ namespace HomeReadingLibraryWeb.Identity.Accounts
         PostLogoutRedirectUri = logout?.PostLogoutRedirectUri,
         ClientName = logout?.ClientId,
         SignOutIframeUrl = logout?.SignOutIFrameUrl,
-        LogoutId = volunteerId
+        LogoutId = logoutId
       };
 
       var user = User;

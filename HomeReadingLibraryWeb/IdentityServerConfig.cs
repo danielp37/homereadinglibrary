@@ -25,7 +25,7 @@ namespace HomeReadingLibraryWeb
             "http://localhost:5000/home",
             "https://localhost:5001/home"
           },
-          AllowedScopes = { "openid", "profile", "email", "library", "library.VolunteerAccess", "library.AdminAccess" },
+          AllowedScopes = { "openid", "profile", "email", "LoginRole", "library", "library.VolunteerAccess", "library.AdminAccess" },
           AlwaysIncludeUserClaimsInIdToken = true,
           UpdateAccessTokenClaimsOnRefresh = true,
           //AllowedCorsOrigins = { "http://localhost:5000" }
@@ -37,6 +37,7 @@ namespace HomeReadingLibraryWeb
             new IdentityResources.OpenId(),
             new IdentityResources.Profile(),
             new IdentityResources.Email(),
+            new IdentityResource("LoginRole", new [] {"role"})
         };
 
     public static IEnumerable<ApiResource> Apis = new List<ApiResource>

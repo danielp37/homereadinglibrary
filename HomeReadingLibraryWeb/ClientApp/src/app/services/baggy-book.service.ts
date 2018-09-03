@@ -378,33 +378,6 @@ export class BaggyBookService {
   //   return result.map(param => param.join('=')).join('&');
   // }
 
-  loginVolunteer(volunteerId: string): Promise<boolean> {
-    this.loaderService.display(true);
-    return this.http
-      .post<JwtResponse>(`${this.volunteersUrl}/jwtlogin`, JSON.stringify({ volunteerId: volunteerId}), {headers: this.headers})
-      .toPromise()
-      .then(jwtResponse => {
-        this.loaderService.display(false);
-        return this.authService.logInWithJwtToken(jwtResponse.id, jwtResponse.auth_token);
-      })
-      .catch(error => this.handleError(error));
-
-  }
-
-  loginAdmin(username: string, password: string): Promise<boolean> {
-    this.loaderService.display(true);
-    return this.http
-      .post<JwtResponse>(`${this.volunteersUrl}/jwtlogin`,
-        JSON.stringify({ username: username, password: password}), {headers: this.headers})
-      .toPromise()
-      .then(jwtResponse => {
-        this.loaderService.display(false);
-        return this.authService.logInWithJwtToken(jwtResponse.id, jwtResponse.auth_token);
-      })
-      .catch(error => this.handleError(error));
-
-  }
-
   // getVolunteerLoginsSinceDate(daysBack: number): Promise<VolunteerWithLogons[]> {
   //   this.loaderService.display(true);
   //   return this.authHttp

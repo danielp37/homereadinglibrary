@@ -9,5 +9,5 @@ export const authConfig : AuthConfig = {
 
 
     responseType: "id_token token",
-    scope: "openid profile email library library.VolunteerAccess library.AdminAccess",
+    scope: "openid profile email LoginRole library library.VolunteerAccess library.AdminAccess",
 }

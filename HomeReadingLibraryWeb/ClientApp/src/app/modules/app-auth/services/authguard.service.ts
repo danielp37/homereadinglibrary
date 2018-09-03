@@ -9,7 +9,7 @@ export class AuthGuard implements CanActivate {
 
     private urlPermissions = {
         volunteer_access: ['checkin', 'checkout', 'checkouthistory', 'bookcheckouthistory'],
-        anonymous_access: ['home', '', 'signin', 'signup' ]
+        anonymous_access: ['home', '', 'signup' ]
     }
 
 

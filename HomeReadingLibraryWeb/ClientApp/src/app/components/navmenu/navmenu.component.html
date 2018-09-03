@@ -33,11 +33,6 @@
                             <span class='glyphicon glyphicon-user'></span> Volunteer Signup
                         </a>
                     </li>
-                    <li [routerLinkActive]="['active']" class="nav-item">
-                        <a [routerLink]="['/signin']" class="nav-link">
-                            <span class='glyphicon glyphicon-user'></span> Volunteer Signin
-                        </a>
-                    </li>
                     <li [routerLinkActive]="['active']" *ngIf="isAdmin" class="nav-item">
                         <a [routerLink]="['/bookscheckedout']" class="nav-link">
                             <span class='glyphicon glyphicon-book'></span> Books Checked Out
@@ -63,7 +58,11 @@
                             <span class='glyphicon glyphicon-book'></span> Book Check Out History
                         </a>
                     </li>
+                    <li class='navbar-text' *ngIf='authService.loggedInName'>Logged in as: {{authService.loggedInName}}
+                            <button type="button" class="btn btn-primary btn-xs" (click)="logout()" *ngIf="loggedIn">Logout</button>
+                    </li>
                 </ul>
+
             </div>
         </div>
     </div>
