@@ -16,6 +16,8 @@ import { BsModalService, ModalModule } from 'ngx-bootstrap/modal';
 import { SortClassPipe } from './pipes/sort-class.pipe';
 import { BaggyBookService } from './services/baggy-book.service';
 import { CheckInBookComponent } from './components/check-in-book/check-in-book.component';
+import { CheckOutBookComponent } from './components/check-out-book/check-out-book.component';
+import { AddStudentComponent } from './components/add-student/add-student.component';
 
 @NgModule({
   declarations: [
@@ -23,7 +25,9 @@ import { CheckInBookComponent } from './components/check-in-book/check-in-book.c
     HomeComponent,
     NavMenuComponent,
     SortClassPipe,
-    CheckInBookComponent
+    CheckInBookComponent,
+    CheckOutBookComponent,
+    AddStudentComponent
   ],
   imports: [
     BrowserModule,

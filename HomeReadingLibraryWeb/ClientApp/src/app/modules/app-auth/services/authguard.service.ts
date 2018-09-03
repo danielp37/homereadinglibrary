@@ -8,7 +8,7 @@ import { Observable } from 'rxjs';
 export class AuthGuard implements CanActivate {
 
     private urlPermissions = {
-        volunteer_access: ['checkin', 'checkout', 'checkouthistory', 'bookcheckouthistory'],
+        VolunteerAccess: ['checkin', 'checkout', 'checkouthistory', 'bookcheckouthistory'],
         anonymous_access: ['home', '', 'signup' ]
     }
 

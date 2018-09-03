@@ -1,11 +1,11 @@
 // import { BookReservationHistoryComponent } from './../../components/book-reservation-history/book-reservation-history.component';
 // import { StudentReservationHistoryComponent } from './../../components/student-reservation-history/student-reservation-history.component';
 // import { VolunteerLogonsComponent } from './../../components/volunteer-logons/volunteer-logons.component';
-// import { AuthGuard } from './../app-auth/services/authguard.service';
-// import { AuthModule } from './../app-auth/app-auth.module';
+import { AuthGuard } from './../app-auth/services/authguard.service';
+import { AuthModule } from './../app-auth/app-auth.module';
 // import { CheckInBookComponent } from './../../components/check-in-book/check-in-book.component';
 // import { BookCopyReservationsComponent } from './../../components/book-copy-reservations/book-copy-reservations.component';
-// import { CheckOutBookComponent } from './../../components/check-out-book/check-out-book.component';
+import { CheckOutBookComponent } from './../../components/check-out-book/check-out-book.component';
 // import { BookListComponent } from './../../components/book-list/book-list.component';
 // import { ClassListsComponent } from './../../components/class-lists/class-lists.component';
 // import { SignupVolunteerComponent } from './../../components/signup-volunteer/signup-volunteer.component';
@@ -22,8 +22,8 @@ const routes: Routes = [
             // { path: 'signup',  component: SignupVolunteerComponent },
             // { path: 'classlists',  component: ClassListsComponent, canActivate: [AuthGuard] },
             // { path: 'booklist',  component: BookListComponent, canActivate: [AuthGuard] },
-            // { path: 'checkout',  component: CheckOutBookComponent, canActivate: [AuthGuard] },
-            { path: 'checkin',  component: CheckInBookComponent/*, canActivate: [AuthGuard] */},
+            { path: 'checkout',  component: CheckOutBookComponent, canActivate: [AuthGuard] },
+            { path: 'checkin',  component: CheckInBookComponent, canActivate: [AuthGuard] },
             // { path: 'bookscheckedout', component: BookCopyReservationsComponent, canActivate: [AuthGuard]},
             // { path: 'logons', component: VolunteerLogonsComponent, canActivate: [AuthGuard]},
             // { path: 'checkouthistory', component: StudentReservationHistoryComponent, canActivate: [AuthGuard]},

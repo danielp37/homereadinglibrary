@@ -44,11 +44,11 @@ export class BaggyBookService {
     private loaderService: LoaderService) { }
 
   private getAuthHeaders(includeContentType: boolean) : HttpHeaders {
-    const authHeader = new HttpHeaders({
+    let authHeader = new HttpHeaders({
       "Authorization": "Bearer " + this.oauthService.getAccessToken()
     });
     if(includeContentType) {
-      authHeader.append("Content-Type", "application/json");
+      authHeader = authHeader.append("Content-Type", "application/json");
     }
     return authHeader;
   }
@@ -69,9 +69,9 @@ export class BaggyBookService {
 
   getClasses(): Promise<Class[]> {
     return this.http
-      .get<object[]>(`${this.classesUrl}`)
+      .get<any>(`${this.classesUrl}`)
       .toPromise()
-      .then(response => response.map(Class.fromObject))
+      .then(response => response.data.map(Class.fromObject))
       .catch(error => this.handleError(error));
 
   }
@@ -106,33 +106,33 @@ export class BaggyBookService {
   //     .catch(error => this.handleError(error));
   // }
 
-  // addStudent(classId: string, newStudent: Student): Promise<Class> {
-  //   return this.authHttp
-  //     .post(`${this.originUrl}${this.classesUrl}/${classId}/students`, JSON.stringify(newStudent), {headers: this.headers})
-  //     .toPromise()
-  //     .then(res => Class.fromObject(res.json().data))
-  //     .catch(error => this.handleError(error));
-  // }
+  addStudent(classId: string, newStudent: Student): Promise<Class> {
+    return this.http
+      .post<any>(`${this.classesUrl}/${classId}/students`, JSON.stringify(newStudent), {headers: this.getAuthHeaders(true)})
+      .toPromise()
+      .then(res => Class.fromObject(res.data))
+      .catch(error => this.handleError(error));
+  }
 
-  // addNewStudent(classId: string, newStudent: Student): Promise<Class> {
-  //   return this.authHttp
-  //     .post(`${this.originUrl}${this.classesUrl}/${classId}/newstudent`, JSON.stringify(newStudent), {headers: this.headers})
-  //     .toPromise()
-  //     .then(res => Class.fromObject(res.json().data))
-  //     .catch(error => this.handleError(error));
-  // }
+  addNewStudent(classId: string, newStudent: Student): Promise<Class> {
+    return this.http
+      .post<any>(`${this.classesUrl}/${classId}/newstudent`, JSON.stringify(newStudent), {headers: this.getAuthHeaders(true)})
+      .toPromise()
+      .then(res => Class.fromObject(res.data))
+      .catch(error => this.handleError(error));
+  }
 
-  // getStudentByBarCode(barCode: string): Promise<StudentWithTeacher> {
-  //   this.loaderService.display(true);
-  //   return this.authHttp
-  //     .get(`${this.originUrl}${this.studentsUrl}/${barCode}`)
-  //     .toPromise()
-  //     .then(res => {
-  //       this.loaderService.display(false);
-  //       return res.json() as StudentWithTeacher
-  //     })
-  //     .catch(error => this.handleError(error));
-  // }
+  getStudentByBarCode(barCode: string): Promise<StudentWithTeacher> {
+    this.loaderService.display(true);
+    return this.http
+      .get<StudentWithTeacher>(`${this.studentsUrl}/${barCode}`, {headers: this.getAuthHeaders(false)})
+      .toPromise()
+      .then(res => {
+        this.loaderService.display(false);
+        return res
+      })
+      .catch(error => this.handleError(error));
+  }
 
   // getAllBooks(params: DataTableParams, searchParameters: BookSearchParameters): Promise<BookList> {
   //   return this.authHttp
@@ -257,20 +257,20 @@ export class BaggyBookService {
       .toPromise();
   }
 
-  // checkOutBookForStudent(bookCopyBarCode: string, studentBarCode: string): Promise<BookCopyReservation> {
-  //   const bookCopyReservation: BookCopyReservation = {
-  //     bookCopyBarCode: bookCopyBarCode,
-  //     studentBarCode: studentBarCode
-  //   };
-  //   this.loaderService.display(true);
-  //   return this.authHttp
-  //     .post(`${this.originUrl}${this.bookCheckOutUrl}`, JSON.stringify(bookCopyReservation), {headers: this.headers})
-  //     .toPromise()
-  //     .then(bcr => {
-  //       this.loaderService.display(false);
-  //       return bcr.json().data as BookCopyReservation
-  //     });
-  // }
+  checkOutBookForStudent(bookCopyBarCode: string, studentBarCode: string): Promise<BookCopyReservation> {
+    const bookCopyReservation: BookCopyReservation = {
+      bookCopyBarCode: bookCopyBarCode,
+      studentBarCode: studentBarCode
+    };
+    this.loaderService.display(true);
+    return this.http
+      .post<BookCopyReservation>(`${this.bookCheckOutUrl}`, JSON.stringify(bookCopyReservation), {headers: this.getAuthHeaders(true)})
+      .toPromise()
+      .then(bcr => {
+        this.loaderService.display(false);
+        return bcr
+      });
+  }
 
   checkInBookCopy(bookCopyBarCode: string): Promise<any> {
     this.loaderService.display(true);
