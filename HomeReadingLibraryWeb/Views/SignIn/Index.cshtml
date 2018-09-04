@@ -28,6 +28,39 @@
         </form>
     </div>
 
+    <hr />
 
 }
+
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#adminLoginModel">
+    Admin Login
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="adminLoginModel" tabindex="-1" role="dialog" aria-labelledby="adminLoginModel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form asp-action="adminsignin" asp-controller="Account" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Admin Login</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <label for="username">Username:</label>
+                    <input class="form-control" id="username" name="username">
+                    <label for="password">Password:</label>
+                    <input class="form-control" type="password" id="password" name="password">
+                    @Html.Hidden("returnUrl", Model.ReturnUrl)
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Login</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 

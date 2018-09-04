@@ -2,6 +2,8 @@ import { LoaderService } from './../../services/loader.service';
 import { Component, OnInit } from '@angular/core';
 import { OAuthService, JwksValidationHandler } from 'angular-oauth2-oidc';
 import { authConfig } from '../../modules/app-auth/services/auth.config';
+import { AuthService } from '../../modules/app-auth/services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -18,17 +20,23 @@ export class AppComponent implements OnInit {
         });
         this.oauthService.configure(authConfig);
         this.oauthService.tokenValidationHandler = new JwksValidationHandler();
-        this.oauthService.loadDiscoveryDocumentAndTryLogin();
+        this.oauthService.loadDiscoveryDocumentAndTryLogin()
+            .then(() => {
+                if (this.authService.loggedIn && this.router.url.startsWith("/home"))
+                {
+                    this.router.navigate(['/checkin']);
+                }
+            });
     }
     constructor(
         private loaderService: LoaderService,
-        private oauthService: OAuthService
+        private oauthService: OAuthService,
+        private authService: AuthService,
+        private router: Router
     ) {}
 
     public get name() {
-        let claims = this.oauthService.getIdentityClaims() as any;
-        if (!claims) return null;
-        return claims.name;
+        return this.authService.loggedInName;
     }
 
     public get claims() {

@@ -17,8 +17,8 @@ namespace HomeReadingLibraryWeb
           AllowedGrantTypes = GrantTypes.Implicit,
           AllowAccessTokensViaBrowser = true,
           RedirectUris = {
-              "http://localhost:5000/checkin",
-              "https://localhost:5001/checkin",
+              "http://localhost:5000/home",
+              "https://localhost:5001/home",
           },
           RequireConsent = false,
           PostLogoutRedirectUris = {

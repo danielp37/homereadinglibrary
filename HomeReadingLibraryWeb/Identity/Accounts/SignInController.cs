@@ -35,9 +35,9 @@ namespace HomeReadingLibraryWeb.Identity.Accounts
     }
 
     [HttpGet("signin")]
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index([FromQuery]string returnUrl)
     {
-      var vm = new VolunteerByClassViewModel(await volunteerService.GetVolunteersByClassAsync());
+      var vm = new VolunteerByClassViewModel(await volunteerService.GetVolunteersByClassAsync(), returnUrl);
 
       return View(vm);
     }
@@ -46,27 +46,6 @@ namespace HomeReadingLibraryWeb.Identity.Accounts
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Index([FromForm]string volunteer, [FromQuery]string returnUrl)
     {
-      //if (volunteer != "login")
-      //{
-      //  // the user clicked the "cancel" button
-      //  var context = await interaction.GetAuthorizationContextAsync(model.ReturnUrl);
-      //  if (context != null)
-      //  {
-      //    // if the user cancels, send a result back into IdentityServer as if they 
-      //    // denied the consent (even if this client does not require consent).
-      //    // this will send back an access denied OIDC error response to the client.
-      //    await _interaction.GrantConsentAsync(context, ConsentResponse.Denied);
-
-      //    // we can trust model.ReturnUrl since GetAuthorizationContextAsync returned non-null
-      //    return Redirect(model.ReturnUrl);
-      //  }
-      //  else
-      //  {
-      //    // since we don't have a valid context, then we just go back to the home page
-      //    return Redirect("~/");
-      //  }
-      //}
-
       if (ModelState.IsValid)
       {
         // validate username/password against in-memory store
@@ -93,7 +72,40 @@ namespace HomeReadingLibraryWeb.Identity.Accounts
       }
 
       // something went wrong, show form with error
-      return await Index();
+      return await Index(returnUrl);
+    }
+
+    [HttpPost("adminsignin")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AdminSignin([FromForm]string username, [FromForm]string password, [FromForm]string returnUrl)
+    {
+      if (ModelState.IsValid)
+      {
+        // validate username/password against in-memory store
+        if (await volunteerService.ValidateCredentials(string.Empty, username, password))
+        {
+          var user = await volunteerService.GetUserToVerify(string.Empty, username);
+          await events.RaiseAsync(new UserLoginSuccessEvent(user.FullName, user.Id, user.FullName));
+
+          // issue authentication cookie with subject ID and username
+          await HttpContext.SignInAsync(user.Id, user.FullName);
+
+          // make sure the returnUrl is still valid, and if so redirect back to authorize endpoint or a local page
+          if (interaction.IsValidReturnUrl(returnUrl) || Url.IsLocalUrl(returnUrl))
+          {
+            return Redirect(returnUrl);
+          }
+
+          return Redirect("~/");
+        }
+
+        await events.RaiseAsync(new UserLoginFailureEvent(username, "invalid credentials"));
+
+        ModelState.AddModelError("", "Invalid username or password");
+      }
+
+      // something went wrong, show form with error
+      return await Index(returnUrl);
     }
 
     [HttpGet("logout")]

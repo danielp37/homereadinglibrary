@@ -4,7 +4,7 @@ import { environment } from "../../../../environments/environment";
 export const authConfig : AuthConfig = {
     issuer: window.location.origin,
     clientId: "spa",
-    redirectUri: window.location.origin + "/checkin",
+    redirectUri: window.location.origin + "/home",
     postLogoutRedirectUri: window.location.origin + "/home",
 
 

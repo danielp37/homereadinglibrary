@@ -29,16 +29,19 @@ export class AuthService {
     }
 
     public get isVolunteer(): boolean {
-        return this.userRole === 'VolunteerAccess';
+        return this.userRoles.indexOf('VolunteerAccess') !== -1;
     }
 
     public get isAdmin(): boolean {
-        return this.userRole === 'AdminAccess';
+        return this.userRoles.indexOf('AdminAccess') !== -1;
     }
 
-    public get userRole(): string {
+    public get userRoles(): string[] {
         if(this.identity) {
-            return this.identity.role;
+            if(Array.isArray(this.identity.role)) {
+                return this.identity.role;
+            }
+            else return [this.identity.role];
         }
     }
 

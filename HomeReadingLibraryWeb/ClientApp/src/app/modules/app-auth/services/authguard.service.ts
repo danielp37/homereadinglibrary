@@ -26,7 +26,7 @@ export class AuthGuard implements CanActivate {
             if (this.auth.isAdmin) {
                 return true;
             }
-            return this.urlPermissions[this.auth.userRole] && this.urlPermissions[this.auth.userRole].indexOf(url[0].path) > -1;
+            return this.urlPermissions['VolunteerAccess'] && this.urlPermissions['VolunteerAccess'].indexOf(url[0].path) > -1;
         } else {
             if (this.urlPermissions.anonymous_access.indexOf(url[0].path) > -1) {
                 return true;
