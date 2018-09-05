@@ -132,7 +132,7 @@ export class BaggyBookService {
 
   getAllBooks(params: DataTableParams, searchParameters: BookSearchParameters): Promise<BookList> {
     return this.http
-      .get<any>(`${this.booksUrl}?${this.paramsToQueryString(params, searchParameters)}`)
+      .get<any>(`${this.booksUrl}?${this.paramsToQueryString(params, searchParameters)}`, {headers: this.getAuthHeaders(false)})
       .toPromise()
       .then(res => {
         const obj = res;
@@ -223,7 +223,7 @@ export class BaggyBookService {
 
   getBook(bookId: string): Promise<Book> {
     return this.http
-      .get<any>(`${this.booksUrl}/${bookId}`)
+      .get<any>(`${this.booksUrl}/${bookId}`, {headers: this.getAuthHeaders(false)})
       .toPromise()
       .then(book => Book.fromObject(book.data))
       .catch(error => {
@@ -236,7 +236,7 @@ export class BaggyBookService {
 
   getBookByIsbn(isbn: string): Promise<Book> {
     return this.http
-      .get<any>(`${this.booksUrl}/isbn/${isbn}`)
+      .get<any>(`${this.booksUrl}/isbn/${isbn}`, {headers: this.getAuthHeaders(false)})
       .toPromise()
       .then(book => Book.fromObject(book.data))
       .catch(error => {

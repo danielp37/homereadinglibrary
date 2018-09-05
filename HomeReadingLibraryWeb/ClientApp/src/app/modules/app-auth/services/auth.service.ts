@@ -29,11 +29,11 @@ export class AuthService {
     }
 
     public get isVolunteer(): boolean {
-        return this.userRoles.indexOf('VolunteerAccess') !== -1;
+        return this.userRoles && this.userRoles.indexOf('VolunteerAccess') !== -1;
     }
 
     public get isAdmin(): boolean {
-        return this.userRoles.indexOf('AdminAccess') !== -1;
+        return this.userRoles && this.userRoles.indexOf('AdminAccess') !== -1;
     }
 
     public get userRoles(): string[] {

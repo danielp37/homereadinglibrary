@@ -1,0 +1,38 @@
+<div>
+  <app-add-book (onBookAdded)="bookAdded($event)" [currentBookIsbn]="currentBookIsbn"></app-add-book>
+
+  <hr>
+
+  <form class="form-inline" [formGroup]="searchBookForm">
+    <label for="searchType">Book Search</label>
+    <select id="searchType" class="form-control" formControlName="searchType">
+      <option>Title</option>
+      <option>Author</option>
+      <option>ReadingLevel/Box</option>
+      <option>Book BarCode</option>
+    </select>
+    <input id="searchText" class="form-control" formControlName="searchText" (keyup.enter)="searchBooks()" >
+    <button class="btn btn-primary" (click)="searchBooks()">Search</button>
+    <button class="btn btn-default" (click)="exportToTab()">Export To File</button>
+  </form>
+
+  <div>
+      <ngx-datatable
+        class="bootstrap"
+        [rows]="books"
+        [columns]="columns"
+        [loadingIndicator]="loadingIndicator"
+        [footerHeight]="50"
+        [rowHeight]="'auto'"
+        [externalPaging]="true"
+        [count]="bookList.count"
+        [offset]="lastSearchParams.offset / lastSearchParams.limit"
+        [limit]="lastSearchParams.limit"
+        [selected]="selected"
+        [selectionType]="'single'"
+        (select)="onSelect($event)"
+        (page)='setPage($event)'>
+      </ngx-datatable>
+
+    </div>
+</div>

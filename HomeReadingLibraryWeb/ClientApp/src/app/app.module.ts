@@ -4,6 +4,7 @@ import { CollapseModule } from "ngx-bootstrap/collapse";
 import { HttpClientModule } from "@angular/common/http";
 import { OAuthModule } from "angular-oauth2-oidc";
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { NgxDatatableModule } from "@swimlane/ngx-datatable";
 
 //import { AppComponent } from './app.component';
 import { AppRoutingModule } from './modules/app-routing/app-routing.module';
@@ -18,6 +19,12 @@ import { BaggyBookService } from './services/baggy-book.service';
 import { CheckInBookComponent } from './components/check-in-book/check-in-book.component';
 import { CheckOutBookComponent } from './components/check-out-book/check-out-book.component';
 import { AddStudentComponent } from './components/add-student/add-student.component';
+import { BookListComponent } from './components/book-list/book-list.component';
+import { AddBookComponent } from './components/add-book/add-book.component';
+import { BookLookupService } from './services/book-lookup.service';
+import { SortNamePipe } from './pipes/sort-name.pipe';
+import { SortDatePipe } from './pipes/sort-date.pipe';
+import { UtcDatePipe } from './pipes/utc-date.pipe';
 
 @NgModule({
   declarations: [
@@ -25,9 +32,14 @@ import { AddStudentComponent } from './components/add-student/add-student.compon
     HomeComponent,
     NavMenuComponent,
     SortClassPipe,
+    SortNamePipe,
+    SortDatePipe,
+    UtcDatePipe,
     CheckInBookComponent,
     CheckOutBookComponent,
-    AddStudentComponent
+    AddStudentComponent,
+    BookListComponent,
+    AddBookComponent
   ],
   imports: [
     BrowserModule,
@@ -38,9 +50,10 @@ import { AddStudentComponent } from './components/add-student/add-student.compon
     ModalModule.forRoot(),
     OAuthModule.forRoot(),
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    NgxDatatableModule
   ],
-  providers: [LoaderService, BaggyBookService],
+  providers: [LoaderService, BaggyBookService, BookLookupService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
