@@ -1,0 +1,64 @@
+<div class="container">
+  <ng-template #addNewClassContent>
+    <div class="modal-header">
+        <h4 class="modal-title pull-left">Add New Class</h4>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+
+    <div class="modal-body">
+      <app-add-class (onClassAdded)="onClassAdded($event)"></app-add-class>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline-dark" (click)="modalRef.hide()">Close</button>
+    </div>
+  </ng-template>
+
+  <ng-template #addMultipleStudentsContent>
+      <div class="modal-header">
+          <h4 class="modal-title pull-left">Add Multiple Students</h4>
+          <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+              <span aria-hidden="true">&times;</span>
+          </button>
+      </div>
+  
+      <div class="modal-body">
+        <app-upload-students [classId]="currentClass.classId" (onSaved)="onNewStudent($event)"></app-upload-students>
+      </div>
+      <div class="modal-footer">
+          <button type="button" class="btn btn-outline-dark" (click)="modalRef.hide()">Close</button>
+      </div>
+  </ng-template>
+
+  <div *ngIf="classes" class="form-group">
+    <label for="formClass">Teacher:</label>
+    <select class="form-control" id="formClass" [(ngModel)]="selectedClassId"
+        (change)="displayClassListForCurrentTeacher()">
+      <option value="">(Select a teacher)</option>
+      <option *ngFor="let cls of (classes | sortClass)" [ngValue]="cls.classId">{{cls.teacherName}} Grade: {{cls.grade}}</option>
+    </select>
+    <button type="button" class="btn btn-primary" (click)="addNewClass(addNewClassContent)">Add New Class</button>
+  </div>
+
+  <div *ngIf="selectedClassId">
+    <div *ngIf="!currentClass">
+      Loading...
+    </div>
+    <div *ngIf="currentClass">
+      <app-add-student [classId]="selectedClassId" (onSaved)="onNewStudent($event)"></app-add-student>
+
+      <button type="button" class="btn btn-primary" (click)="addMultipleStudents(addMultipleStudentsContent)">Add Multiple Students</button>
+
+      <ngx-datatable
+        class="bootstrap"
+        [rows]="currentClass.students"
+        [columns]="columns"
+        [loadingIndicator]="loadingIndicator"
+        [footerHeight]="50"
+        [rowHeight]="'auto'">
+      </ngx-datatable>
+
+    </div>
+  </div>
+</div>

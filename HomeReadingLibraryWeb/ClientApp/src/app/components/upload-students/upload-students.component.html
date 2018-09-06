@@ -1,0 +1,14 @@
+<div>
+  <form [formGroup]="addMultipleStudentsForm" (ngSubmit)="onSubmit()" class="form">
+      <label for="students">Enter students here (LastName, FirstName)</label>
+      <textarea class="form-control" formControlName="students" id="students" rows="15" required>
+      </textarea>
+
+      <ul>
+        <li *ngFor="let result of results">{{result}}</li>
+      </ul>
+    
+      <button type="submit" [disabled]="addMultipleStudentsForm.pristine || addMultipleStudentsForm.invalid" 
+        class="btn btn-primary">Upload Students</button>
+  </form>
+</div>

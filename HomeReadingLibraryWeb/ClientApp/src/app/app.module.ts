@@ -25,6 +25,10 @@ import { BookLookupService } from './services/book-lookup.service';
 import { SortNamePipe } from './pipes/sort-name.pipe';
 import { SortDatePipe } from './pipes/sort-date.pipe';
 import { UtcDatePipe } from './pipes/utc-date.pipe';
+import { ClassListsComponent } from './components/class-lists/class-lists.component';
+import { AddClassComponent } from './components/add-class/add-class.component';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { UploadStudentsComponent } from './components/upload-students/upload-students.component';
 
 @NgModule({
   declarations: [
@@ -39,7 +43,10 @@ import { UtcDatePipe } from './pipes/utc-date.pipe';
     CheckOutBookComponent,
     AddStudentComponent,
     BookListComponent,
-    AddBookComponent
+    AddBookComponent,
+    ClassListsComponent,
+    AddClassComponent,
+    UploadStudentsComponent
   ],
   imports: [
     BrowserModule,
@@ -52,6 +59,7 @@ import { UtcDatePipe } from './pipes/utc-date.pipe';
     FormsModule,
     ReactiveFormsModule,
     NgxDatatableModule
+    
   ],
   providers: [LoaderService, BaggyBookService, BookLookupService],
   bootstrap: [AppComponent]
