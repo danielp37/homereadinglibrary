@@ -30,6 +30,8 @@ import { AddClassComponent } from './components/add-class/add-class.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { UploadStudentsComponent } from './components/upload-students/upload-students.component';
 import { SignupVolunteerComponent } from './components/signup-volunteer/signup-volunteer.component';
+import { BookReservationHistoryComponent } from './components/book-reservation-history/book-reservation-history.component';
+import { StudentReservationHistoryComponent } from './components/student-reservation-history/student-reservation-history.component';
 
 @NgModule({
   declarations: [
@@ -48,7 +50,9 @@ import { SignupVolunteerComponent } from './components/signup-volunteer/signup-v
     ClassListsComponent,
     AddClassComponent,
     UploadStudentsComponent,
-    SignupVolunteerComponent
+    SignupVolunteerComponent,
+    BookReservationHistoryComponent,
+    StudentReservationHistoryComponent
   ],
   imports: [
     BrowserModule,

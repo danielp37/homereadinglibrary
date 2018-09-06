@@ -1,0 +1,98 @@
+<div>
+
+  <form class="form-inline" #showReservationsForm="ngForm" (ngSubmit)="updateBookList(daysBack.value)">
+      <label for="daysBack">Show books checked out more than&nbsp;</label>
+      <input type="text" id="daysBack" name="daysBack" [ngModel]="defaultDaysBack" #daysBack="ngModel">
+      <label for="daysBack">&nbsp;days</label>
+      <button type="submit" class="btn btn-primary">Submit</button>
+      <button class="btn btn-default" (click)="exportToTab()">Export To File</button>
+      <a [href]="downloadLink" id="downloadReport"></a>
+      <hr>
+
+      <label for="searchType">Book Search</label>
+      <select id="searchType" class="form-control" name="searchType" [(ngModel)]="searchType">
+        <option>Title</option>
+        <option>Author</option>
+        <option>Teacher</option>
+        <option>Grade</option>
+        <option>Student Name</option>
+        <option>ReadingLevel/Box</option>
+        <option>Book BarCode</option>
+      </select>
+      <input id="searchText" class="form-control" name="searchText" [(ngModel)]="searchText" >
+      <button type="submit" class="btn btn-primary">Search</button>
+      <hr>
+    </form>
+
+  <div>
+      <data-table id="books-grid" headerTitle="Books Checked Out"
+        [items]="bookCopyReservations"
+        [itemCount]="totalCount"
+        (reload)="refreshBookList($event)"
+        >
+        <data-table-column
+          [property]="'bookCopy.bookCopyBarCode'"
+          [header]="'Book Copy Bar Code'"
+          [resizable]="true">
+          <ng-template #dataTableCell let-item="item">
+            {{item.bookCopy.bookCopyBarCode}}
+          </ng-template>
+        </data-table-column>
+        <data-table-column
+          [property]="'checkedOutDate'"
+          [header]="'Checked Out'"
+          [resizable]="true"
+          [sortable]="true">
+          <ng-template #dataTableCell let-item="item">
+              {{item.checkedOutDate | utcDate | date:'shortDate'}}<br>{{item.checkedOutBy}}
+          </ng-template>
+        </data-table-column>
+        <data-table-column
+          [property]="'bookCopy.title'"
+          [header]="'Book Title'"
+          [resizable]="true"
+          [sortable]="true">
+          <ng-template #dataTableCell let-item="item">
+              {{item.bookCopy.title}}
+          </ng-template>
+        </data-table-column>
+        <data-table-column
+          [property]="'bookCopy.author'"
+          [header]="'Book Author'"
+          [resizable]="true"
+          [sortable]="true">
+          <ng-template #dataTableCell let-item="item">
+              {{item.bookCopy.author}}
+          </ng-template>
+        </data-table-column>
+        <data-table-column
+          [property]="'bookCopy.guidedReadingLevel'"
+          [header]="'Box'"
+          [resizable]="true"
+          [sortable]="true">
+          <ng-template #dataTableCell let-item="item">
+              {{item.bookCopy.guidedReadingLevel}}{{item.bookCopy.boxNumber}}
+          </ng-template>
+        </data-table-column>
+        <data-table-column
+          [property]="'student.teacherName'"
+          [header]="'Teacher'"
+          [resizable]="true"
+          [sortable]="true">
+          <ng-template #dataTableCell let-item="item">
+            {{item.student.teacherName}} Grade: {{item.student.grade}}
+          </ng-template>
+        </data-table-column>
+        <data-table-column
+          [property]="'student.lastName'"
+          [header]="'Student'"
+          [resizable]="true"
+          [sortable]="true">
+          <ng-template #dataTableCell let-item="item">
+            {{item.student.firstName}} {{item.student.lastName}}<br>
+            {{item.student.studentBarCode}}
+          </ng-template>
+        </data-table-column>
+    </data-table>
+  </div>
+</div>

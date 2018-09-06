@@ -286,7 +286,7 @@ export class BaggyBookService {
     const checkoutParams = this.bookCopyParamsToQueryString(params, studentId, studentId !== undefined, daysBack
       , false, bookSearchParameters);
     return this.http
-      .get<any>(`${this.bookCheckOutUrl}${checkoutParams ? `?${checkoutParams}` : ''}`)
+      .get<any>(`${this.bookCheckOutUrl}${checkoutParams ? `?${checkoutParams}` : ''}`, {headers: this.getAuthHeaders(false)})
       .toPromise()
       .then(bcr => {
         this.loaderService.display(false);
@@ -303,7 +303,7 @@ export class BaggyBookService {
     Promise<{count: number, reservations: BookCopyReservationWithData[]}> {
     this.loaderService.display(true);
     return this.http
-      .get<any>(`${this.bookCheckOutUrl}?bookBarCode=${bookBarCode}&fullHistory=true`)
+      .get<any>(`${this.bookCheckOutUrl}?bookBarCode=${bookBarCode}&fullHistory=true`, {headers: this.getAuthHeaders(false)})
       .toPromise()
       .then(bcr => {
         this.loaderService.display(false);
@@ -323,7 +323,7 @@ export class BaggyBookService {
     const checkoutParams = this.bookCopyParamsToQueryString(params, studentId, studentId !== undefined, daysBack
       , true, bookSearchParameters);
     return this.http
-    .get(`${this.bookCheckOutUrl}${checkoutParams ? `?${checkoutParams}` : ''}`)
+    .get(`${this.bookCheckOutUrl}${checkoutParams ? `?${checkoutParams}` : ''}`, {headers: this.getAuthHeaders(false)})
     .toPromise()
     .then(bcr => {
       this.loaderService.display(false);
@@ -377,7 +377,7 @@ export class BaggyBookService {
   getVolunteerLoginsSinceDate(daysBack: number): Promise<VolunteerWithLogons[]> {
     this.loaderService.display(true);
     return this.http
-      .get(`${this.volunteersUrl}/logons?daysBack=${daysBack}`)
+      .get(`${this.volunteersUrl}/logons?daysBack=${daysBack}`, {headers: this.getAuthHeaders(false)})
       .toPromise()
       .then(resp => {
         this.loaderService.display(false);
