@@ -29,6 +29,7 @@ import { ClassListsComponent } from './components/class-lists/class-lists.compon
 import { AddClassComponent } from './components/add-class/add-class.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { UploadStudentsComponent } from './components/upload-students/upload-students.component';
+import { SignupVolunteerComponent } from './components/signup-volunteer/signup-volunteer.component';
 
 @NgModule({
   declarations: [
@@ -46,7 +47,8 @@ import { UploadStudentsComponent } from './components/upload-students/upload-stu
     AddBookComponent,
     ClassListsComponent,
     AddClassComponent,
-    UploadStudentsComponent
+    UploadStudentsComponent,
+    SignupVolunteerComponent
   ],
   imports: [
     BrowserModule,
