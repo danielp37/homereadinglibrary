@@ -32,6 +32,7 @@ import { UploadStudentsComponent } from './components/upload-students/upload-stu
 import { SignupVolunteerComponent } from './components/signup-volunteer/signup-volunteer.component';
 import { BookReservationHistoryComponent } from './components/book-reservation-history/book-reservation-history.component';
 import { StudentReservationHistoryComponent } from './components/student-reservation-history/student-reservation-history.component';
+import { VolunteerLogonsComponent } from './components/volunteer-logons/volunteer-logons.component';
 
 @NgModule({
   declarations: [
@@ -52,7 +53,8 @@ import { StudentReservationHistoryComponent } from './components/student-reserva
     UploadStudentsComponent,
     SignupVolunteerComponent,
     BookReservationHistoryComponent,
-    StudentReservationHistoryComponent
+    StudentReservationHistoryComponent,
+    VolunteerLogonsComponent
   ],
   imports: [
     BrowserModule,
