@@ -4,7 +4,7 @@ import { VolunteerLogonsComponent } from './../../components/volunteer-logons/vo
 import { AuthGuard } from './../app-auth/services/authguard.service';
 import { AuthModule } from './../app-auth/app-auth.module';
 import { CheckInBookComponent } from './../../components/check-in-book/check-in-book.component';
-// import { BookCopyReservationsComponent } from './../../components/book-copy-reservations/book-copy-reservations.component';
+import { BookCopyReservationsComponent } from './../../components/book-copy-reservations/book-copy-reservations.component';
 import { CheckOutBookComponent } from './../../components/check-out-book/check-out-book.component';
 import { BookListComponent } from './../../components/book-list/book-list.component';
 import { ClassListsComponent } from './../../components/class-lists/class-lists.component';
@@ -23,7 +23,7 @@ const routes: Routes = [
             { path: 'booklist',  component: BookListComponent, canActivate: [AuthGuard] },
             { path: 'checkout',  component: CheckOutBookComponent, canActivate: [AuthGuard] },
             { path: 'checkin',  component: CheckInBookComponent, canActivate: [AuthGuard] },
-            // { path: 'bookscheckedout', component: BookCopyReservationsComponent, canActivate: [AuthGuard]},
+            { path: 'bookscheckedout', component: BookCopyReservationsComponent, canActivate: [AuthGuard]},
             { path: 'logons', component: VolunteerLogonsComponent, canActivate: [AuthGuard]},
             { path: 'checkouthistory', component: StudentReservationHistoryComponent, canActivate: [AuthGuard]},
             { path: 'bookcheckouthistory', component: BookReservationHistoryComponent, canActivate: [AuthGuard]},

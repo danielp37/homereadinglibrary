@@ -33,6 +33,7 @@ import { SignupVolunteerComponent } from './components/signup-volunteer/signup-v
 import { BookReservationHistoryComponent } from './components/book-reservation-history/book-reservation-history.component';
 import { StudentReservationHistoryComponent } from './components/student-reservation-history/student-reservation-history.component';
 import { VolunteerLogonsComponent } from './components/volunteer-logons/volunteer-logons.component';
+import { BookCopyReservationsComponent } from './components/book-copy-reservations/book-copy-reservations.component';
 
 @NgModule({
   declarations: [
@@ -54,7 +55,8 @@ import { VolunteerLogonsComponent } from './components/volunteer-logons/voluntee
     SignupVolunteerComponent,
     BookReservationHistoryComponent,
     StudentReservationHistoryComponent,
-    VolunteerLogonsComponent
+    VolunteerLogonsComponent,
+    BookCopyReservationsComponent
   ],
   imports: [
     BrowserModule,

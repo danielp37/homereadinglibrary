@@ -21,6 +21,7 @@ export class BookCopyReservationsComponent implements OnInit {
   searchType = 'Title';
   searchText = '';
 
+
   constructor(
     private baggyBookService: BaggyBookService,
     private renderer: Renderer2
@@ -34,7 +35,7 @@ export class BookCopyReservationsComponent implements OnInit {
   }
 
   ngOnInit() {
-
+    setTimeout(() => this.refreshBookList(this.lastSearchParams), 0);
   }
 
   getBookCopyReservations() {
@@ -62,6 +63,14 @@ export class BookCopyReservationsComponent implements OnInit {
   refreshBookList(params: DataTableParams) {
     this.lastSearchParams = params;
     this.getBookCopyReservations();
+  }
+
+  setPage(pageInfo) {
+    const params : DataTableParams = {
+      offset : pageInfo.offset * this.lastSearchParams.limit,
+      limit : this.lastSearchParams.limit
+    }
+    this.refreshBookList(params);
   }
 
   updateBookList(daysBack: number) {

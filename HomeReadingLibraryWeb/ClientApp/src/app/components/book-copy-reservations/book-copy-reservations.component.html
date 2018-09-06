@@ -1,98 +1,109 @@
 <div>
 
-  <form class="form-inline" #showReservationsForm="ngForm" (ngSubmit)="updateBookList(daysBack.value)">
-      <label for="daysBack">Show books checked out more than&nbsp;</label>
-      <input type="text" id="daysBack" name="daysBack" [ngModel]="defaultDaysBack" #daysBack="ngModel">
-      <label for="daysBack">&nbsp;days</label>
-      <button type="submit" class="btn btn-primary">Submit</button>
-      <button class="btn btn-default" (click)="exportToTab()">Export To File</button>
-      <a [href]="downloadLink" id="downloadReport"></a>
-      <hr>
+  <form #showReservationsForm="ngForm" (ngSubmit)="updateBookList(daysBack.value)">
+      <div class="form-row">
+        <div class="col">
+          <label for="daysBack">Show books checked out more than&nbsp;</label>
+          <input type="text" id="daysBack" name="daysBack" [ngModel]="defaultDaysBack" #daysBack="ngModel">
+          <label for="daysBack">&nbsp;days</label>
+          <button type="submit" class="btn btn-primary">Submit</button>
+          <button class="btn btn-default" (click)="exportToTab()">Export To File</button>
+          <a [href]="downloadLink" id="downloadReport"></a>
+        </div>
+      </div>
 
-      <label for="searchType">Book Search</label>
-      <select id="searchType" class="form-control" name="searchType" [(ngModel)]="searchType">
-        <option>Title</option>
-        <option>Author</option>
-        <option>Teacher</option>
-        <option>Grade</option>
-        <option>Student Name</option>
-        <option>ReadingLevel/Box</option>
-        <option>Book BarCode</option>
-      </select>
-      <input id="searchText" class="form-control" name="searchText" [(ngModel)]="searchText" >
-      <button type="submit" class="btn btn-primary">Search</button>
-      <hr>
+      <div class="form-row align-items-center">
+        <div class="col-auto">
+          <label for="searchType">Book Search</label>
+        </div>
+        <div class="col-auto">
+          <select id="searchType" class="form-control" name="searchType" [(ngModel)]="searchType">
+            <option>Title</option>
+            <option>Author</option>
+            <option>Teacher</option>
+            <option>Grade</option>
+            <option>Student Name</option>
+            <option>ReadingLevel/Box</option>
+            <option>Book BarCode</option>
+          </select>
+        </div>
+        <div class="col-auto">
+          <input id="searchText" class="form-control" name="searchText" [(ngModel)]="searchText" >
+        </div>
+        <div class="col-auto">
+          <button type="submit" class="btn btn-primary">Search</button>
+        </div>
+      </div>
     </form>
 
   <div>
-      <data-table id="books-grid" headerTitle="Books Checked Out"
-        [items]="bookCopyReservations"
-        [itemCount]="totalCount"
-        (reload)="refreshBookList($event)"
-        >
-        <data-table-column
-          [property]="'bookCopy.bookCopyBarCode'"
-          [header]="'Book Copy Bar Code'"
-          [resizable]="true">
-          <ng-template #dataTableCell let-item="item">
-            {{item.bookCopy.bookCopyBarCode}}
+      <ngx-datatable
+        class="bootstrap"
+        [rows]="bookCopyReservations"
+        [footerHeight]="50"
+        [rowHeight]="'auto'"
+        [externalPaging]="true"
+        [count]="totalCount"
+        [offset]="lastSearchParams.offset / lastSearchParams.limit"
+        [limit]="lastSearchParams.limit"
+        (page)='setPage($event)'>
+        <ngx-datatable-column name="bookCopy.bookCopyBarCode">
+          <ng-template let-column="column" ngx-datatable-header-template>
+            Book Copy Bar Code
           </ng-template>
-        </data-table-column>
-        <data-table-column
-          [property]="'checkedOutDate'"
-          [header]="'Checked Out'"
-          [resizable]="true"
-          [sortable]="true">
-          <ng-template #dataTableCell let-item="item">
-              {{item.checkedOutDate | utcDate | date:'shortDate'}}<br>{{item.checkedOutBy}}
+          <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+            {{row.bookCopy.bookCopyBarCode}}
           </ng-template>
-        </data-table-column>
-        <data-table-column
-          [property]="'bookCopy.title'"
-          [header]="'Book Title'"
-          [resizable]="true"
-          [sortable]="true">
-          <ng-template #dataTableCell let-item="item">
-              {{item.bookCopy.title}}
+        </ngx-datatable-column>
+        <ngx-datatable-column name="checkedOutDate">
+            <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
+              <span (click)="sort()">Checked Out</span>
+            </ng-template>
+            <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+              {{value | utcDate | date:'shortDate'}}<br>{{row.checkedOutBy}}
+            </ng-template>
+          </ngx-datatable-column>
+        <ngx-datatable-column name="bookCopy.title">
+          <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
+            <span (click)="sort()">Book Title</span>
           </ng-template>
-        </data-table-column>
-        <data-table-column
-          [property]="'bookCopy.author'"
-          [header]="'Book Author'"
-          [resizable]="true"
-          [sortable]="true">
-          <ng-template #dataTableCell let-item="item">
-              {{item.bookCopy.author}}
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            {{row.bookCopy.title}}
           </ng-template>
-        </data-table-column>
-        <data-table-column
-          [property]="'bookCopy.guidedReadingLevel'"
-          [header]="'Box'"
-          [resizable]="true"
-          [sortable]="true">
-          <ng-template #dataTableCell let-item="item">
-              {{item.bookCopy.guidedReadingLevel}}{{item.bookCopy.boxNumber}}
+        </ngx-datatable-column>
+        <ngx-datatable-column name="bookCopy.author">
+          <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
+              <span (click)="sort()">Book Author</span>
           </ng-template>
-        </data-table-column>
-        <data-table-column
-          [property]="'student.teacherName'"
-          [header]="'Teacher'"
-          [resizable]="true"
-          [sortable]="true">
-          <ng-template #dataTableCell let-item="item">
-            {{item.student.teacherName}} Grade: {{item.student.grade}}
+          <ng-template let-row="row" ngx-datatable-cell-template>
+              {{row.bookCopy.author}}
           </ng-template>
-        </data-table-column>
-        <data-table-column
-          [property]="'student.lastName'"
-          [header]="'Student'"
-          [resizable]="true"
-          [sortable]="true">
-          <ng-template #dataTableCell let-item="item">
-            {{item.student.firstName}} {{item.student.lastName}}<br>
-            {{item.student.studentBarCode}}
+        </ngx-datatable-column>
+        <ngx-datatable-column name="bookCopy.guidedReadingLevel">
+          <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
+              <span (click)="sort()">Box</span>
           </ng-template>
-        </data-table-column>
-    </data-table>
+          <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+              {{row.bookCopy.guidedReadingLevel}}{{row.bookCopy.boxNumber}}
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column name="student.teacherName">
+          <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
+              <span (click)="sort()">Teacher</span>
+          </ng-template>
+          <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+              {{row.student.teacherName}} Grade: {{row.student.grade}}
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column name="student.lastName">
+          <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
+              <span (click)="sort()">Student</span>
+          </ng-template>
+          <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+              {{row.student.firstName}} {{row.student.lastName}}<br>
+              {{row.student.studentBarCode}}
+          </ng-template>
+        </ngx-datatable-column>
+      </ngx-datatable>
   </div>
 </div>
