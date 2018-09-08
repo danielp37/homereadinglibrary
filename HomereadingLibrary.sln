@@ -2,17 +2,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27703.2047
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "website", "website\website.csproj", "{D7A8E68A-B5FC-4A23-BAEC-5FD30C7A16C4}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspnetCore.Identity.MongoDb", "AspnetCore.Identity.MongoDb\AspnetCore.Identity.MongoDb.csproj", "{56CD90FF-18D0-4C1B-A1D2-D8E8F1FD6A21}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspnetCore.Identity.MongoDb.Tests", "AspnetCore.Identity.MongoDb.Tests\AspnetCore.Identity.MongoDb.Tests.csproj", "{0B6A3EEE-D03F-48B9-8A6A-86E7ADA22054}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HomeReadingLibraryWeb", "HomeReadingLibraryWeb\HomeReadingLibraryWeb.csproj", "{1E1110BB-532B-464F-82A1-E512907E03C8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HomeReadingLibraryWeb", "HomeReadingLibraryWeb\HomeReadingLibraryWeb.csproj", "{1E1110BB-532B-464F-82A1-E512907E03C8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HomeReadingLibrary.Controllers", "HomeReadingLibrary.Controllers\HomeReadingLibrary.Controllers.csproj", "{FFBD6FE5-80BD-486C-9BCF-38B0D9EB3315}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HomeReadingLibrary.Controllers", "HomeReadingLibrary.Controllers\HomeReadingLibrary.Controllers.csproj", "{FFBD6FE5-80BD-486C-9BCF-38B0D9EB3315}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HomeReadingLibrary.Domain", "HomeReadingLibrary.Domain\HomeReadingLibrary.Domain.csproj", "{6294AD4B-608A-417A-9D11-8F745D2E140D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HomeReadingLibrary.Domain", "HomeReadingLibrary.Domain\HomeReadingLibrary.Domain.csproj", "{6294AD4B-608A-417A-9D11-8F745D2E140D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,18 +22,6 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{D7A8E68A-B5FC-4A23-BAEC-5FD30C7A16C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D7A8E68A-B5FC-4A23-BAEC-5FD30C7A16C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D7A8E68A-B5FC-4A23-BAEC-5FD30C7A16C4}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{D7A8E68A-B5FC-4A23-BAEC-5FD30C7A16C4}.Debug|x64.Build.0 = Debug|Any CPU
-		{D7A8E68A-B5FC-4A23-BAEC-5FD30C7A16C4}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{D7A8E68A-B5FC-4A23-BAEC-5FD30C7A16C4}.Debug|x86.Build.0 = Debug|Any CPU
-		{D7A8E68A-B5FC-4A23-BAEC-5FD30C7A16C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D7A8E68A-B5FC-4A23-BAEC-5FD30C7A16C4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D7A8E68A-B5FC-4A23-BAEC-5FD30C7A16C4}.Release|x64.ActiveCfg = Release|Any CPU
-		{D7A8E68A-B5FC-4A23-BAEC-5FD30C7A16C4}.Release|x64.Build.0 = Release|Any CPU
-		{D7A8E68A-B5FC-4A23-BAEC-5FD30C7A16C4}.Release|x86.ActiveCfg = Release|Any CPU
-		{D7A8E68A-B5FC-4A23-BAEC-5FD30C7A16C4}.Release|x86.Build.0 = Release|Any CPU
 		{56CD90FF-18D0-4C1B-A1D2-D8E8F1FD6A21}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{56CD90FF-18D0-4C1B-A1D2-D8E8F1FD6A21}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{56CD90FF-18D0-4C1B-A1D2-D8E8F1FD6A21}.Debug|x64.ActiveCfg = Debug|Any CPU
