@@ -5,6 +5,7 @@ import { HttpClientModule } from "@angular/common/http";
 import { OAuthModule } from "angular-oauth2-oidc";
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgxDatatableModule } from "@swimlane/ngx-datatable";
+import { AngularFontAwesomeModule } from "angular-font-awesome";
 
 //import { AppComponent } from './app.component';
 import { AppRoutingModule } from './modules/app-routing/app-routing.module';
@@ -68,8 +69,9 @@ import { BookCopyReservationsComponent } from './components/book-copy-reservatio
     OAuthModule.forRoot(),
     FormsModule,
     ReactiveFormsModule,
-    NgxDatatableModule
-    
+    NgxDatatableModule,
+    NgbModule,
+    AngularFontAwesomeModule
   ],
   providers: [LoaderService, BaggyBookService, BookLookupService],
   bootstrap: [AppComponent]
