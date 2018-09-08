@@ -12,3 +12,20 @@ variables:
 steps:
 - script: dotnet build --configuration $(buildConfiguration)
   displayName: 'dotnet build $(buildConfiguration)'
+- task: DotNetCoreCLI@2
+  inputs:
+    command: test
+    projects: **/*Tests.csproj
+    arguments: '--configuration $(BuildConfiguration)'
+# Node Tool Installer
+# Finds or Downloads and caches specified version spec of Node and adds it to the PATH.
+- task: NodeTool@0
+  inputs:
+    versionSpec: '>=8.11.3' 
+    #checkLatest: false # Optional
+- task: DotNetCoreCLI@2
+  inputs:
+    command: publish
+    publishWebProjects: True
+    arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+    zipAfterPublish: True
