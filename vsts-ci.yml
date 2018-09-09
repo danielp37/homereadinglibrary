@@ -39,17 +39,17 @@ steps:
     arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
     zipAfterPublish: True
 
-- task: AzureRmWebAppDeployment@3
-  inputs:
-    azureSubscription: 'Azure'
-    WebAppName: 'HomeReadingLibraryTest'
-    Package: $(System.ArtifactsDirectory)/**/*.zip
-
-# - task: PublishBuildArtifacts@1
+# - task: AzureRmWebAppDeployment@3
 #   inputs:
-#     pathtoPublish: '$(Build.ArtifactStagingDirectory)' 
-#     artifactName: 'HomeReadingLibrary' 
-#     publishLocation: 'Container' # Options: container, filePath
-#     #targetPath: # Required when publishLocation == FilePath
-#     parallel: true # Optional
-#     #parallelCount: # Optional
+#     azureSubscription: 'Azure'
+#     WebAppName: 'HomeReadingLibraryTest'
+#     Package: $(System.ArtifactsDirectory)/**/*.zip
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathtoPublish: '$(Build.ArtifactStagingDirectory)' 
+    artifactName: 'HomeReadingLibrary' 
+    publishLocation: 'Container' # Options: container, filePath
+    #targetPath: # Required when publishLocation == FilePath
+    parallel: true # Optional
+    #parallelCount: # Optional
