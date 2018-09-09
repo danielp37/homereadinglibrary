@@ -29,7 +29,7 @@ steps:
     #checkLatest: false # Optional
 
 - script: npm install npm@latest -g
-  displayName "Ensure latest version of npm"
+  displayName: "Ensure latest version of npm"
 
 - task: DotNetCoreCLI@2
   displayName: "Publish website"
