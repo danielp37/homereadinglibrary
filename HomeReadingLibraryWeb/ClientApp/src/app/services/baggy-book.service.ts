@@ -12,12 +12,12 @@ import { BookCopyReservation } from './../entities/book-copy-reservation';
 import { Student } from './../entities/student';
 import { Injectable } from '@angular/core';
 
-import { Volunteer } from '../entities/Volunteer';
 import { Class } from '../entities/class';
 import { Book } from '../entities/book';
 import { BookCopy } from '../entities/book-copy';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { OAuthService } from 'angular-oauth2-oidc';
+import { Volunteer } from '../entities/volunteer';
 
 interface ClassWithVolunteersResult {
     data : ClassWithVolunteers[]
