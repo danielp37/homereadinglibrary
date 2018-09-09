@@ -14,6 +14,7 @@ steps:
   displayName: 'dotnet build $(buildConfiguration)'
 
 - task: DotNetCoreCLI@2
+  displayName: 'Run Tests'
   inputs:
     command: test
     projects: '**/*Tests.csproj'
@@ -22,11 +23,16 @@ steps:
 # Node Tool Installer
 # Finds or Downloads and caches specified version spec of Node and adds it to the PATH.
 - task: NodeTool@0
+  displayName: "Ensure version of node"
   inputs:
     versionSpec: '>=8.11.3' 
     #checkLatest: false # Optional
 
+- script: npm install npm@latest -g
+  displayName "Ensure latest version of npm"
+
 - task: DotNetCoreCLI@2
+  displayName: "Publish website"
   inputs:
     command: publish
     publishWebProjects: True
