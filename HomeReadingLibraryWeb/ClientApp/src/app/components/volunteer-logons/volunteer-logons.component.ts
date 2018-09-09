@@ -23,7 +23,7 @@ export class VolunteerLogonsComponent implements OnInit {
       this.getVolunteerLoginsSinceDate(this.defaultDaysBack);
   }
 
-  private getVolunteerLoginsSinceDate(daysBack: number) {
+  public getVolunteerLoginsSinceDate(daysBack: number) {
     this.baggyBookService.getVolunteerLoginsSinceDate(daysBack)
       .then(volunteers => this.volunteersWithLogons = volunteers);
   }

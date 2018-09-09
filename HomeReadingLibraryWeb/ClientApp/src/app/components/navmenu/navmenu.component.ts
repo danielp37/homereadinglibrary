@@ -10,7 +10,7 @@ import { Component } from '@angular/core';
 })
 export class NavMenuComponent {
 
-    private isCollapsed : boolean = true;
+    public isCollapsed : boolean = true;
     constructor(private authGuard: AuthGuard,
         public authService: AuthService) {
     }
