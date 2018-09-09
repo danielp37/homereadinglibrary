@@ -1,0 +1,72 @@
+    <div>    
+        <div class="navbar navbar-expand-lg navbar-dark bg-dark navbar-fixed-top">
+            <a class="navbar-brand" href="/home">Home Reading Library</a>
+            <button class="navbar-toggler" type="button"
+                (click)="isCollapsed = !isCollapsed"
+                [attr.aria-expanded]="isCollapsed" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" [ngbCollapse]="isCollapsed" id="navbarNav">
+                <ul class='navbar-nav'>
+                    <li [routerLinkActive]="['active']" class="nav-item">
+                        <a [routerLink]="['/home']" class="nav-link">
+                            <fa name="home"></fa> Home
+                        </a>
+                    </li>
+                    <li [routerLinkActive]="['active']" *ngIf="isAdmin || isVolunteer" class="nav-item">
+                        <a [routerLink]="['/checkout']" class="nav-link" (click)="isCollapsed = true">
+                            <fa name="book"></fa> Check Out
+                        </a>
+                    </li>
+                    <li [routerLinkActive]="['active']" *ngIf="isAdmin || isVolunteer" class="nav-item">
+                        <a [routerLink]="['/checkin']" class="nav-link" (click)="isCollapsed = true">
+                            <fa name="book"></fa> Check In
+                        </a>
+                    </li>
+                    <li ngbDropdown [routerLinkActive]="['active']" *ngIf="isAdmin || isVolunteer" class="nav-item drop-down">
+                        <span ngbDropdownToggle class="nav-link link-cursor">
+                            Reports
+                        </span>
+                        <div ngbDropdownMenu>
+                            <a [routerLink]="['/bookscheckedout']"  [routerLinkActive]="['active']" class="dropdown-item"
+                                (click)="isCollapsed = true">
+                                <fa name="book-reader"></fa> Books Checked Out
+                            </a>
+                            <a [routerLink]="['/checkouthistory']"  [routerLinkActive]="['active']" class="dropdown-item"
+                                (click)="isCollapsed = true">
+                                <fa name="book-reader"></fa> Student Check Out History
+                            </a>
+                            <a [routerLink]="['/bookcheckouthistory']" [routerLinkActive]="['active']" *ngIf="isAdmin" class="dropdown-item"
+                                (click)="isCollapsed = true">
+                                <fa name="book"></fa> Book Check Out History
+                            </a>
+                        </div>
+
+                    </li>
+                    <li ngbDropdown [routerLinkActive]="['active']" *ngIf="isAdmin" class="nav-item drop-down">
+                        <span ngbDropdownToggle class="nav-link link-cursor">
+                            Admin
+                        </span>
+                        <div ngbDropdownMenu>
+                            <a [routerLink]="['/booklist']" [routerLinkActive]="['active']" class="dropdown-item" (click)="isCollapsed = true">
+                                <fa name="list-ul"></fa> Book List
+                            </a>
+                            <a [routerLink]="['/classlists']" [routerLinkActive]="['active']" class="dropdown-item" (click)="isCollapsed = true">
+                                <fa name="list-ul"></fa> Class Lists
+                            </a>
+                            <a [routerLink]="['/logons']" [routerLinkActive]="['active']" class="dropdown-item" (click)="isCollapsed = true">
+                                <fa name="users"></fa> Volunteer Logons
+                            </a>
+                        </div>
+
+                    </li>
+    
+                    <li class='navbar-text' *ngIf='authService.loggedInName'>
+                        <button type="button" class="btn btn-primary btn-xs" (click)="logout()" *ngIf="loggedIn">Logout</button>
+                    </li>
+                </ul>
+
+            </div>
+        </div>
+    </div>
+

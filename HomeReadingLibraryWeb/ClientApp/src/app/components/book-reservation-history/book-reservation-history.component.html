@@ -1,0 +1,31 @@
+<div>
+  <h2>Book Reservation History</h2>
+
+  <form [formGroup]="checkInBookForm">
+    <div class="form-group">
+      <label for="formBookBarcode">Book Barcode:</label>
+      <input type="text" id="formBookBarcode" class="form-control" formControlName="bookCopyBarCode"
+        (keyup.enter)="onBookCopyEntered()" autocomplete="off">
+    </div>
+
+  </form>
+
+  <table class="table" *ngIf="selectedBookBarCode">
+    <thead>
+      <th>Student</th>
+      <th>Teacher</th>
+      <th>Box</th>
+      <th>Checked Out</th>
+      <th>Checked In</th>
+    </thead>
+    <tbody>
+      <tr *ngFor="let res of reservations">
+        <td>{{res.student.firstName}} {{res.student.lastName}}<br>{{res.student.studentBarCode}}</td>
+        <td>{{res.student.teacherName}} Grade: {{res.student.grade}}</td>
+        <td>{{res.bookCopy.guidedReadingLevel}}{{res.bookCopy.boxNumber}}</td>
+        <td>{{res.checkedOutDate | utcDate | date:'shortDate'}}<br>{{res.checkedOutBy}}</td>
+        <td>{{res.checkedInDate | utcDate | date:'shortDate'}}<br>{{res.checkedInBy}}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

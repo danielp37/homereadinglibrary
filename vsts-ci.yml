@@ -1,0 +1,55 @@
+# ASP.NET Core
+# Build and test ASP.NET Core web applications targeting .NET Core.
+# Add steps that run tests, create a NuGet package, deploy, and more:
+# https://docs.microsoft.com/vsts/pipelines/languages/dotnet-core
+
+pool:
+  vmImage: 'Ubuntu 16.04'
+
+variables:
+  buildConfiguration: 'Release'
+
+steps:
+- script: dotnet build --configuration $(buildConfiguration)
+  displayName: 'dotnet build $(buildConfiguration)'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Run Tests'
+  inputs:
+    command: test
+    projects: '**/*Tests.csproj'
+    arguments: '--configuration $(BuildConfiguration)'
+
+# Node Tool Installer
+# Finds or Downloads and caches specified version spec of Node and adds it to the PATH.
+- task: NodeTool@0
+  displayName: "Ensure version of node"
+  inputs:
+    versionSpec: '>=8.11.3' 
+    #checkLatest: false # Optional
+
+- script: npm install npm@latest -g
+  displayName: "Ensure latest version of npm"
+
+- task: DotNetCoreCLI@2
+  displayName: "Publish website"
+  inputs:
+    command: publish
+    publishWebProjects: True
+    arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+    zipAfterPublish: True
+
+# - task: AzureRmWebAppDeployment@3
+#   inputs:
+#     azureSubscription: 'Azure'
+#     WebAppName: 'HomeReadingLibraryTest'
+#     Package: $(System.ArtifactsDirectory)/**/*.zip
+
+# - task: PublishBuildArtifacts@1
+#   inputs:
+#     pathtoPublish: '$(Build.ArtifactStagingDirectory)' 
+#     artifactName: 'HomeReadingLibrary' 
+#     publishLocation: 'Container' # Options: container, filePath
+#     #targetPath: # Required when publishLocation == FilePath
+#     parallel: true # Optional
+#     #parallelCount: # Optional
