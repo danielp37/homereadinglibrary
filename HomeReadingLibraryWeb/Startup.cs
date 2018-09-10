@@ -1,5 +1,6 @@
 using AspnetCore.Identity.MongoDb;
 using HomeReadingLibrary.Controllers;
+using IdentityServer4.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -11,6 +12,7 @@ using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
 
 namespace HomeReadingLibraryWeb
 {
@@ -34,13 +36,16 @@ namespace HomeReadingLibraryWeb
         configuration.RootPath = "ClientApp/dist";
       });
 
+      var spaClient = new Client();
+      Configuration.GetSection("SpaClient").Bind(spaClient);
+
       //services.ConfigureIdentity(Configuration);
       services.AddIdentityServer(options =>
           {
             options.UserInteraction.LoginUrl = "~/account/signin";
           })
         .AddDeveloperSigningCredential()
-        .AddInMemoryClients(IdentityServerConfig.Clients)
+        .AddInMemoryClients(new[] { spaClient })
         .AddInMemoryIdentityResources(IdentityServerConfig.IdentityResources)
         .AddInMemoryApiResources(IdentityServerConfig.Apis)
         .AddJwtBearerClientAuthentication();
