@@ -15,7 +15,7 @@
                     <div class="card border-0">
                         <div class="card-block">
                             <h3 class="card-title">@cls.TeacherName Grade: @cls.Grade</h3>
-                            @foreach (var volunteer in cls.Volunteers)
+                            @foreach (var volunteer in cls.Volunteers.OrderBy(v => v.LastName).ThenBy(v => v.FirstName))
                             {
                                 <p>
                                     <button type="submit" class="btn btn-primary" name="volunteer" value="@volunteer.VolunteerId">@volunteer.LastName, @volunteer.FirstName</button>
