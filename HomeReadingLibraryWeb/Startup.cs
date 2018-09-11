@@ -12,7 +12,10 @@ using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using System.Collections.Generic;
+using System.IO;
+using System.Security.Cryptography.X509Certificates;
 
 namespace HomeReadingLibraryWeb
 {
@@ -39,11 +42,16 @@ namespace HomeReadingLibraryWeb
       var spaClient = new Client();
       Configuration.GetSection("SpaClient").Bind(spaClient);
 
+      X509Store certStore = new X509Store(StoreName.My, StoreLocation.CurrentUser);
+      certStore.Open(OpenFlags.ReadOnly);
+      var certsFound = certStore.Certificates.Find(X509FindType.FindByThumbprint, "C23735CD63DDFF6C38751022B944B07C8246FAF7", false);
+      var cert = certsFound.Count > 0 ? certsFound[0] : throw new FileNotFoundException("Could not find signing certificate!");
       //services.ConfigureIdentity(Configuration);
       services.AddIdentityServer(options =>
           {
             options.UserInteraction.LoginUrl = "~/account/signin";
           })
+        .AddSigningCredential(cert)
         .AddDeveloperSigningCredential()
         .AddInMemoryClients(new[] { spaClient })
         .AddInMemoryIdentityResources(IdentityServerConfig.IdentityResources)
