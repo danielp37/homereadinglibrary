@@ -20,7 +20,8 @@
             "tsConfig": "src/tsconfig.app.json",
             "assets": [
               "src/favicon.ico",
-              "src/assets"
+              "src/assets",
+              "../node_modules/@fortawesome/font-awesome-free/webfonts"
             ],
             "styles": [
               "src/styles.scss"

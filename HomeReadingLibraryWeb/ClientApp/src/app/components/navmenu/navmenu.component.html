@@ -10,7 +10,7 @@
                 <ul class='navbar-nav'>
                     <li [routerLinkActive]="['active']" class="nav-item">
                         <a [routerLink]="['/home']" class="nav-link">
-                            <fa name="home"></fa> Home
+                            <span class="fa fa-home"></span> Home
                         </a>
                     </li>
                     <li [routerLinkActive]="['active']" *ngIf="isAdmin || isVolunteer" class="nav-item">
@@ -28,7 +28,7 @@
                             Reports
                         </span>
                         <div ngbDropdownMenu>
-                            <a [routerLink]="['/bookscheckedout']"  [routerLinkActive]="['active']" class="dropdown-item"
+                            <a [routerLink]="['/bookscheckedout']"  [routerLinkActive]="['active']"  *ngIf="isAdmin" class="dropdown-item"
                                 (click)="isCollapsed = true">
                                 <fa name="book-reader"></fa> Books Checked Out
                             </a>
@@ -36,7 +36,7 @@
                                 (click)="isCollapsed = true">
                                 <fa name="book-reader"></fa> Student Check Out History
                             </a>
-                            <a [routerLink]="['/bookcheckouthistory']" [routerLinkActive]="['active']" *ngIf="isAdmin" class="dropdown-item"
+                            <a [routerLink]="['/bookcheckouthistory']" [routerLinkActive]="['active']" class="dropdown-item"
                                 (click)="isCollapsed = true">
                                 <fa name="book"></fa> Book Check Out History
                             </a>
