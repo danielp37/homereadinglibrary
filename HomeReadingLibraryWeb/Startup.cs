@@ -66,7 +66,7 @@ namespace HomeReadingLibraryWeb
       })
        .AddJwtBearer(jwt =>
        {
-         jwt.Authority = "https://localhost:5001";
+         jwt.Authority = Configuration.GetValue<string>("JwtAuthority");
          jwt.RequireHttpsMetadata = true;
          jwt.Audience = "library";
        });
