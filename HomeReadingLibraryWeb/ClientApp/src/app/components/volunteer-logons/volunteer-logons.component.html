@@ -1,5 +1,5 @@
 <div class="container-fluid">
-
+  <h2>Volunteer Logons</h2>
   <form class="form-inline" #showLoginsForm="ngForm" (ngSubmit)="getVolunteerLoginsSinceDate(daysBack.value)">
     <label for="daysBack">Show logins&nbsp;</label>
     <input type="text" id="daysBack" name="daysBack" [ngModel]="defaultDaysBack" #daysBack="ngModel">
