@@ -265,6 +265,10 @@ export class BaggyBookService {
       .then(bcr => {
         this.loaderService.display(false);
         return bcr
+      })
+      .catch(resp => {
+        this.loaderService.display(false);
+        return Promise.reject(resp);
       });
   }
 

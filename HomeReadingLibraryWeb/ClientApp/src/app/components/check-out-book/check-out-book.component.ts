@@ -71,7 +71,7 @@ export class CheckOutBookComponent implements OnInit {
         this.currentStudent = student;
       })
       .catch(error => {
-        this.checkoutLog.unshift(new CheckoutLogEntry(this.currentStudent, this.currentBook, error._body || error));
+        this.checkoutLog.unshift(new CheckoutLogEntry(this.currentStudent, this.currentBook, error.error || error));
         this.playFailureSound();
         setTimeout(() => this.resetForm(), 200);
       });
@@ -91,13 +91,13 @@ export class CheckOutBookComponent implements OnInit {
               setTimeout(() => this.resetForm(), 200);
             })
             .catch(error => {
-              this.checkoutLog.unshift(new CheckoutLogEntry(this.currentStudent, this.currentBook, error._body || error));
+              this.checkoutLog.unshift(new CheckoutLogEntry(this.currentStudent, this.currentBook, error.error || error));
               this.playFailureSound();
               setTimeout(() => this.resetForm(), 200);
             });
       })
       .catch(error => {
-        this.checkoutLog.unshift(new CheckoutLogEntry(this.currentStudent, this.currentBook, error._body || error));
+        this.checkoutLog.unshift(new CheckoutLogEntry(this.currentStudent, this.currentBook, error.error || error));
         this.playFailureSound();
         setTimeout(() => this.resetForm(), 200);
       });

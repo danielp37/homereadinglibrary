@@ -181,6 +181,8 @@ namespace HomeReadingLibrary.Controllers.Controllers
     public async Task<IActionResult> CheckoutBookCopy([FromBody]ReservationBody body)
     {
       //TODO: Verify that the BookCopyBarCode and the StudentBarCodes both exist before creating
+      body.BookCopyBarCode = body.BookCopyBarCode.Trim();
+      body.StudentBarCode = body.StudentBarCode.Trim();
       if (!await BookCopyBarCodeExists(body.BookCopyBarCode))
       {
         return NotFound($"BookCopyBarCode {body.BookCopyBarCode} not found.");
@@ -215,7 +217,7 @@ namespace HomeReadingLibrary.Controllers.Controllers
 
     private VolunteerAudit GetVolunteerAuditForCurrentUser() 
     {
-      var id = User.FindFirst(JwtClaimIdentifiers.Id)?.Value;
+      var id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
       var firstName = User.FindFirst(ClaimTypes.GivenName)?.Value;
       var lastName = User.FindFirst(ClaimTypes.Surname)?.Value;
 
