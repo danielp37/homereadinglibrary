@@ -12,7 +12,7 @@
 
   <h3 *ngIf="isLost">This book was marked lost on {{lostDate | utcDate | date:'shortDate'}}.</h3>
   <h3 *ngIf="isDamaged">This book was marked damaged on {{damagedDate | utcDate | date:'shortDate'}}.</h3>
-  <h4 *ngIf="comment">Note: {{comment}}</h4>
+  <h4 *ngIf="comments">Note: {{comments}}</h4>
 
   <table class="table" *ngIf="selectedBookBarCode">
     <thead>
