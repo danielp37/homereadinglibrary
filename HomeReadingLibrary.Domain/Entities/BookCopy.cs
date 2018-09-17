@@ -9,5 +9,6 @@ namespace HomeReadingLibrary.Domain.Entities
     public DateTime? LostDate { get; set; }
     public bool? IsDamaged { get; set; }
     public DateTime? DamagedDate { get; set; }
+    public string Comments { get; set; }
   }
 }

@@ -1,4 +1,4 @@
-db.books.aggregate(
+db.getCollection("books").aggregate(
 
 	// Pipeline
 	[
@@ -9,16 +9,20 @@ db.books.aggregate(
 
 		// Stage 2
 		{
-			$project: { "_id" : "$bookCopies.barCode", "title" : 1.0, "author" : 1.0, "guidedReadingLevel" : 1.0, "boxNumber" : 1.0, "bookId" : "$_id" }
+			$project: { "_id" : "$bookCopies.barCode", 
+			  "title" : 1.0, 
+			  "author" : 1.0, 
+			  "guidedReadingLevel" : 1.0, 
+			  "boxNumber" : 1.0, 
+			  "bookId" : "$_id", 
+			  "isLost" : "$bookCopies.isLost",
+			  "lostDate" : "$bookCopies.lostDate",
+			  "isDamaged" : "$bookCopies.isDamaged",
+			  "damagedDate" : "$bookCopies.damagedDate",
+			  "comments" : "$bookCopies.comments" }
 		},
-	],
 
-	// Options
-	{
-		cursor: {
-			batchSize: 50
-		}
-	}
+	]
 
 	// Created with Studio 3T, the IDE for MongoDB - https://studio3t.com/
 

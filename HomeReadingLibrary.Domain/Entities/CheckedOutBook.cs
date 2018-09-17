@@ -24,6 +24,11 @@ namespace HomeReadingLibrary.Domain.Entities
       public string GuidedReadingLevel { get; set; }
       public string BoxNumber { get; set; }
       public string BookId { get; set; }
+      public bool? IsLost { get; set; }
+      public DateTime? LostDate { get; set; }
+      public bool? IsDamaged { get; set; }
+      public DateTime? DamagedDate { get; set; }
+      public string Comments { get; set; }
     }
 
     public class CheckedOutStudent

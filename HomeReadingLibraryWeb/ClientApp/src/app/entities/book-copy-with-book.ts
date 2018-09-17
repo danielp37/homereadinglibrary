@@ -5,4 +5,9 @@ export interface BookCopyWithBook {
     guidedReadingLevel: string;
     boxNumber: string;
     bookId: string;
+    isLost: boolean;
+    lostDate: Date;
+    isDamaged: boolean;
+    damagedDate: Date;
+    comments: string;
 }

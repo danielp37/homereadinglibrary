@@ -10,6 +10,11 @@ import { Component, OnInit, Renderer2 } from '@angular/core';
 })
 export class BookReservationHistoryComponent implements OnInit {
 
+  isLost: boolean;
+  lostDate: Date;
+  isDamaged: boolean;
+  damagedDate: Date;
+  comments: string;
   reservations: BookCopyReservationWithData[];
   checkInBookForm: FormGroup;
   selectedBookBarCode: string;
@@ -35,6 +40,25 @@ export class BookReservationHistoryComponent implements OnInit {
   onBookCopyEntered() {
     this.selectedBookBarCode = this.checkInBookForm.value.bookCopyBarCode;
     this.baggyBookService.getBookCopyReservationsForBookCopy(this.selectedBookBarCode)
-      .then(reservations => this.reservations = reservations.reservations);
+      .then(reservations => {
+        this.reservations = reservations.reservations;
+        const firstReservation = this.reservations[0];
+        if(firstReservation)
+        {
+          this.isLost = firstReservation.bookCopy.isLost;
+          this.lostDate = firstReservation.bookCopy.lostDate;
+          this.isDamaged = firstReservation.bookCopy.isDamaged;
+          this.damagedDate = firstReservation.bookCopy.damagedDate;
+          this.comments = firstReservation.bookCopy.comments;
+        }
+        else
+        {
+          this.isLost = undefined;
+          this.lostDate = undefined;
+          this.isDamaged = undefined;
+          this.damagedDate = undefined;
+          this.comments = undefined;
+        }
+      });
   }
 }
