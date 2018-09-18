@@ -96,7 +96,7 @@ export class BaggyBookService {
 
   getStudents(classId: string): Promise<Student[]> {
     return this.http
-      .get<any>(`${this.classesUrl}/${classId}/students`)
+      .get<any>(`${this.classesUrl}/${classId}/students`, {headers: this.getAuthHeaders(false)})
       .toPromise()
       .then(response => response.data as Student[])
       .catch(error => this.handleError(error));
@@ -199,7 +199,7 @@ export class BaggyBookService {
 
   removeBookCopy(bookId: string, barCode: string): Promise<Book> {
     return this.http
-      .delete<any>(`${this.booksUrl}/${bookId}/bookcopy/${barCode}`)
+      .delete<any>(`${this.booksUrl}/${bookId}/bookcopy/${barCode}`, {headers: this.getAuthHeaders(false)})
       .toPromise()
       .then(book => Book.fromObject(book.data))
       .catch(error => this.handleError(error));

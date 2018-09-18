@@ -145,11 +145,13 @@ export class AddBookComponent implements OnInit {
   }
 
   removeBookCopy(barCode: string) {
-    this.baggyBookService.removeBookCopy(this.currentBook.id, barCode)
-      .then(book => {
-        this.onBookAdded.emit(book);
-        this.currentBook = book;
-      });
+    if(window.confirm(`Are you sure you want to delete book copy ${barCode}?`)) {
+      this.baggyBookService.removeBookCopy(this.currentBook.id, barCode)
+        .then(book => {
+          this.onBookAdded.emit(book);
+          this.currentBook = book;
+        });
+    }
   }
 
   markBookCopyLost(barCode: string) {
