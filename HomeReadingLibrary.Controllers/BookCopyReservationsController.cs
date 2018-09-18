@@ -15,6 +15,10 @@ using System.Text;
 using Microsoft.Extensions.Caching.Memory;
 using System.ComponentModel;
 using System.Text.RegularExpressions;
+using IdentityModel.Client;
+using AspnetCore.Identity.MongoDb.Entities;
+using Microsoft.AspNetCore.Identity;
+using System.Threading;
 
 namespace HomeReadingLibrary.Controllers.Controllers
 {
@@ -22,12 +26,14 @@ namespace HomeReadingLibrary.Controllers.Controllers
   public class BookCopyReservationsController : Controller
   {
     protected readonly IMongoDatabase mongoDatabase;
+    private readonly IUserStore<Volunteer> userStore;
     protected readonly IMongoCollection<BookCopyReservation> reservationCollection;
     private readonly IMemoryCache memoryCache;
 
-    public BookCopyReservationsController(IMemoryCache memoryCache, IMongoDatabase mongoDatabase)
+    public BookCopyReservationsController(IMemoryCache memoryCache, IMongoDatabase mongoDatabase, IUserStore<Volunteer> userStore)
     {
       this.mongoDatabase = mongoDatabase;
+      this.userStore = userStore;
       reservationCollection = mongoDatabase.GetCollection<BookCopyReservation>("currentreservations");
       this.memoryCache = memoryCache;
     }
@@ -198,7 +204,7 @@ namespace HomeReadingLibrary.Controllers.Controllers
         BookCopyBarCode = body.BookCopyBarCode,
         StudentBarCode = body.StudentBarCode,
         CheckedOutDate = DateTime.Today,
-        CheckOutBy = GetVolunteerAuditForCurrentUser(),
+        CheckOutBy = await GetVolunteerAuditForCurrentUser(),
         CreatedDate = DateTime.Now
       };
       await reservationCollection.InsertOneAsync(reservation);
@@ -215,16 +221,15 @@ namespace HomeReadingLibrary.Controllers.Controllers
       return isAcknowledged ? (IActionResult)Ok() : BadRequest();
     }
 
-    private VolunteerAudit GetVolunteerAuditForCurrentUser() 
+    private async Task<VolunteerAudit> GetVolunteerAuditForCurrentUser() 
     {
       var id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-      var firstName = User.FindFirst(ClaimTypes.GivenName)?.Value;
-      var lastName = User.FindFirst(ClaimTypes.Surname)?.Value;
+      var volunteer = await userStore.FindByIdAsync(id, CancellationToken.None).ConfigureAwait(false);
 
       return new VolunteerAudit
       {
         VolunteerId = id,
-        Name = $"{firstName} {lastName}"
+        Name = volunteer.FullName
       };
     }
 
@@ -248,7 +253,7 @@ namespace HomeReadingLibrary.Controllers.Controllers
                       & Builders<BookCopyReservation>.Filter.Eq(b => b.CheckedInDate, null);
       var update = Builders<BookCopyReservation>.Update
                       .Set(b => b.CheckedInDate, DateTime.Today.ToLocalTime())
-                      .Set(b => b.CheckInBy, GetVolunteerAuditForCurrentUser())
+                      .Set(b => b.CheckInBy, await GetVolunteerAuditForCurrentUser())
                       .CurrentDate(b => b.ModifiedDate);
       var updateResult = await reservationCollection.UpdateManyAsync(filter, update);
 
