@@ -7,20 +7,29 @@
 @if (Model.Classes.Any())
 {
     <div class="row" *ngIf="classes">
-        <h2>
-            <label for="classDropdown" class="float-left">Teacher:&nbsp;</label>
-            <select id="classDropdown" class="float-left">
-                <option value="">(Select a teacher to login)</option>
-                @foreach (var cls in Model.Classes.OrderBy(c => c.Grade).ThenBy(c => c.TeacherName))
-                {
-                  <option value="@cls.ClassId">@cls.TeacherName Grade: @cls.Grade</option>
+        <div class="col-6">
+            <h3>
+                <label for="classDropdown" class="float-left">Teacher:&nbsp;</label>
+                <select id="classDropdown" class="float-left">
+                    <option value="">(Select a teacher to login)</option>
+                    @foreach (var cls in Model.Classes.OrderBy(c => c.Grade).ThenBy(c => c.TeacherName))
+                    {
+                        <option value="@cls.ClassId">@cls.TeacherName Grade: @cls.Grade</option>
 
-                }
-            </select>
-        </h2>
+                    }
+                </select>
+            </h3>
+        </div>
+        <div class="col">
+            <form asp-action="cancel"  asp-controller="Account" method="post" class="form">
+                <input type="hidden" asp-for="ReturnUrl" />
+                <button type="submit" class="btn btn-primary">Go Back Home</button>
+            </form>
+        </div>
     </div>
     <div class="row" *ngIf="classes">
-        <form asp-route="account/signin" method="post" class="form float-left">
+        <form asp-action="signin" asp-controller="Account" method="post" class="form float-left">
+            <input type="hidden" asp-for="ReturnUrl" />
             @foreach (var cls in Model.Classes.OrderBy(c => c.Grade).ThenBy(c => c.TeacherName))
             {
 

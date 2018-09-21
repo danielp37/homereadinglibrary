@@ -6,6 +6,7 @@ using HomeReadingLibrary.Domain.Services;
 using IdentityModel;
 using IdentityServer4.Events;
 using IdentityServer4.Extensions;
+using IdentityServer4.Models;
 using IdentityServer4.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
@@ -44,7 +45,7 @@ namespace HomeReadingLibraryWeb.Identity.Accounts
 
     [HttpPost("signin")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Index([FromForm]string volunteer, [FromQuery]string returnUrl)
+    public async Task<IActionResult> Index([FromForm]string volunteer, [FromForm]string returnUrl)
     {
       if (ModelState.IsValid)
       {
@@ -73,6 +74,29 @@ namespace HomeReadingLibraryWeb.Identity.Accounts
 
       // something went wrong, show form with error
       return await Index(returnUrl);
+    }
+
+    [HttpPost("cancel")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Cancel([FromForm]string returnUrl)
+    {
+      // the user clicked the "cancel" button
+      var context = await interaction.GetAuthorizationContextAsync(returnUrl);
+      if (context != null)
+      {
+        // if the user cancels, send a result back into IdentityServer as if they 
+        // denied the consent (even if this client does not require consent).
+        // this will send back an access denied OIDC error response to the client.
+        await interaction.GrantConsentAsync(context, ConsentResponse.Denied);
+
+        // we can trust model.ReturnUrl since GetAuthorizationContextAsync returned non-null
+        return Redirect(returnUrl);
+      }
+      else
+      {
+        // since we don't have a valid context, then we just go back to the home page
+        return Redirect("~/");
+      }
     }
 
     [HttpPost("adminsignin")]
