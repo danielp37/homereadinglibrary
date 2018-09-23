@@ -40,7 +40,7 @@ namespace HomeReadingLibraryWeb.Identity.Accounts
     {
       var vm = new VolunteerByClassViewModel(await volunteerService.GetVolunteersByClassAsync(), returnUrl);
 
-      return View(vm);
+      return View("Index", vm);
     }
 
     [HttpPost("signin")]
@@ -78,7 +78,7 @@ namespace HomeReadingLibraryWeb.Identity.Accounts
 
     [HttpPost("cancel")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Cancel([FromForm]string returnUrl)
+    public async Task<IActionResult> Cancel([FromForm(Name = "ReturnUrl2")]string returnUrl)
     {
       // the user clicked the "cancel" button
       var context = await interaction.GetAuthorizationContextAsync(returnUrl);
