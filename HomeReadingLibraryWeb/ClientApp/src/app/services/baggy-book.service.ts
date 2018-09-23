@@ -213,6 +213,14 @@ export class BaggyBookService {
       .catch(error => this.handleError(error));
   }
 
+  markBookCopyFound(bookId: string, barCode: string): Promise<Book> {
+    return this.http
+      .put<any>(`${this.booksUrl}/${bookId}/bookcopy/${barCode}/markfound`, '', {headers: this.getAuthHeaders(true)})
+      .toPromise()
+      .then(book => Book.fromObject(book.data))
+      .catch(error => this.handleError(error));
+  }
+
   markBookCopyDamaged(bookId: string, barCode: string): Promise<Book> {
     return this.http
       .put<any>(`${this.booksUrl}/${bookId}/bookcopy/${barCode}/markdamaged`, '', {headers: this.getAuthHeaders(true)})

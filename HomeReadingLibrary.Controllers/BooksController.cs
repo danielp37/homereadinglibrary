@@ -199,6 +199,20 @@ namespace HomeReadingLibrary.Controllers.Controllers
     }
 
     [Authorize(AuthenticationSchemes = "Bearer", Policy = "AdminUser")]
+    [HttpPut("{bookId}/bookcopy/{barCode}/markfound")]
+    public async Task<IActionResult> MarkBookCopyFound(string bookId, string barCode)
+    {
+      var book = await bookService.MarkBookCopyFoundAsync(bookId, barCode, User);
+
+      if (book == null)
+      {
+        return NotFound();
+      }
+
+      return Ok(new { Data = book });
+    }
+
+    [Authorize(AuthenticationSchemes = "Bearer", Policy = "AdminUser")]
     [HttpPut("{bookId}/bookcopy/{barCode}/markdamaged")]
     public async Task<IActionResult> MarkBookCopyDamaged(string bookId, string barCode)
     {

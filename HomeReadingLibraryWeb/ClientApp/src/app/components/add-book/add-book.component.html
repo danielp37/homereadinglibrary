@@ -81,6 +81,7 @@
             <span *ngIf="bookCopy.isDamaged">Damaged: {{bookCopy.damagedDate | utcDate | date:'shortDate'}}</span>
             <button *ngIf="!bookCopy.isLost && !bookCopy.isDamaged" type="button" class="btn btn-danger btn-xs" (click)="removeBookCopy(bookCopy.barCode)">Delete</button>
             <button *ngIf="!bookCopy.isLost && !bookCopy.isDamaged" type="button" class="btn btn-info btn-xs" (click)="markBookCopyLost(bookCopy.barCode)">Mark Lost</button>
+            <button *ngIf="bookCopy.isLost && !bookCopy.isDamaged" type="button" class="btn btn-info btn-xs" (click)="markBookCopyFound(bookCopy.barCode)">Mark Found</button>
             <button *ngIf="!bookCopy.isLost && !bookCopy.isDamaged" type="button" class="btn btn-info btn-xs" (click)="markBookCopyDamaged(bookCopy.barCode)">Mark Damaged</button>
           </li>
         </ul>

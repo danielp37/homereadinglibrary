@@ -162,6 +162,14 @@ export class AddBookComponent implements OnInit {
       });
   }
 
+  markBookCopyFound(barCode: string) {
+    this.baggyBookService.markBookCopyFound(this.currentBook.id, barCode)
+      .then(book => {
+        this.onBookAdded.emit(book);
+        this.currentBook = book;
+      });
+  }
+
   markBookCopyDamaged(barCode: string) {
     this.baggyBookService.markBookCopyDamaged(this.currentBook.id, barCode)
       .then(book => {
