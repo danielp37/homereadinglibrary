@@ -83,6 +83,8 @@
             <button *ngIf="!bookCopy.isLost && !bookCopy.isDamaged" type="button" class="btn btn-info btn-xs" (click)="markBookCopyLost(bookCopy.barCode)">Mark Lost</button>
             <button *ngIf="bookCopy.isLost && !bookCopy.isDamaged" type="button" class="btn btn-info btn-xs" (click)="markBookCopyFound(bookCopy.barCode)">Mark Found</button>
             <button *ngIf="!bookCopy.isLost && !bookCopy.isDamaged" type="button" class="btn btn-info btn-xs" (click)="markBookCopyDamaged(bookCopy.barCode)">Mark Damaged</button>
+            <button type="button" class="btn btn-info btn-xs" (click)="addComments(addComment, bookCopy.barCode, bookCopy.comments)">{{bookCopy.comments ? "Edit" : "Add"}} Comments</button>
+            <ul><li *ngIf="bookCopy.comments">Comments: {{bookCopy.comments}}</li></ul>
           </li>
         </ul>
       </div>
@@ -90,3 +92,20 @@
   </form>
 
 </div>
+
+<ng-template #addComment>
+  <div class="modal-header">
+      <h4 class="modal-title pull-left">Book Comments</h4>
+      <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+          <span aria-hidden="true">&times;</span>
+      </button>
+  </div>
+
+  <div class="modal-body">
+    <textarea [(ngModel)]="currentBookComment" rows="5" cols="60"></textarea>
+  </div>
+  <div class="modal-footer">
+      <button type="button" class="btn btn-primary" (click)="saveBookComment()">Save</button>
+      <button type="button" class="btn btn-outline-dark" (click)="modalRef.hide()">Close</button>
+  </div>
+</ng-template>

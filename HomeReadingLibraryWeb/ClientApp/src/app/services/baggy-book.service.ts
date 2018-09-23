@@ -18,6 +18,7 @@ import { BookCopy } from '../entities/book-copy';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { OAuthService } from 'angular-oauth2-oidc';
 import { Volunteer } from '../entities/volunteer';
+import { stringify } from '@angular/compiler/src/util';
 
 interface ClassWithVolunteersResult {
     data : ClassWithVolunteers[]
@@ -216,6 +217,14 @@ export class BaggyBookService {
   markBookCopyFound(bookId: string, barCode: string): Promise<Book> {
     return this.http
       .put<any>(`${this.booksUrl}/${bookId}/bookcopy/${barCode}/markfound`, '', {headers: this.getAuthHeaders(true)})
+      .toPromise()
+      .then(book => Book.fromObject(book.data))
+      .catch(error => this.handleError(error));
+  }
+
+  addCommentsToBookCopy(bookId: string, barCode: string, comments: string): Promise<Book> {
+    return this.http
+      .put<any>(`${this.booksUrl}/${bookId}/bookcopy/${barCode}/comments`, JSON.stringify({ comments: comments }), {headers: this.getAuthHeaders(true)})
       .toPromise()
       .then(book => Book.fromObject(book.data))
       .catch(error => this.handleError(error));

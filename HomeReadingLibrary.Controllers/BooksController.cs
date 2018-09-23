@@ -202,7 +202,21 @@ namespace HomeReadingLibrary.Controllers.Controllers
     [HttpPut("{bookId}/bookcopy/{barCode}/markfound")]
     public async Task<IActionResult> MarkBookCopyFound(string bookId, string barCode)
     {
-      var book = await bookService.MarkBookCopyFoundAsync(bookId, barCode, User);
+      var book = await bookService.MarkBookCopyFoundAsync(bookId, barCode);
+
+      if (book == null)
+      {
+        return NotFound();
+      }
+
+      return Ok(new { Data = book });
+    }
+
+    [Authorize(AuthenticationSchemes = "Bearer", Policy = "AdminUser")]
+    [HttpPut("{bookId}/bookcopy/{barCode}/comments")]
+    public async Task<IActionResult> AddCommentsToBookCopy(string bookId, string barCode, [FromBody]CommentsBody body)
+    {
+      var book = await bookService.AddCommentToBookCopyAsync(bookId, barCode, body.Comments);
 
       if (book == null)
       {
@@ -264,6 +278,11 @@ namespace HomeReadingLibrary.Controllers.Controllers
     public class BarCodeBody
     {
       public string BarCode { get; set; }
+    }
+
+    public class CommentsBody
+    {
+      public string Comments { get; set; }
     }
   }
 }

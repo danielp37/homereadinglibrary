@@ -1,9 +1,10 @@
 import { BookCopy } from './../../entities/book-copy';
 import { BaggyBookService } from './../../services/baggy-book.service';
-import { Component, OnInit, Output, EventEmitter, Renderer2, Input } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, Renderer2, Input, TemplateRef } from '@angular/core';
 import { BookLookupService } from '../../services/book-lookup.service';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { Book } from '../../entities/book';
+import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 
 @Component({
   selector: 'app-add-book',
@@ -16,6 +17,9 @@ export class AddBookComponent implements OnInit {
   newBook: boolean;
   editingBook: boolean;
   lastIsbnValue: string;
+  currentBookCopy: string;
+  currentBookComment: string;
+  public modalRef: BsModalRef;
   private _currentBook: Book;
   @Output()onBookAdded = new EventEmitter<Book>();
 
@@ -23,7 +27,8 @@ export class AddBookComponent implements OnInit {
     private bookLookupService: BookLookupService,
     private baggyBookService: BaggyBookService,
     private fb: FormBuilder,
-    private renderer: Renderer2
+    private renderer: Renderer2,
+    private modalService: BsModalService
   ) {
     this.newBook = false;
    }
@@ -207,6 +212,21 @@ export class AddBookComponent implements OnInit {
             this.onBookAdded.emit(book);
             this.currentBook = book;
           });
+      });
+  }
+
+  addComments(content: TemplateRef<any>, bookBarCode: string, bookCopyComments: string) {
+    this.currentBookCopy = bookBarCode;
+    this.currentBookComment = bookCopyComments;
+    this.modalRef = this.modalService.show(content);
+  }
+
+  saveBookComment() {
+    this.baggyBookService.addCommentsToBookCopy(this.currentBook.id, this.currentBookCopy, this.currentBookComment)
+      .then(book => {
+        this.onBookAdded.emit(book);
+        this.currentBook = book;
+        this.modalRef.hide()
       });
   }
 }

@@ -50,11 +50,23 @@ namespace HomeReadingLibrary.Domain.Services
       return book;
     }
 
-    public async Task<Book> MarkBookCopyFoundAsync(string bookId, string barCode, ClaimsPrincipal user)
+    public async Task<Book> MarkBookCopyFoundAsync(string bookId, string barCode)
     {
       var filter = Builders<Book>.Filter.Where(b => b.Id == bookId && b.BookCopies.Any(bc => bc.BarCode == barCode));
       var update = Builders<Book>.Update.Set(b => b.BookCopies[-1].IsLost, false)
                                  .Set(b => b.BookCopies[-1].LostDate, (DateTime?)null);
+      await bookCollection.FindOneAndUpdateAsync(filter, update);
+      var book = bookCollection.AsQueryable()
+                               .Where(b => b.Id == bookId)
+                               .SingleOrDefault();
+
+      return book;
+    }
+
+    public async Task<Book> AddCommentToBookCopyAsync(string bookId, string barCode, string comments)
+    {
+      var filter = Builders<Book>.Filter.Where(b => b.Id == bookId && b.BookCopies.Any(bc => bc.BarCode == barCode));
+      var update = Builders<Book>.Update.Set(b => b.BookCopies[-1].Comments, comments);
       await bookCollection.FindOneAndUpdateAsync(filter, update);
       var book = bookCollection.AsQueryable()
                                .Where(b => b.Id == bookId)
