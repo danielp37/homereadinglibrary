@@ -44,11 +44,13 @@
         [footerHeight]="50"
         [rowHeight]="'auto'"
         [externalPaging]="true"
+        [externalSorting]="true"
         [count]="totalCount"
         [offset]="lastSearchParams.offset / lastSearchParams.limit"
         [limit]="lastSearchParams.limit"
-        (page)='setPage($event)'>
-        <ngx-datatable-column name="bookCopy.bookCopyBarCode">
+        (page)='setPage($event)'
+        (sort)="onSort($event)">
+        <ngx-datatable-column prop="bookCopy.bookCopyBarCode">
           <ng-template let-column="column" ngx-datatable-header-template>
             Book Copy Bar Code
           </ng-template>
@@ -56,7 +58,7 @@
             {{row.bookCopy.bookCopyBarCode}}
           </ng-template>
         </ngx-datatable-column>
-        <ngx-datatable-column name="checkedOutDate">
+        <ngx-datatable-column prop="checkedOutDate">
             <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
               <span (click)="sort()">Checked Out</span>
             </ng-template>
@@ -64,7 +66,7 @@
               {{value | utcDate | date:'shortDate'}}<br>{{row.checkedOutBy}}
             </ng-template>
           </ngx-datatable-column>
-        <ngx-datatable-column name="bookCopy.title">
+        <ngx-datatable-column prop="bookCopy.title">
           <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
             <span (click)="sort()">Book Title</span>
           </ng-template>
@@ -72,7 +74,7 @@
             {{row.bookCopy.title}}
           </ng-template>
         </ngx-datatable-column>
-        <ngx-datatable-column name="bookCopy.author">
+        <ngx-datatable-column prop="bookCopy.author">
           <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
               <span (click)="sort()">Book Author</span>
           </ng-template>
@@ -80,7 +82,7 @@
               {{row.bookCopy.author}}
           </ng-template>
         </ngx-datatable-column>
-        <ngx-datatable-column name="bookCopy.guidedReadingLevel">
+        <ngx-datatable-column prop="bookCopy.guidedReadingLevel, bookCopy.boxNumber">
           <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
               <span (click)="sort()">Box</span>
           </ng-template>
@@ -88,7 +90,7 @@
               {{row.bookCopy.guidedReadingLevel}}{{row.bookCopy.boxNumber}}
           </ng-template>
         </ngx-datatable-column>
-        <ngx-datatable-column name="student.teacherName">
+        <ngx-datatable-column prop="student.teacherName">
           <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
               <span (click)="sort()">Teacher</span>
           </ng-template>
@@ -96,7 +98,7 @@
               {{row.student.teacherName}} Grade: {{row.student.grade}}
           </ng-template>
         </ngx-datatable-column>
-        <ngx-datatable-column name="student.lastName">
+        <ngx-datatable-column prop="student.lastName, student.firstName">
           <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
               <span (click)="sort()">Student</span>
           </ng-template>

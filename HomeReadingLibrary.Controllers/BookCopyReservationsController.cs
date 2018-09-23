@@ -55,10 +55,14 @@ namespace HomeReadingLibrary.Controllers.Controllers
 
       if(!string.IsNullOrWhiteSpace(sort))
       {
-        checkedOutBooksFind = checkedOutBooksFind.Sort(
-          string.Equals(order, "asc", StringComparison.InvariantCultureIgnoreCase) ?
-          Builders<CheckedOutBook>.Sort.Ascending(sort) :
-          Builders<CheckedOutBook>.Sort.Descending(sort));
+        foreach (var sortBy in sort.Split(",", StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).Reverse())
+        {
+          checkedOutBooksFind = checkedOutBooksFind.Sort(
+            string.Equals(order, "asc", StringComparison.InvariantCultureIgnoreCase) ?
+            Builders<CheckedOutBook>.Sort.Ascending(sortBy) :
+            Builders<CheckedOutBook>.Sort.Descending(sortBy));
+        }
+
       }
       else
       {

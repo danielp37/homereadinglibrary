@@ -66,11 +66,15 @@ export class BookCopyReservationsComponent implements OnInit {
   }
 
   setPage(pageInfo) {
-    const params : DataTableParams = {
-      offset : pageInfo.offset * this.lastSearchParams.limit,
-      limit : this.lastSearchParams.limit
-    }
-    this.refreshBookList(params);
+    this.lastSearchParams.offset = pageInfo.offset * this.lastSearchParams.limit;
+    this.lastSearchParams.limit = this.lastSearchParams.limit;
+    this.refreshBookList(this.lastSearchParams);
+  }
+
+  onSort($event) {
+    this.lastSearchParams.sortBy = $event.sorts[0].prop;
+    this.lastSearchParams.sortAsc = $event.sorts[0].dir === "asc";
+    this.refreshBookList(this.lastSearchParams);
   }
 
   updateBookList(daysBack: number) {
