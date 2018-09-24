@@ -1,9 +1,9 @@
-import { StudentWithTeacher } from './student-with-teacher';
 import { BookCopyWithBook } from './book-copy-with-book';
+import { TeacherWithStudent } from './teacher-with-student';
 export class CheckoutLogEntry {
     private _logDate: Date;
     constructor(
-        private _student: StudentWithTeacher,
+        private _student: TeacherWithStudent,
         private _book: BookCopyWithBook,
         private _error?: any
     ) {

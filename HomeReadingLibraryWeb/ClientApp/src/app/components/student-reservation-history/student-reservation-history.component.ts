@@ -3,6 +3,7 @@ import { BookCopyReservationWithData } from './../../entities/book-copy-reservat
 import { Student } from './../../entities/student';
 import { Class } from './../../entities/class';
 import { Component, OnInit } from '@angular/core';
+import { TeacherWithStudent } from '../../entities/teacher-with-student';
 
 @Component({
   selector: 'app-student-reservation-history',
@@ -16,6 +17,7 @@ export class StudentReservationHistoryComponent implements OnInit {
   selectedClass: Class;
   selectedStudentId: string;
   selectedStudent: Student;
+  selectedStudentWithTeacher: TeacherWithStudent;
   reservations: BookCopyReservationWithData[];
 
   constructor(private baggyBookService: BaggyBookService) {
@@ -38,5 +40,23 @@ export class StudentReservationHistoryComponent implements OnInit {
   displayStudentReservationHistory(): void {
     this.baggyBookService.getBookCopyReservations(this.selectedStudentId)
       .then(reservations => this.reservations = reservations.reservations);
+  }
+
+  onStudentBarCodeEntered(): void {
+    this.baggyBookService.getStudentByBarCode(this.selectedStudentId)
+      .then(student => {
+        this.selectedStudentWithTeacher = student;
+        this.displayStudentReservationHistory();
+      })
+      .catch(err => {
+        this.reservations = undefined;
+        this.selectedStudentWithTeacher = {
+          student: {
+            firstName: 'Student',
+            lastName: 'Not Found'
+          },
+          teacherName: ''
+        };
+      });
   }
 }

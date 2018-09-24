@@ -4,7 +4,7 @@ import { AuthService } from './../modules/app-auth/services/auth.service';
 import { ClassWithVolunteers } from './../entities/class-with-volunteers';
 import { BookCopyReservationWithData } from './../entities/book-copy-reservation-with-data';
 import { BookCopyWithBook } from './../entities/book-copy-with-book';
-import { StudentWithTeacher } from './../entities/student-with-teacher';
+import { TeacherWithStudent } from './../entities/teacher-with-student';
 import { BookSearchParameters } from './Book-Search-Parameters';
 import { BookList } from './../entities/book-list';
 import { DataTableParams } from 'angular-2-data-table';
@@ -119,10 +119,10 @@ export class BaggyBookService {
       .catch(error => this.handleError(error));
   }
 
-  getStudentByBarCode(barCode: string): Promise<StudentWithTeacher> {
+  getStudentByBarCode(barCode: string): Promise<TeacherWithStudent> {
     this.loaderService.display(true);
     return this.http
-      .get<StudentWithTeacher>(`${this.studentsUrl}/${barCode}`, {headers: this.getAuthHeaders(false)})
+      .get<TeacherWithStudent>(`${this.studentsUrl}/${barCode}`, {headers: this.getAuthHeaders(false)})
       .toPromise()
       .then(res => {
         this.loaderService.display(false);

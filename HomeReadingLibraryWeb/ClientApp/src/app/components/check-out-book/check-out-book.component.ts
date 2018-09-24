@@ -8,6 +8,7 @@ import { Student } from './../../entities/student';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { BaggyBookService } from './../../services/baggy-book.service';
 import { Component, OnInit, Renderer2, TemplateRef } from '@angular/core';
+import { TeacherWithStudent } from '../../entities/teacher-with-student';
 
 @Component({
   selector: 'app-check-out-book',
@@ -17,7 +18,7 @@ import { Component, OnInit, Renderer2, TemplateRef } from '@angular/core';
 export class CheckOutBookComponent implements OnInit {
 
   checkOutBookForm: FormGroup;
-  currentStudent: StudentWithTeacher;
+  currentStudent: TeacherWithStudent;
   currentBook: BookCopyWithBook;
   studentError: string;
   bookError: string;
