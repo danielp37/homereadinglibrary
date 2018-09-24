@@ -11,6 +11,7 @@ export class Book {
     boxNumber: string;
     createdDate: Date;
     modifiedDate: Date;
+    reservedCopies: number;
 
     bookCopies: BookCopy[];
 

@@ -6,19 +6,19 @@ using MongoDB.Bson.Serialization.IdGenerators;
 
 namespace HomeReadingLibrary.Domain.Entities
 {
-    public class Book : IAuditFields
-    {
-        [BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
-        public string Id {get; set;}
-            public string Title {get; set;}
-            public string Author {get; set;}
-            public string PublisherText {get; set;}
-            public string GuidedReadingLevel {get; set;}
-        public string Isbn {get; set;}
-        public string BoxNumber {get; set;}
-        public DateTime CreatedDate {get;set;}
-        public DateTime ModifiedDate {get; set;}
+  public class Book : IAuditFields
+  {
+    [BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
+    public string Id { get; set; }
+    public string Title { get; set; }
+    public string Author { get; set; }
+    public string PublisherText { get; set; }
+    public string GuidedReadingLevel { get; set; }
+    public string Isbn { get; set; }
+    public string BoxNumber { get; set; }
+    public DateTime CreatedDate { get; set; }
+    public DateTime ModifiedDate { get; set; }
 
-        public List<BookCopy> BookCopies {get; set;} = new List<BookCopy>();
-    }
+    public List<BookCopy> BookCopies { get; set; } = new List<BookCopy>();
+  }
 }

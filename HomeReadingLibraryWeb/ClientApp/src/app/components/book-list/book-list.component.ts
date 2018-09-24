@@ -26,7 +26,8 @@ export class BookListComponent implements OnInit {
     { prop: 'publisherText', name: "Publisher Text", sortable: false},
     { prop: 'boxNumber', name:"Box", sortable: false},
     { prop: 'isbn', name: "ISBN", sortable: false},
-    { prop: 'bookCopyCount', name:"Copies", sortable: false}
+    { prop: 'bookCopyCount', name:"Copies", sortable: false},
+    { prop: 'reservedCopies', name:"CheckedOut", sortable: false},
   ];
 
   constructor(
@@ -103,6 +104,7 @@ export class BookListComponent implements OnInit {
   }
 
   searchBooks() {
+    this.lastSearchParams.offset = 0;
     this.refreshBookList(this.lastSearchParams);
   }
 

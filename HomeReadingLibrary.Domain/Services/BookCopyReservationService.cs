@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using MongoDB.Driver;
 using HomeReadingLibrary.Domain.Entities;
 using static AspnetCore.Identity.MongoDb.JwtModels.Constants.Strings;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace HomeReadingLibrary.Domain.Services
 {
@@ -29,6 +31,20 @@ namespace HomeReadingLibrary.Domain.Services
       var updateResult = await reservationCollection.UpdateManyAsync(filter, update);
 
       return updateResult.IsAcknowledged;
+    }
+
+    public async Task<IList<BookWithReservedCopies>> GetBooksWithReservedCopyCounts(IList<Book> books)
+    {
+      var filter = Builders<BookCopyReservation>.Filter.In(bcr => bcr.BookCopyBarCode, books.SelectMany(b => b.BookCopies).Select(bc => bc.BarCode))
+        & Builders<BookCopyReservation>.Filter.Eq(bcr => bcr.CheckedInDate, null);
+      var checkedOutBookCopies =  await (await reservationCollection.FindAsync(filter)).ToListAsync();
+      var bookCopySet = checkedOutBookCopies.Select(k => k.BookCopyBarCode).ToHashSet();
+      var booksWithReservations = books.Select(b =>
+        new BookWithReservedCopies(b)
+        {
+          ReservedCopies = b.BookCopies.Count(bc => bookCopySet.Contains(bc.BarCode))
+        }).ToList();
+      return booksWithReservations;
     }
 
     private VolunteerAudit GetVolunteerAuditForCurrentUser(ClaimsPrincipal user)

@@ -19,10 +19,12 @@ namespace HomeReadingLibrary.Controllers.Controllers
   {
     private readonly IMongoCollection<Book> bookCollection;
     private readonly IBookService bookService;
+    private readonly IBookCopyReservationService bookCopyReservationService;
 
-    public BooksController(IBookService bookService, IMongoDatabase mongoDatabase) : base("books", mongoDatabase)
+    public BooksController(IBookService bookService, IBookCopyReservationService bookCopyReservationService, IMongoDatabase mongoDatabase) : base("books", mongoDatabase)
     {
       this.bookService = bookService;
+      this.bookCopyReservationService = bookCopyReservationService;
       bookCollection = this.mongoDatabase.GetCollection<Book>(_collectionName);
     }
 
@@ -38,16 +40,18 @@ namespace HomeReadingLibrary.Controllers.Controllers
       var filter = BuildFilter(title, author, boxNumber, bookBarCode);
 
       var entityCount = await bookCollection.Find(filter).CountDocumentsAsync();
-      var entities = await bookCollection.Find(filter)
+      var books = await bookCollection.Find(filter)
           .SortByDescending(b => b.CreatedDate)
           .Skip(offset)
           .Limit(pageSize)
           .ToListAsync();
 
+      var booksWithReservationInfo = await bookCopyReservationService.GetBooksWithReservedCopyCounts(books);
+
       return Ok(new
       {
         Count = entityCount,
-        Data = entities
+        Data = booksWithReservationInfo
       });
     }
 
