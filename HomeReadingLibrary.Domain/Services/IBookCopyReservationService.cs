@@ -9,5 +9,6 @@ namespace HomeReadingLibrary.Domain.Services
   {
     Task<bool> CheckInBookCopyAsync(string bookBarCode, ClaimsPrincipal user);
     Task<IList<BookWithReservedCopies>> GetBooksWithReservedCopyCounts(IList<Book> books);
+    Task<IList<StudentWithReservationHistory>> GetStudentReservationsForClass(string teacherId);
   }
 }

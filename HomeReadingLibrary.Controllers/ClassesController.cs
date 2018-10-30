@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 using System.ComponentModel.DataAnnotations;
+using HomeReadingLibrary.Domain.Services;
+using System.Collections.Generic;
 
 namespace HomeReadingLibrary.Controllers.Controllers
 {
@@ -17,9 +19,12 @@ namespace HomeReadingLibrary.Controllers.Controllers
     private const int BarCodeLength = 9;
     private static readonly Random rand = new Random();
     private readonly IMongoCollection<Class> classCollection;
-    public ClassesController(IMongoDatabase mongoDatabase) : base("classes", mongoDatabase)
+    private readonly IBookCopyReservationService bookCopyReservationService;
+
+    public ClassesController(IMongoDatabase mongoDatabase, IBookCopyReservationService bookCopyReservationService) : base("classes", mongoDatabase)
     {
       classCollection = this.mongoDatabase.GetCollection<Class>(_collectionName);
+      this.bookCopyReservationService = bookCopyReservationService;
     }
 
     [AllowAnonymous]
@@ -66,6 +71,15 @@ namespace HomeReadingLibrary.Controllers.Controllers
       }
 
       return this.BadRequest(ModelState);
+    }
+
+    [Authorize(AuthenticationSchemes = "Bearer", Policy = "VolunteerUser")]
+    [HttpGet("{classId}/stats")]
+    public async Task<IActionResult> GetClassStatistics(string classId)
+    {
+      var studentReservations = await bookCopyReservationService.GetStudentReservationsForClass(classId);
+
+      return Ok(new ClassStatistics(studentReservations));
     }
 
     private async Task<IActionResult> AddStudentToClass(string classId, string firstName, string lastName, string barCode)
@@ -164,6 +178,59 @@ namespace HomeReadingLibrary.Controllers.Controllers
       [Required]
       [RegularExpression(@"2018\d{9}")]
       public string BarCode { get; set; }
+    }
+
+    public class ClassStatistics
+    {
+      private readonly IList<StudentWithReservationHistory> students;
+
+      public DateTime FirstCheckOut => students.SelectMany(s => s.Reservations).Min(r => r.CheckedOutDate);
+      public int TotalBooksCheckedOut => students.SelectMany(s => s.Reservations).Count();
+      public int TotalWeeks => ((DateTime.Today - FirstCheckOut).Days / 7);
+      public decimal AverageCheckOutsPerWeek => (decimal)TotalBooksCheckedOut / TotalWeeks;
+      public List<StudentStatistics> StudentStats => students.Select(s => new StudentStatistics(s)).ToList();
+
+      public ClassStatistics(IList<StudentWithReservationHistory> students) : base()
+      {
+        this.students = students;
+      }
+
+      public class StudentStatistics
+      {
+        private StudentWithReservationHistory student;
+
+        public string FirstName => student.FirstName;
+        public string LastName => student.LastName;
+        public int TotalBooksCheckedOut => student.Reservations.Count;
+        public DateTime FirstCheckOut => student.Reservations.Min(r => r.CheckedOutDate);
+        public DateTime LastCheckOut => student.Reservations.Max(r => r.CheckedOutDate);
+        public int TotalWeeks => ((DateTime.Today - FirstCheckOut).Days / 7);
+        public decimal AverageCheckOutsPerWeek => (decimal)TotalBooksCheckedOut / TotalWeeks;
+        public int CheckOutsInLastMonth
+        {
+          get
+          {
+            var oneMonthAgo = DateTime.Today.AddMonths(-1);
+            return student.Reservations.Count(r => r.CheckedOutDate >= oneMonthAgo);
+          }
+        }
+        public int CheckOutsInPreviousMonth
+        {
+          get
+          {
+            var oneMonthAgo = DateTime.Today.AddMonths(-1);
+            var twoMonthAgo = DateTime.Today.AddMonths(-2);
+            return student.Reservations.Count(r => r.CheckedOutDate >= twoMonthAgo && r.CheckedOutDate < oneMonthAgo);
+          }
+        }
+        public int DaysSinceLastCheckOut => (DateTime.Today - LastCheckOut).Days;
+
+        public StudentStatistics(StudentWithReservationHistory student)
+        {
+          this.student = student;
+        }
+      }
+
     }
   }
 }

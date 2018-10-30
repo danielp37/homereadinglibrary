@@ -6,6 +6,7 @@ using HomeReadingLibrary.Domain.Entities;
 using static AspnetCore.Identity.MongoDb.JwtModels.Constants.Strings;
 using System.Collections.Generic;
 using System.Linq;
+using System.Collections;
 
 namespace HomeReadingLibrary.Domain.Services
 {
@@ -45,6 +46,13 @@ namespace HomeReadingLibrary.Domain.Services
           ReservedCopies = b.BookCopies.Count(bc => bookCopySet.Contains(bc.BarCode))
         }).ToList();
       return booksWithReservations;
+    }
+
+    public async Task<IList<StudentWithReservationHistory>> GetStudentReservationsForClass(string teacherId)
+    {
+      var filter = Builders<StudentWithReservationHistory>.Filter.Eq(s => s.TeacherId, teacherId);
+      var studentReservations = await (await mongoDatabase.GetCollection<StudentWithReservationHistory>("studentcheckouthistory").FindAsync(filter)).ToListAsync();
+      return studentReservations;
     }
 
     private VolunteerAudit GetVolunteerAuditForCurrentUser(ClaimsPrincipal user)
