@@ -19,6 +19,9 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { OAuthService } from 'angular-oauth2-oidc';
 import { Volunteer } from '../entities/volunteer';
 import { stringify } from '@angular/compiler/src/util';
+import { Observable } from 'rxjs';
+import { catchError, map  } from 'rxjs/operators';
+import { ClassStatistics } from '../entities/class-statistics';
 
 interface ClassWithVolunteersResult {
     data : ClassWithVolunteers[]
@@ -405,6 +408,25 @@ export class BaggyBookService {
         return resp as VolunteerWithLogons[];
       })
       .catch(error => this.handleError(error));
+  }
+
+  getClassStatistics(classId: string): Observable<{} | ClassStatistics> {
+    this.loaderService.display(true);
+    return this.http
+      .get<ClassStatistics>(`${this.classesUrl}/${classId}/stats`, {headers: this.getAuthHeaders(false)})
+      .pipe(
+        map(val => {
+          this.loaderService.display(false);
+          return val;
+        }),
+        catchError(err => this.handleObservableError(err))
+      );
+  }
+
+  private handleObservableError(err: any): any {
+    console.error('An error occurred', err);
+    this.loaderService.display(false);
+    throw new Error(err);
   }
 
   private handleError(error: any): Promise<any> {

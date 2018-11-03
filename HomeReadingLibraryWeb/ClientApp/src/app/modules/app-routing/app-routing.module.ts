@@ -13,6 +13,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
 import { HomeComponent } from './../../components/home/home.component';
+import { ClassStatsComponent } from 'src/app/components/class-stats/class-stats.component';
 
 
 const routes: Routes = [
@@ -27,6 +28,7 @@ const routes: Routes = [
             { path: 'logons', component: VolunteerLogonsComponent, canActivate: [AuthGuard]},
             { path: 'checkouthistory', component: StudentReservationHistoryComponent, canActivate: [AuthGuard]},
             { path: 'bookcheckouthistory', component: BookReservationHistoryComponent, canActivate: [AuthGuard]},
+            { path: 'classstats', component: ClassStatsComponent, canActivate: [AuthGuard]},
             { path: '**', redirectTo: 'home' }
         ];
 /*[

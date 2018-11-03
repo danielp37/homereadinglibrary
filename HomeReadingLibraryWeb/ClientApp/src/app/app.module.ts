@@ -35,6 +35,7 @@ import { BookReservationHistoryComponent } from './components/book-reservation-h
 import { StudentReservationHistoryComponent } from './components/student-reservation-history/student-reservation-history.component';
 import { VolunteerLogonsComponent } from './components/volunteer-logons/volunteer-logons.component';
 import { BookCopyReservationsComponent } from './components/book-copy-reservations/book-copy-reservations.component';
+import { ClassStatsComponent } from './components/class-stats/class-stats.component';
 
 @NgModule({
   declarations: [
@@ -57,7 +58,8 @@ import { BookCopyReservationsComponent } from './components/book-copy-reservatio
     BookReservationHistoryComponent,
     StudentReservationHistoryComponent,
     VolunteerLogonsComponent,
-    BookCopyReservationsComponent
+    BookCopyReservationsComponent,
+    ClassStatsComponent
   ],
   imports: [
     BrowserModule,
