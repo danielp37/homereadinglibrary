@@ -13,5 +13,7 @@ namespace HomeReadingLibrary.Domain.Entities
     public string FirstName { get; set; }
     public string LastName { get; set; }
     public List<BookCopyReservation> Reservations { get; set; } = new List<BookCopyReservation>();
+    public string StartingLevel { get; set; }
+    public string CurrentLevel { get; set; }
   }
 }

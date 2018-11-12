@@ -188,7 +188,7 @@ namespace HomeReadingLibrary.Controllers.Controllers
       public int TotalBooksCheckedOut => students.SelectMany(s => s.Reservations).Count();
       public int TotalWeeks => ((DateTime.Today - FirstCheckOut).Days / 7);
       public decimal AverageCheckOutsPerWeek => (decimal)TotalBooksCheckedOut / TotalWeeks;
-      public List<StudentStatistics> StudentStats => students.Select(s => new StudentStatistics(s)).ToList();
+      public List<StudentStatistics> StudentStats => students.Select(s => new StudentStatistics(s)).OrderBy(ss => ss.LastName).ThenBy(ss => ss.FirstName).ToList();
 
       public ClassStatistics(IList<StudentWithReservationHistory> students) : base()
       {
@@ -202,10 +202,10 @@ namespace HomeReadingLibrary.Controllers.Controllers
         public string FirstName => student.FirstName;
         public string LastName => student.LastName;
         public int TotalBooksCheckedOut => student.Reservations.Count;
-        public DateTime FirstCheckOut => student.Reservations.Min(r => r.CheckedOutDate);
-        public DateTime LastCheckOut => student.Reservations.Max(r => r.CheckedOutDate);
-        public int TotalWeeks => ((DateTime.Today - FirstCheckOut).Days / 7);
-        public decimal AverageCheckOutsPerWeek => (decimal)TotalBooksCheckedOut / TotalWeeks;
+        public DateTime? FirstCheckOut => student.Reservations.Min(r => (DateTime?)r.CheckedOutDate);
+        public DateTime? LastCheckOut => student.Reservations.Max(r => (DateTime?)r.CheckedOutDate);
+        public int? TotalWeeks => ((DateTime.Today - FirstCheckOut)?.Days / 7);
+        public decimal? AverageCheckOutsPerWeek => (decimal?)TotalBooksCheckedOut / TotalWeeks;
         public int CheckOutsInLastMonth
         {
           get
@@ -223,7 +223,9 @@ namespace HomeReadingLibrary.Controllers.Controllers
             return student.Reservations.Count(r => r.CheckedOutDate >= twoMonthAgo && r.CheckedOutDate < oneMonthAgo);
           }
         }
-        public int DaysSinceLastCheckOut => (DateTime.Today - LastCheckOut).Days;
+        public int? DaysSinceLastCheckOut => (DateTime.Today - LastCheckOut)?.Days;
+        public string StartingLevel => student.StartingLevel;
+        public string CurrentLevel => student.CurrentLevel;
 
         public StudentStatistics(StudentWithReservationHistory student)
         {

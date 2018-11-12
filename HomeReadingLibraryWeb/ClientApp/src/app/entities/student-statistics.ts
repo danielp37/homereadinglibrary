@@ -9,4 +9,6 @@ export interface StudentStatistics {
     checkOutsInLastMonth: Number;
     checkOutsInPreviousMonth: Number;
     daysSinceLastCheckOut: Number;
+    startingLevel: String;
+    currentLevel: String;
 }

@@ -18,6 +18,7 @@
     <table class="table">
       <thead>
         <th>Name</th>
+        <th>Level</th>
         <th>Total Books</th>
         <th>Avg per Week</th>
         <th>Last Month</th>
@@ -27,6 +28,7 @@
       <tbody>
         <tr *ngFor="let student of classStats.studentStats">
           <td>{{student.firstName}} {{student.lastName}}</td>
+          <td>{{student.startingLevel}}-{{student.currentLevel}}</td>
           <td>{{student.totalBooksCheckedOut}}</td>
           <td>{{student.averageCheckOutsPerWeek | number:'1.0-2'}}</td>
           <td>{{student.checkOutsInLastMonth}}</td>

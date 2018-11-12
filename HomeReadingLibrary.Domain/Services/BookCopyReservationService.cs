@@ -7,6 +7,7 @@ using static AspnetCore.Identity.MongoDb.JwtModels.Constants.Strings;
 using System.Collections.Generic;
 using System.Linq;
 using System.Collections;
+using MongoDB.Bson;
 
 namespace HomeReadingLibrary.Domain.Services
 {
@@ -52,7 +53,52 @@ namespace HomeReadingLibrary.Domain.Services
     {
       var filter = Builders<StudentWithReservationHistory>.Filter.Eq(s => s.TeacherId, teacherId);
       var studentReservations = await (await mongoDatabase.GetCollection<StudentWithReservationHistory>("studentcheckouthistory").FindAsync(filter)).ToListAsync();
+      foreach (var sr in studentReservations)
+      {
+        sr.Reservations.RemoveAll(bcr => bcr.CheckedInDate == bcr.CheckedOutDate);
+      }
+
+      await PopulateStartingAndCurrentReadingLevels(studentReservations);
+
       return studentReservations;
+    }
+
+    private async Task PopulateStartingAndCurrentReadingLevels(List<StudentWithReservationHistory> studentReservations)
+    {
+      var firstAndLastBookCopies = studentReservations.Select(sr =>
+      {
+        var reservations = sr.Reservations.OrderBy(bcr => bcr.CheckedOutDate).ToArray();
+        return new
+        {
+          sr.Id,
+          First = reservations.FirstOrDefault()?.BookCopyBarCode ?? "",
+          Last = reservations.LastOrDefault()?.BookCopyBarCode ?? ""
+        };
+      }).ToDictionary(sr => sr.Id);
+
+      var bookCopyFilter = Builders<Book>.Filter.AnyIn("bookCopies.barCode",
+        firstAndLastBookCopies.Values.Select(bc => bc.First).Union(firstAndLastBookCopies.Values.Select(bc => bc.Last))
+        .Distinct().Where(x => !string.IsNullOrWhiteSpace(x)));
+
+      var firstAndLastBooks = (await (await mongoDatabase.GetCollection<Book>("books").FindAsync(bookCopyFilter)).ToListAsync());
+      var booksByBookCopyBarCode = new Dictionary<string, Book>();
+      foreach (var book in firstAndLastBooks)
+      {
+        foreach (var bookCopy in book.BookCopies)
+        {
+          booksByBookCopyBarCode[bookCopy.BarCode] = book;
+        }
+      }
+
+      foreach (var studentReservation in studentReservations)
+      {
+        var firstAndLastBookCopy = firstAndLastBookCopies[studentReservation.Id];
+        if (!string.IsNullOrWhiteSpace(firstAndLastBookCopy.First))
+        {
+          studentReservation.StartingLevel = booksByBookCopyBarCode[firstAndLastBookCopy.First].GuidedReadingLevel;
+          studentReservation.CurrentLevel = booksByBookCopyBarCode[firstAndLastBookCopy.Last].GuidedReadingLevel;
+        }
+      }
     }
 
     private VolunteerAudit GetVolunteerAuditForCurrentUser(ClaimsPrincipal user)
