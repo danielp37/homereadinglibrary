@@ -176,7 +176,7 @@ namespace HomeReadingLibrary.Controllers.Controllers
       [Required]
       public string LastName { get; set; }
       [Required]
-      [RegularExpression(@"2018\d{9}")]
+      [RegularExpression(@"2019\d{9}")]
       public string BarCode { get; set; }
     }
 
