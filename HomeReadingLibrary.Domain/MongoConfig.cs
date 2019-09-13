@@ -32,7 +32,7 @@ namespace HomeReadingLibrary.Domain
             var settings = MongoClientSettings.FromUrl(
                 new MongoUrl(_connectionString)
             );
-            if(settings.UseSsl)
+            if(settings.UseTls)
             {
                 settings.SslSettings = new SslSettings() { EnabledSslProtocols = SslProtocols.Tls12 };
             }
