@@ -35,7 +35,7 @@ namespace AspnetCore.Identity.MongoDb.Tests.Stores
 
       Assert.True(result.Succeeded);
       A.CallTo(() => volunteerCollection.InsertOneAsync(volunteer, A<InsertOneOptions>.Ignored, A<CancellationToken>.Ignored))
-       .MustHaveHappened(Repeated.Exactly.Once);
+       .MustHaveHappened(1, Times.Exactly);
     }
 
     [Fact]
