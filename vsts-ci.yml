@@ -25,7 +25,7 @@ steps:
 - task: NodeTool@0
   displayName: "Ensure version of node"
   inputs:
-    versionSpec: '>=8.11.3' 
+    versionSpec: '>=10.16.3' 
     #checkLatest: false # Optional
 
 - script: npm install npm@latest -g
