@@ -8,7 +8,7 @@
           <input type="text" id="daysBack" name="daysBack" [ngModel]="defaultDaysBack" #daysBack="ngModel">
           <label for="daysBack">&nbsp;days</label>
           <button type="submit" class="btn btn-primary">Submit</button>
-          <button class="btn btn-default" (click)="exportToTab()">Export To File</button>
+          <button class="btn btn-secondary" (click)="exportToTab()">Export To File</button>
           <a [href]="downloadLink" id="downloadReport"></a>
         </div>
       </div>
