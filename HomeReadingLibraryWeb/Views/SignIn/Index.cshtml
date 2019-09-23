@@ -21,14 +21,14 @@
             </h3>
         </div>
         <div class="col">
-            <form asp-action="cancel"  asp-controller="Account" method="post" class="form">
+            <form asp-action="cancel"  asp-controller="SignIn" method="post" class="form">
                 <input type="hidden" asp-for="ReturnUrl" id="ReturnUrl2" />
                 <button type="submit" class="btn btn-primary">Go Back Home</button>
             </form>
         </div>
     </div>
     <div class="row" *ngIf="classes">
-        <form asp-action="signin" asp-controller="Account" method="post" class="form float-left">
+        <form asp-action="signin" asp-controller="SignIn" method="post" class="form float-left">
             <input type="hidden" asp-for="ReturnUrl" />
             @foreach (var cls in Model.Classes.OrderBy(c => c.Grade).ThenBy(c => c.TeacherName))
             {
