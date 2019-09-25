@@ -7,6 +7,10 @@
           <label for="daysBack">Show books checked out more than&nbsp;</label>
           <input type="text" id="daysBack" name="daysBack" [ngModel]="defaultDaysBack" #daysBack="ngModel">
           <label for="daysBack">&nbsp;days</label>
+          <br />
+          <input id="showOnlyMultiples" name="showOnlyMultiples" type="checkbox" [(ngModel)]="showOnlyMultiples" />
+          <label for="showOnlyMultiples">Show only students with multiple books checked out?</label>
+          <br />
           <button type="submit" class="btn btn-primary">Submit</button>
           <button class="btn btn-secondary" (click)="exportToTab()">Export To File</button>
           <a [href]="downloadLink" id="downloadReport"></a>

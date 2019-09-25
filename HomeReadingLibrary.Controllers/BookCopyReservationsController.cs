@@ -45,6 +45,7 @@ namespace HomeReadingLibrary.Controllers.Controllers
                                                             , [FromQuery]int? offset = null, [FromQuery]int? pageSize = null
                                                             , [FromQuery]string sort = null, [FromQuery]string order = null
                                                             , [FromQuery]bool exportAsTab = false
+                                                            , [FromQuery]bool showMultiples = false
                                                             , [FromQuery]BookSearchParameters parameters = null)
     {
       var checkedOutBooksCollection = mongoDatabase.GetCollection<CheckedOutBook>(fullHistory ? "bookcheckouthistory" : "bookscheckedout");
@@ -69,7 +70,7 @@ namespace HomeReadingLibrary.Controllers.Controllers
         checkedOutBooksFind = checkedOutBooksFind.SortByDescending(cob => cob.CheckedOutDate);
       }
 
-      if (!exportAsTab)
+      if (!exportAsTab && !showMultiples)
       {
         if (offset != null)
         {
@@ -83,6 +84,17 @@ namespace HomeReadingLibrary.Controllers.Controllers
       }
 
       var checkedOutBooks = await checkedOutBooksFind.ToListAsync();
+
+      if (showMultiples)
+      {
+        var studentsWithMultiples = checkedOutBooks.GroupBy(b => b.StudentBarCode)
+                                                   .Where(g => g.Count() > 1)
+                                                   .Select(g => g.Key)
+                                                   .ToHashSet();
+
+        checkedOutBooks.RemoveAll(b => !studentsWithMultiples.Contains(b.StudentBarCode));
+        totalCount = checkedOutBooks.Count;
+      }
 
       if (exportAsTab)
       {

@@ -20,6 +20,7 @@ export class BookCopyReservationsComponent implements OnInit {
   downloadLink: string;
   searchType = 'Title';
   searchText = '';
+  showOnlyMultiples = false;
 
 
   constructor(
@@ -83,26 +84,30 @@ export class BookCopyReservationsComponent implements OnInit {
   }
 
   getBookSearchParameters(): BookSearchParameters {
+    const params: BookSearchParameters = {};
     if (this.searchText) {
       switch (this.searchType) {
         case 'Title':
-          return { title: this.searchText };
+          params.title = this.searchText;
         case 'Author':
-          return { author: this.searchText };
+          params.author = this.searchText;
         case 'ReadingLevel/Box':
-          return { boxNumber: this.searchText };
+          params.boxNumber = this.searchText;
         case 'Book BarCode':
-          return { bookBarCode: this.searchText };
+          params.bookBarCode = this.searchText;
         case 'Teacher':
-          return { teacherName: this.searchText };
+          params.teacherName = this.searchText;
         case 'Student Name':
-          return { studentName: this.searchText };
+          params.studentName = this.searchText;
         case 'Book BarCode':
-          return { bookBarCode: this.searchText };
+          params.bookBarCode = this.searchText;
         case 'Grade':
-          return { grade: this.searchText };
+          params.grade = this.searchText;
       }
     }
-    return {};
+    if (this.showOnlyMultiples) {
+      params.showMultiples = true;
+    }
+    return params;
   }
 }
