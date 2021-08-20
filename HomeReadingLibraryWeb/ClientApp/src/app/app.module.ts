@@ -5,7 +5,6 @@ import { HttpClientModule } from "@angular/common/http";
 import { OAuthModule } from "angular-oauth2-oidc";
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgxDatatableModule } from "@swimlane/ngx-datatable";
-import { AngularFontAwesomeModule } from "angular-font-awesome";
 
 //import { AppComponent } from './app.component';
 import { AppRoutingModule } from './modules/app-routing/app-routing.module';
@@ -36,6 +35,7 @@ import { StudentReservationHistoryComponent } from './components/student-reserva
 import { VolunteerLogonsComponent } from './components/volunteer-logons/volunteer-logons.component';
 import { BookCopyReservationsComponent } from './components/book-copy-reservations/book-copy-reservations.component';
 import { ClassStatsComponent } from './components/class-stats/class-stats.component';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 @NgModule({
   declarations: [
@@ -73,7 +73,7 @@ import { ClassStatsComponent } from './components/class-stats/class-stats.compon
     ReactiveFormsModule,
     NgxDatatableModule,
     NgbModule,
-    AngularFontAwesomeModule
+    FontAwesomeModule
   ],
   providers: [LoaderService, BaggyBookService, BookLookupService],
   bootstrap: [AppComponent]

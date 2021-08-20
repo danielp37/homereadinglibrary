@@ -2,6 +2,7 @@ import { UrlSegment } from '@angular/router';
 import { AuthGuard } from './../../modules/app-auth/services/authguard.service';
 import { AuthService } from './../../modules/app-auth/services/auth.service';
 import { Component } from '@angular/core';
+import { faUsers, faListUl, faBook, faHome, faBookReader, faListAlt } from "@fortawesome/free-solid-svg-icons";
 
 @Component({
     selector: 'app-nav-menu',
@@ -9,6 +10,13 @@ import { Component } from '@angular/core';
     styleUrls: ['./navmenu.component.css']
 })
 export class NavMenuComponent {
+
+    faUsers = faUsers;
+    faListUl = faListUl;
+    faBook = faBook;
+    faHome = faHome;
+    faBookReader = faBookReader;
+    faListAlt = faListAlt;
 
     public isCollapsed : boolean = true;
     constructor(private authGuard: AuthGuard,
