@@ -20,7 +20,7 @@
     "@angular/platform-browser-dynamic": "^9.1.13",
     "@angular/router": "^9.1.13",
     "@fortawesome/fontawesome-free": "^5.3.1",
-    "@ng-bootstrap/ng-bootstrap": "^5.1.1",
+    "@ng-bootstrap/ng-bootstrap": "^6.2.0",
     "@swimlane/ngx-datatable": "^16.0.2",
     "angular-2-data-table": "^0.1.2",
     "angular-font-awesome": "^3.1.2",
