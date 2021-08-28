@@ -30,11 +30,11 @@
                         <div ngbDropdownMenu>
                             <a [routerLink]="['/bookscheckedout']"  [routerLinkActive]="['active']"  *ngIf="isAdmin" class="dropdown-item"
                                 (click)="isCollapsed = true">
-                                <fa-icon [icon]="book-reader"></fa-icon> Books Checked Out
+                                <fa-icon [icon]="bookReader"></fa-icon> Books Checked Out
                             </a>
                             <a [routerLink]="['/checkouthistory']"  [routerLinkActive]="['active']" class="dropdown-item"
                                 (click)="isCollapsed = true">
-                                <fa-icon [icon]="book-reader"></fa-icon> Student Check Out History
+                                <fa-icon [icon]="bookReader"></fa-icon> Student Check Out History
                             </a>
                             <a [routerLink]="['/bookcheckouthistory']" [routerLinkActive]="['active']" class="dropdown-item"
                                 (click)="isCollapsed = true">
@@ -42,7 +42,7 @@
                             </a>
                             <a [routerLink]="['/classstats']" [routerLinkActive]="['active']" class="dropdown-item"
                                 (click)="isCollapsed = true">
-                                <fa-icon [icon]="list-alt"></fa-icon> Class Stats
+                                <fa-icon [icon]="listAlt"></fa-icon> Class Stats
                             </a>
                         </div>
 
@@ -53,10 +53,10 @@
                         </span>
                         <div ngbDropdownMenu>
                             <a [routerLink]="['/booklist']" [routerLinkActive]="['active']" class="dropdown-item" (click)="isCollapsed = true">
-                                <fa-icon [icon]="list-ul"></fa-icon> Book List
+                                <fa-icon [icon]="listUl"></fa-icon> Book List
                             </a>
                             <a [routerLink]="['/classlists']" [routerLinkActive]="['active']" class="dropdown-item" (click)="isCollapsed = true">
-                                <fa-icon [icon]="list-ul"></fa-icon> Class Lists
+                                <fa-icon [icon]="listUl"></fa-icon> Class Lists
                             </a>
                             <a [routerLink]="['/logons']" [routerLinkActive]="['active']" class="dropdown-item" (click)="isCollapsed = true">
                                 <fa-icon [icon]="users"></fa-icon> Volunteer Logons
