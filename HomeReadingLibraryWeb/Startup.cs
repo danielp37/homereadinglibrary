@@ -56,6 +56,7 @@ namespace HomeReadingLibraryWeb
         .AddInMemoryClients(new[] { spaClient })
         .AddInMemoryIdentityResources(IdentityServerConfig.IdentityResources)
         .AddInMemoryApiResources(IdentityServerConfig.Apis)
+        .AddInMemoryApiScopes(IdentityServerConfig.ApiScopes)
         .AddJwtBearerClientAuthentication();
 
       services.ConfigureMongoImplementation(Configuration);
