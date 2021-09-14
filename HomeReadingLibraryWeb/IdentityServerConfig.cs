@@ -45,11 +45,7 @@ namespace HomeReadingLibraryWeb
             new ApiResource("library", "Book Checkout and Checkin API")
             {
               UserClaims = new [] { "role" },
-              Scopes =
-              {
-                new Scope("library.VolunteerAccess", "Volunteer Access") { ShowInDiscoveryDocument = true },
-                new Scope("library.AdminAccess", "Admin Access")
-              }
+              Scopes = new [] { "library.VolunteerAccess", "library.AdminAccess" }
             }
         };
   }

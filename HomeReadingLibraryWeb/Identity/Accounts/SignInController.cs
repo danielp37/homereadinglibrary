@@ -56,7 +56,10 @@ namespace HomeReadingLibraryWeb.Identity.Accounts
           await events.RaiseAsync(new UserLoginSuccessEvent(user.FullName, user.Id, user.FullName));
 
           // issue authentication cookie with subject ID and username
-          await HttpContext.SignInAsync(user.Id, user.FullName);
+          await HttpContext.SignInAsync(new IdentityServer4.IdentityServerUser(user.Id)
+          {
+            DisplayName = user.FullName
+          });
 
           // make sure the returnUrl is still valid, and if so redirect back to authorize endpoint or a local page
           if (interaction.IsValidReturnUrl(returnUrl) || Url.IsLocalUrl(returnUrl))
@@ -87,7 +90,10 @@ namespace HomeReadingLibraryWeb.Identity.Accounts
         // if the user cancels, send a result back into IdentityServer as if they 
         // denied the consent (even if this client does not require consent).
         // this will send back an access denied OIDC error response to the client.
-        await interaction.GrantConsentAsync(context, ConsentResponse.Denied);
+        await interaction.GrantConsentAsync(context, new ConsentResponse
+        {
+          Error = AuthorizationError.AccessDenied
+        });
 
         // we can trust model.ReturnUrl since GetAuthorizationContextAsync returned non-null
         return Redirect(returnUrl);
@@ -112,7 +118,10 @@ namespace HomeReadingLibraryWeb.Identity.Accounts
           await events.RaiseAsync(new UserLoginSuccessEvent(user.FullName, user.Id, user.FullName));
 
           // issue authentication cookie with subject ID and username
-          await HttpContext.SignInAsync(user.Id, user.FullName);
+          await HttpContext.SignInAsync(new IdentityServer4.IdentityServerUser(user.Id)
+          {
+            DisplayName = user.FullName
+          });
 
           // make sure the returnUrl is still valid, and if so redirect back to authorize endpoint or a local page
           if (interaction.IsValidReturnUrl(returnUrl) || Url.IsLocalUrl(returnUrl))
