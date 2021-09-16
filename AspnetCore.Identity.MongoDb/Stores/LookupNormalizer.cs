@@ -9,5 +9,15 @@ namespace AspnetCore.Identity.MongoDb.Stores
     {
       return key;
     }
+
+    public string NormalizeEmail(string email)
+    {
+      return email;
+    }
+
+    public string NormalizeName(string name)
+    {
+      return name;
+    }
   }
 }

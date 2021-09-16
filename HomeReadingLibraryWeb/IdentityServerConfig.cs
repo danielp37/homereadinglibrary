@@ -40,16 +40,19 @@ namespace HomeReadingLibraryWeb
             new IdentityResource("LoginRole", new [] {"role"})
         };
 
+    public static IEnumerable<ApiScope> ApiScopes = new List<ApiScope>
+    {
+      new ApiScope("library"),
+      new ApiScope("library.VolunteerAccess"),
+      new ApiScope("library.AdminAccess")
+    };
+
     public static IEnumerable<ApiResource> Apis = new List<ApiResource>
         {
             new ApiResource("library", "Book Checkout and Checkin API")
             {
               UserClaims = new [] { "role" },
-              Scopes =
-              {
-                new Scope("library.VolunteerAccess", "Volunteer Access") { ShowInDiscoveryDocument = true },
-                new Scope("library.AdminAccess", "Admin Access")
-              }
+              Scopes = new [] { "library.VolunteerAccess", "library.AdminAccess" }
             }
         };
   }

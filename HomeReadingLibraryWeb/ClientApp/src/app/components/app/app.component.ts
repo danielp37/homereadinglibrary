@@ -1,6 +1,7 @@
 import { LoaderService } from './../../services/loader.service';
 import { Component, OnInit } from '@angular/core';
-import { OAuthService, JwksValidationHandler } from 'angular-oauth2-oidc';
+import { OAuthService } from 'angular-oauth2-oidc';
+import { JwksValidationHandler } from 'angular-oauth2-oidc-jwks';
 import { authConfig } from '../../modules/app-auth/services/auth.config';
 import { AuthService } from '../../modules/app-auth/services/auth.service';
 import { Router } from '@angular/router';

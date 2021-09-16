@@ -1,5 +1,5 @@
     <div>    
-        <div class="navbar navbar-expand-lg navbar-dark bg-dark navbar-fixed-top">
+        <div class="navbar navbar-expand-lg navbar-dark bg-dark navbar-fixed-top px-3">
             <a class="navbar-brand" href="/home">Home Reading Library</a>
             <button class="navbar-toggler" type="button"
                 (click)="isCollapsed = !isCollapsed"
@@ -10,17 +10,17 @@
                 <ul class='navbar-nav'>
                     <li [routerLinkActive]="['active']" class="nav-item">
                         <a [routerLink]="['/home']" class="nav-link">
-                            <fa name="home"></fa> Home
+                            <fa-icon [icon]="home"></fa-icon> Home
                         </a>
                     </li>
                     <li [routerLinkActive]="['active']" *ngIf="isAdmin || isVolunteer" class="nav-item">
                         <a [routerLink]="['/checkout']" class="nav-link" (click)="isCollapsed = true">
-                            <fa name="book"></fa> Check Out
+                            <fa-icon [icon]="book"></fa-icon> Check Out
                         </a>
                     </li>
                     <li [routerLinkActive]="['active']" *ngIf="isAdmin || isVolunteer" class="nav-item">
                         <a [routerLink]="['/checkin']" class="nav-link" (click)="isCollapsed = true">
-                            <fa name="book"></fa> Check In
+                            <fa-icon [icon]="book"></fa-icon> Check In
                         </a>
                     </li>
                     <li ngbDropdown [routerLinkActive]="['active']" *ngIf="isAdmin || isVolunteer" class="nav-item drop-down">
@@ -30,19 +30,19 @@
                         <div ngbDropdownMenu>
                             <a [routerLink]="['/bookscheckedout']"  [routerLinkActive]="['active']"  *ngIf="isAdmin" class="dropdown-item"
                                 (click)="isCollapsed = true">
-                                <fa name="book-reader"></fa> Books Checked Out
+                                <fa-icon [icon]="bookReader"></fa-icon> Books Checked Out
                             </a>
                             <a [routerLink]="['/checkouthistory']"  [routerLinkActive]="['active']" class="dropdown-item"
                                 (click)="isCollapsed = true">
-                                <fa name="book-reader"></fa> Student Check Out History
+                                <fa-icon [icon]="bookReader"></fa-icon> Student Check Out History
                             </a>
                             <a [routerLink]="['/bookcheckouthistory']" [routerLinkActive]="['active']" class="dropdown-item"
                                 (click)="isCollapsed = true">
-                                <fa name="book"></fa> Book Check Out History
+                                <fa-icon [icon]="book"></fa-icon> Book Check Out History
                             </a>
                             <a [routerLink]="['/classstats']" [routerLinkActive]="['active']" class="dropdown-item"
                                 (click)="isCollapsed = true">
-                                <fa name="list-alt"></fa> Class Stats
+                                <fa-icon [icon]="listAlt"></fa-icon> Class Stats
                             </a>
                         </div>
 
@@ -53,16 +53,16 @@
                         </span>
                         <div ngbDropdownMenu>
                             <a [routerLink]="['/booklist']" [routerLinkActive]="['active']" class="dropdown-item" (click)="isCollapsed = true">
-                                <fa name="list-ul"></fa> Book List
+                                <fa-icon [icon]="listUl"></fa-icon> Book List
                             </a>
                             <a [routerLink]="['/classlists']" [routerLinkActive]="['active']" class="dropdown-item" (click)="isCollapsed = true">
-                                <fa name="list-ul"></fa> Class Lists
+                                <fa-icon [icon]="listUl"></fa-icon> Class Lists
                             </a>
                             <a [routerLink]="['/logons']" [routerLinkActive]="['active']" class="dropdown-item" (click)="isCollapsed = true">
-                                <fa name="users"></fa> Volunteer Logons
+                                <fa-icon [icon]="users"></fa-icon> Volunteer Logons
                             </a>
                             <a [routerLink]="['/signup']" [routerLinkActive]="['active']" class="dropdown-item" (click)="isCollapsed = true">
-                                <fa name="users"></fa> Signup Volunteer
+                                <fa-icon [icon]="users"></fa-icon> Signup Volunteer
                             </a>
                         </div>
 

@@ -28,7 +28,7 @@
         </div>
     </div>
     <div class="row" *ngIf="classes">
-        <form asp-action="signin" asp-controller="SignIn" method="post" class="form float-left">
+        <form asp-action="signin" asp-controller="account" method="post" class="form float-left">
             <input type="hidden" asp-for="ReturnUrl" />
             @foreach (var cls in Model.Classes.OrderBy(c => c.Grade).ThenBy(c => c.TeacherName))
             {

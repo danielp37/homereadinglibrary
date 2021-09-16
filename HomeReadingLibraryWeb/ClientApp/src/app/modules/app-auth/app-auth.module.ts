@@ -23,7 +23,7 @@ import { OAuthModule } from "angular-oauth2-oidc";
   ]
 })
 export class AuthModule {
-  static forRoot(): ModuleWithProviders {
+  static forRoot(): ModuleWithProviders<AuthModule> {
     return {
       ngModule: AuthModule,
       providers: [AuthService, AuthGuard]
