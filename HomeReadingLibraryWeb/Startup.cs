@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.IO;
 using System.Security.Cryptography.X509Certificates;
+using System.Text.Json.Serialization;
 
 namespace HomeReadingLibraryWeb
 {
@@ -31,7 +32,11 @@ namespace HomeReadingLibraryWeb
         opt.EnableEndpointRouting = false;
       })
         .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
-        .AddApplicationPart(typeof(HomeReadingLibrary.Controllers.ComponentRegistration).Assembly);
+        .AddApplicationPart(typeof(HomeReadingLibrary.Controllers.ComponentRegistration).Assembly)
+        .AddJsonOptions(opt =>
+        {
+            opt.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(allowIntegerValues: true));
+        });
 
       // In production, the Angular files will be served from this directory
       services.AddSpaStaticFiles(configuration =>
