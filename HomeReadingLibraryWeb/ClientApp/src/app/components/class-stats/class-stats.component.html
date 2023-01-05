@@ -9,21 +9,27 @@
   </div>
 
   <div *ngIf="classStats">
+    <label for="formMonth">Month:</label>
+    <select class="form-control" id="formMonth" [(ngModel)]="selectedMonth"
+        (change)="displayClassStatsForCurrentTeacher()">
+      <option value="YTD">Year to Date</option>
+      <option *ngFor="let month of (months)" [ngValue]="month.value">{{month.name}}</option>
+    </select>
     <p>
-    First Checkout Date: {{classStats.firstCheckOut | utcDate | date}}<br />
-    Total Books Checked Out: {{classStats.totalBooksCheckedOut}}<br />
-    Total Weeks: {{classStats.totalWeeks}}<br />
-    Average Checkouts per Week: {{classStats.averageCheckOutsPerWeek | number:'1.0-2'}}<br />
+      First Checkout Date: {{classStats.firstCheckOut | utcDate | date}}<br />
+      Total Books Checked Out: {{classStats.totalBooksCheckedOut}}<br />
+      Total Weeks: {{classStats.totalWeeks}}<br />
+      Average Checkouts per Week: {{classStats.averageCheckOutsPerWeek | number:'1.0-2'}}<br />
     </p>
     <table class="table">
       <thead>
-        <th>Name</th>
-        <th>Level</th>
-        <th>Total Books</th>
-        <th>Avg per Week</th>
-        <th>Last Month</th>
-        <th>Prev Month</th>
-        <th>Days since last checkout</th>
+      <th>Name</th>
+      <th>Level</th>
+      <th>Total Books</th>
+      <th>Avg per Week</th>
+      <th>Last Month</th>
+      <th>Prev Month</th>
+      <th>Days since last checkout</th>
       </thead>
       <tbody>
         <tr *ngFor="let student of classStats.studentStats">

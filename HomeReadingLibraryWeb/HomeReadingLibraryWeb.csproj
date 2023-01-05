@@ -31,12 +31,20 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="ClientApp\src\app\entities\Month.ts" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\HomeReadingLibrary.Controllers\HomeReadingLibrary.Controllers.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Controllers\" />
     <Folder Include="wwwroot\NewFolder\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <TypeScriptCompile Include="ClientApp\src\app\entities\Month.ts" />
   </ItemGroup>
 
   <ItemGroup>

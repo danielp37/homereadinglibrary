@@ -10,12 +10,14 @@ using MongoDB.Driver.Linq;
 using System.ComponentModel.DataAnnotations;
 using HomeReadingLibrary.Domain.Services;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace HomeReadingLibrary.Controllers.Controllers
 {
 
   public class ClassesController : EntityController<Class>
   {
+    private static readonly Regex MonthRegex = new Regex("20[2-3][0-9][0-1][0-9]");
     private const int BarCodeLength = 9;
     private static readonly Random rand = new Random();
     private readonly IMongoCollection<Class> classCollection;
@@ -75,11 +77,28 @@ namespace HomeReadingLibrary.Controllers.Controllers
 
     [Authorize(AuthenticationSchemes = "Bearer", Policy = "VolunteerUser")]
     [HttpGet("{classId}/stats")]
-    public async Task<IActionResult> GetClassStatistics(string classId)
+    public async Task<IActionResult> GetClassStatistics(string classId, [FromQuery]string forMonth)
     {
+      var dateRange = GetDateRange(forMonth);
+
       var studentReservations = await bookCopyReservationService.GetStudentReservationsForClass(classId);
 
-      return Ok(new ClassStatistics(studentReservations));
+      return Ok(new ClassStatistics(studentReservations, dateRange));
+    }
+
+    private (DateTime Start, DateTime End)? GetDateRange(string forMonth)
+    {
+      if (string.IsNullOrWhiteSpace(forMonth)) return null;
+      if (!MonthRegex.IsMatch(forMonth)) return null;
+      if (!short.TryParse(forMonth.Substring(0, 4), out var year)) return null;
+      if (!short.TryParse(forMonth.Substring(4, 2), out var month)) return null;
+      if (year < DateTime.Today.Year - 1 || year > DateTime.Today.Year + 1) return null;
+      if (month < 1 || month > 12) return null;
+
+      var startDate = new DateTime(year, month, 1);
+      var endDate = startDate.AddMonths(1).AddDays(-1);
+
+      return (startDate, endDate);
     }
 
     private async Task<IActionResult> AddStudentToClass(string classId, string firstName, string lastName, string barCode)
@@ -184,42 +203,52 @@ namespace HomeReadingLibrary.Controllers.Controllers
     {
       private readonly IList<StudentWithReservationHistory> students;
 
-      public DateTime FirstCheckOut => students.SelectMany(s => s.Reservations).Min(r => r.CheckedOutDate);
-      public int TotalBooksCheckedOut => students.SelectMany(s => s.Reservations).Count();
-      public int TotalWeeks => ((DateTime.Today - FirstCheckOut).Days / 7);
+      public DateTime? FirstCheckOut => students.SelectMany(s => s.Reservations).Min(r => (DateTime?)r.CheckedOutDate);
+      public (DateTime Start, DateTime End) DateRange { get; private set; }
+      public int TotalBooksCheckedOut => StudentStats.Sum(ss => ss.TotalBooksCheckedOut);
+      public int TotalWeeks => ((DateRange.End - DateRange.Start).Days / 7);
       public decimal AverageCheckOutsPerWeek => (decimal)TotalBooksCheckedOut / TotalWeeks;
-      public List<StudentStatistics> StudentStats => students.Select(s => new StudentStatistics(s)).OrderBy(ss => ss.LastName).ThenBy(ss => ss.FirstName).ToList();
+      public List<StudentStatistics> StudentStats { get; private set; }
 
-      public ClassStatistics(IList<StudentWithReservationHistory> students) : base()
+      public ClassStatistics(IList<StudentWithReservationHistory> students, (DateTime Start, DateTime End)? dateRange) : base()
       {
         this.students = students;
+        var minDate = new DateTime(DateTime.Today.Month <= 8 ? DateTime.Today.Year - 1 : DateTime.Today.Year, 9, 1);
+        DateRange = dateRange.GetValueOrDefault((FirstCheckOut.GetValueOrDefault(minDate), DateTime.Today));
+        StudentStats = students.Select(s => new StudentStatistics(s, DateRange)).OrderBy(ss => ss.LastName).ThenBy(ss => ss.FirstName).ToList();
       }
 
       public class StudentStatistics
       {
         private StudentWithReservationHistory student;
+        private (DateTime Start, DateTime End) dateRange;
 
         public string FirstName => student.FirstName;
         public string LastName => student.LastName;
-        public int TotalBooksCheckedOut => student.Reservations.Count;
-        public DateTime? FirstCheckOut => student.Reservations.Min(r => (DateTime?)r.CheckedOutDate);
-        public DateTime? LastCheckOut => student.Reservations.Max(r => (DateTime?)r.CheckedOutDate);
-        public int? TotalWeeks => ((DateTime.Today - FirstCheckOut)?.Days / 7);
+        public int TotalBooksCheckedOut => student.Reservations.Count(r => r.CheckedOutDate >= dateRange.Start && r.CheckedOutDate <= dateRange.End);
+        public DateTime? FirstCheckOut => student.Reservations
+          .Where(r => r.CheckedOutDate >= dateRange.Start && r.CheckedOutDate <= dateRange.End)
+          .Min(r => (DateTime?)r.CheckedOutDate);
+        public DateTime? LastCheckOut => student.Reservations
+          .Where(r => r.CheckedOutDate >= dateRange.Start && r.CheckedOutDate <= dateRange.End)
+          .Max(r => (DateTime?)r.CheckedOutDate);
+        public int TotalWeeks => (dateRange.End - dateRange.Start).Days / 7;
         public decimal? AverageCheckOutsPerWeek => (decimal?)TotalBooksCheckedOut / TotalWeeks;
         public int CheckOutsInLastMonth
         {
           get
           {
-            var oneMonthAgo = DateTime.Today.AddMonths(-1);
-            return student.Reservations.Count(r => r.CheckedOutDate >= oneMonthAgo);
+            var oneMonthAgo = new DateTime(dateRange.End.Year, dateRange.End.Month, 1).AddMonths(-1);
+            var oneMonthAgoEnd = oneMonthAgo.AddMonths(1);
+            return student.Reservations.Count(r => r.CheckedOutDate >= oneMonthAgo && r.CheckedOutDate < oneMonthAgoEnd);
           }
         }
         public int CheckOutsInPreviousMonth
         {
           get
           {
-            var oneMonthAgo = DateTime.Today.AddMonths(-1);
-            var twoMonthAgo = DateTime.Today.AddMonths(-2);
+            var oneMonthAgo = new DateTime(dateRange.End.Year, dateRange.End.Month, 1).AddMonths(-1);
+            var twoMonthAgo = oneMonthAgo.AddMonths(-1);
             return student.Reservations.Count(r => r.CheckedOutDate >= twoMonthAgo && r.CheckedOutDate < oneMonthAgo);
           }
         }
@@ -227,9 +256,10 @@ namespace HomeReadingLibrary.Controllers.Controllers
         public string StartingLevel => student.StartingLevel;
         public string CurrentLevel => student.CurrentLevel;
 
-        public StudentStatistics(StudentWithReservationHistory student)
+        public StudentStatistics(StudentWithReservationHistory student, (DateTime Start, DateTime End) dateRange)
         {
           this.student = student;
+          this.dateRange = dateRange;
         }
       }
 

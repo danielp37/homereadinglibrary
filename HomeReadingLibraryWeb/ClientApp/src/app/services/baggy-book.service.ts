@@ -410,10 +410,10 @@ export class BaggyBookService {
       .catch(error => this.handleError(error));
   }
 
-  getClassStatistics(classId: string): Observable<{} | ClassStatistics> {
+  getClassStatistics(classId: string, monthId: string): Observable<{} | ClassStatistics> {
     this.loaderService.display(true);
     return this.http
-      .get<ClassStatistics>(`${this.classesUrl}/${classId}/stats`, {headers: this.getAuthHeaders(false)})
+      .get<ClassStatistics>(`${this.classesUrl}/${classId}/stats?forMonth=${monthId}`, {headers: this.getAuthHeaders(false)})
       .pipe(
         map(val => {
           this.loaderService.display(false);
