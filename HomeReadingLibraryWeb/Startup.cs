@@ -31,7 +31,7 @@ namespace HomeReadingLibraryWeb
       {
         opt.EnableEndpointRouting = false;
       })
-        .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
+        //.SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
         .AddApplicationPart(typeof(HomeReadingLibrary.Controllers.ComponentRegistration).Assembly)
         .AddJsonOptions(opt =>
         {
