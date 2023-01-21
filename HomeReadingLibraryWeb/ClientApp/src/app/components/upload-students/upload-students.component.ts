@@ -1,7 +1,7 @@
 import { Student } from './../../entities/student';
 import { Class } from './../../entities/class';
 import { BaggyBookService } from './../../services/baggy-book.service';
-import { FormBuilder, Validators, FormGroup } from '@angular/forms';
+import { UntypedFormBuilder, Validators, UntypedFormGroup } from '@angular/forms';
 import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
 
 @Component({
@@ -10,14 +10,14 @@ import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
   styleUrls: ['./upload-students.component.css']
 })
 export class UploadStudentsComponent implements OnInit {
-  addMultipleStudentsForm: FormGroup;
+  addMultipleStudentsForm: UntypedFormGroup;
   @Input()classId: string;
   @Output()onSaved = new EventEmitter<Class>();
   lastClassUpdated: Class;
   results: string[];
 
   constructor(
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private baggyBookService: BaggyBookService) {
       this.addMultipleStudentsForm = this.fb.group({
         students : ['', Validators.required]

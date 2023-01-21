@@ -1,5 +1,5 @@
 import { BookSearchParameters } from './../../services/Book-Search-Parameters';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
 import { DataTableParams } from 'angular-2-data-table';
 import { BookList } from './../../entities/book-list';
 import { Component, OnInit } from '@angular/core';
@@ -15,7 +15,7 @@ export class BookListComponent implements OnInit {
 
   bookList: BookList;
   lastSearchParams: DataTableParams;
-  searchBookForm: FormGroup;
+  searchBookForm: UntypedFormGroup;
   currentBookIsbn: string;
   loadingIndicator: boolean = false;
   selected = [];
@@ -32,7 +32,7 @@ export class BookListComponent implements OnInit {
 
   constructor(
     private baggyBookService: BaggyBookService,
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
   ) {
     this.bookList = {
       books: [],

@@ -18,7 +18,6 @@ import { BookCopy } from '../entities/book-copy';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { OAuthService } from 'angular-oauth2-oidc';
 import { Volunteer } from '../entities/volunteer';
-import { stringify } from '@angular/compiler/src/util';
 import { Observable } from 'rxjs';
 import { catchError, map  } from 'rxjs/operators';
 import { ClassStatistics } from '../entities/class-statistics';

@@ -5,7 +5,7 @@ import { BookCopyWithBook } from './../../entities/book-copy-with-book';
 import { StudentWithTeacher } from './../../entities/student-with-teacher';
 import { Book } from './../../entities/book';
 import { Student } from './../../entities/student';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
 import { BaggyBookService } from './../../services/baggy-book.service';
 import { Component, OnInit, Renderer2, TemplateRef } from '@angular/core';
 import { TeacherWithStudent } from '../../entities/teacher-with-student';
@@ -17,7 +17,7 @@ import { TeacherWithStudent } from '../../entities/teacher-with-student';
 })
 export class CheckOutBookComponent implements OnInit {
 
-  checkOutBookForm: FormGroup;
+  checkOutBookForm: UntypedFormGroup;
   currentStudent: TeacherWithStudent;
   currentBook: BookCopyWithBook;
   studentError: string;
@@ -48,7 +48,7 @@ export class CheckOutBookComponent implements OnInit {
 
   constructor(
     private baggyBookService: BaggyBookService,
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private renderer: Renderer2,
     private modalService: BsModalService
   ) {
