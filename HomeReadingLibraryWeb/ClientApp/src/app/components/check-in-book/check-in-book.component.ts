@@ -1,6 +1,6 @@
 import { CheckinLogEntry } from './../../entities/checkin-log-entry';
 import { BaggyBookService } from './../../services/baggy-book.service';
-import { FormGroup, FormBuilder } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormBuilder } from '@angular/forms';
 import { BookCopyWithBook } from './../../entities/book-copy-with-book';
 import { Component, OnInit, Renderer2 } from '@angular/core';
 
@@ -11,14 +11,14 @@ import { Component, OnInit, Renderer2 } from '@angular/core';
 })
 export class CheckInBookComponent implements OnInit {
 
-  checkInBookForm: FormGroup;
+  checkInBookForm: UntypedFormGroup;
   currentBook: BookCopyWithBook;
   bookError: string;
   checkinLog: CheckinLogEntry[];
 
   constructor(
     private baggyBookService: BaggyBookService,
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private renderer: Renderer2
   ) {
     this.checkinLog = new Array<CheckinLogEntry>();

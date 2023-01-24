@@ -1,7 +1,7 @@
 import { Class } from './../../entities/class';
 import {BaggyBookService} from '../../services/baggy-book.service';
 import { Component, OnInit, Input, EventEmitter, Output, ViewChild, Renderer2 } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { Student } from '../../entities/student';
 
 @Component({
@@ -10,7 +10,7 @@ import { Student } from '../../entities/student';
   styleUrls: ['./add-student.component.css']
 })
 export class AddStudentComponent implements OnInit {
-    addStudentForm: FormGroup;
+    addStudentForm: UntypedFormGroup;
 
   @Input()classId: string;
   @Input()allowBarCodeEntry: boolean;
@@ -19,7 +19,7 @@ export class AddStudentComponent implements OnInit {
   errorMessage: string;
 
   constructor(
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private baggyBookService: BaggyBookService,
     private renderer: Renderer2
     ) {

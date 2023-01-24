@@ -1,5 +1,5 @@
 import { BaggyBookService } from './../../services/baggy-book.service';
-import { FormGroup, FormBuilder } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormBuilder } from '@angular/forms';
 import { BookCopyReservationWithData } from './../../entities/book-copy-reservation-with-data';
 import { Component, OnInit, Renderer2 } from '@angular/core';
 
@@ -16,12 +16,12 @@ export class BookReservationHistoryComponent implements OnInit {
   damagedDate: Date;
   comments: string;
   reservations: BookCopyReservationWithData[];
-  checkInBookForm: FormGroup;
+  checkInBookForm: UntypedFormGroup;
   selectedBookBarCode: string;
 
   constructor(
     private baggyBookService: BaggyBookService,
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private renderer: Renderer2
   ) { }
 

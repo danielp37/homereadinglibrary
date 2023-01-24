@@ -2,7 +2,7 @@ import { BookCopy } from './../../entities/book-copy';
 import { BaggyBookService } from './../../services/baggy-book.service';
 import { Component, OnInit, Output, EventEmitter, Renderer2, Input, TemplateRef } from '@angular/core';
 import { BookLookupService } from '../../services/book-lookup.service';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
 import { Book } from '../../entities/book';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 
@@ -13,7 +13,7 @@ import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 })
 export class AddBookComponent implements OnInit {
   lastBookCopyValue: number;
-  addBookForm: FormGroup;
+  addBookForm: UntypedFormGroup;
   newBook: boolean;
   editingBook: boolean;
   lastIsbnValue: string;
@@ -26,7 +26,7 @@ export class AddBookComponent implements OnInit {
   constructor(
     private bookLookupService: BookLookupService,
     private baggyBookService: BaggyBookService,
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private renderer: Renderer2,
     private modalService: BsModalService
   ) {

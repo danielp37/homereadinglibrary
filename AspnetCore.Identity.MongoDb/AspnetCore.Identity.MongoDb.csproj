@@ -8,12 +8,12 @@
     <PackageReference Include="Microsoft.AspNet.Identity.Core" Version="2.2.3">
       <NoWarn>NU1701</NoWarn>
     </PackageReference>
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.9" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
-    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.12.2" />
-    <PackageReference Include="MongoDb.Driver" Version="2.13.1" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.12.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="5.0.9" />
+    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.26.0" />
+    <PackageReference Include="MongoDb.Driver" Version="2.18.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.26.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="7.0.2" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Stores\" />
