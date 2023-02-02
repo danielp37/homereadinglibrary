@@ -14,11 +14,10 @@ import { Injectable } from '@angular/core';
 
 import { Class } from '../entities/class';
 import { Book } from '../entities/book';
-import { BookCopy } from '../entities/book-copy';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { OAuthService } from 'angular-oauth2-oidc';
 import { Volunteer } from '../entities/volunteer';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { catchError, map  } from 'rxjs/operators';
 import { ClassStatistics } from '../entities/class-statistics';
 
@@ -52,41 +51,43 @@ export class BaggyBookService {
     return authHeader;
   }
 
-  createVolunteer(volunteer: Volunteer): Promise<Volunteer> {
+  createVolunteer(volunteer: Volunteer): Observable<Volunteer> {
     return this.http
       .post<Volunteer>(`${this.volunteersUrl}`, JSON.stringify(volunteer), {headers: this.getAuthHeaders(true)})
-      .toPromise()
-      .catch(error => this.handleError(error));
+      .pipe(
+        catchError(err => this.handleObservableError<Volunteer>(err))
+      );
   }
 
-  getVolunteers(): Promise<Volunteer[]> {
+  getVolunteers(): Observable<Volunteer[]> {
     return this.http
-      .get<Volunteer[]>(`${this.volunteersUrl}`)
-      .toPromise()
-      .catch(error => this.handleError(error));
+      .get<{ data: Volunteer[]}>(`${this.volunteersUrl}`)
+      .pipe(
+        map(resp => resp.data),
+        catchError(err => this.handleObservableError<Volunteer[]>(err))
+      );
   }
 
-  getClasses(): Promise<Class[]> {
+  getClasses(): Observable<Class[]> {
     return this.http
-      .get<any>(`${this.classesUrl}`)
-      .toPromise()
-      .then(response => response.data.map(Class.fromObject))
-      .catch(error => this.handleError(error));
-
+      .get<{ data: Class[]}>(`${this.classesUrl}`)
+      .pipe(
+        map(resp => resp.data),
+        catchError(err => this.handleObservableError<Class[]>(err))
+      );
   }
 
-
-
-  getClassesWithVolunteers(): Promise<ClassWithVolunteers[]> {
+  getClassesWithVolunteers(): Observable<ClassWithVolunteers[]> {
     this.loaderService.display(true);
     return this.http
     .get<ClassWithVolunteersResult>(`${this.volunteersUrl}/byclass`)
-    .toPromise()
-    .then(response => {
-      this.loaderService.display(false);
-      return response.data;
-    })
-    .catch(error => this.handleError(error));
+    .pipe(
+      map(response => {
+        this.loaderService.display(false);
+        return response.data;
+        }),
+      catchError(err => this.handleObservableError<ClassWithVolunteers[]>(err))
+    )
   }
 
   addClass(teacherName: string, grade: number): Promise<Class> {
@@ -377,7 +378,7 @@ export class BaggyBookService {
     }
     if (bookSearchParameters) {
       for (const key in bookSearchParameters) {
-        if (bookSearchParameters.hasOwnProperty(key)) {
+        if (Object.prototype.hasOwnProperty.call(bookSearchParameters, key)) {
           result.push([key, bookSearchParameters[key]]);
         }
       }
@@ -409,7 +410,7 @@ export class BaggyBookService {
       .catch(error => this.handleError(error));
   }
 
-  getClassStatistics(classId: string, monthId: string): Observable<{} | ClassStatistics> {
+  getClassStatistics(classId: string, monthId: string): Observable<ClassStatistics> {
     this.loaderService.display(true);
     return this.http
       .get<ClassStatistics>(`${this.classesUrl}/${classId}/stats?forMonth=${monthId}`, {headers: this.getAuthHeaders(false)})
@@ -418,14 +419,20 @@ export class BaggyBookService {
           this.loaderService.display(false);
           return val;
         }),
-        catchError(err => this.handleObservableError(err))
+        catchError(err => this.handleObservableError<ClassStatistics>(err))
       );
   }
 
-  private handleObservableError(err: any): any {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private handleObservableError<T>(err: any): Observable<T> {
     console.error('An error occurred', err);
     this.loaderService.display(false);
     throw new Error(err);
+  }
+
+  private EmptyArrayOf<T>() {
+    const emptyArray: T[] = [];
+    return of(emptyArray);
   }
 
   private handleError(error: any): Promise<any> {

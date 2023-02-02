@@ -37,23 +37,24 @@ export class ClassListsComponent implements OnInit {
 
   ngOnInit() {
     this.baggyBookService.getClasses()
-      .then(classes => this.classes = classes);
+      .subscribe(classes => this.classes = classes);
     this.selectedClassId = '';
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   addNewClass(content: TemplateRef<any>) {
     this.modalRef =  this.modalService.show(content);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   addMultipleStudents(content: TemplateRef<any>) {
     this.modalRef = this.modalService.show(content);
   }
 
-  onClassAdded(newClass: Class) {
+  onClassAdded() {
     this.baggyBookService.getClasses()
-      .then(classes => {
+      .subscribe(classes => {
         this.classes = classes;
-
       });
   }
 }

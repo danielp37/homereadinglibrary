@@ -9,7 +9,7 @@ import { Component, OnInit, Output, EventEmitter, Renderer2 } from '@angular/cor
   styleUrls: ['./add-class.component.css']
 })
 export class AddClassComponent implements OnInit {
-  @Output()onClassAdded = new EventEmitter<Class>();
+  @Output()classAdded = new EventEmitter<Class>();
   status: string;
   errorStatus: string;
 
@@ -17,13 +17,15 @@ export class AddClassComponent implements OnInit {
     private baggyBookService: BaggyBookService,
     private renderer: Renderer2) { }
 
+  // eslint-disable-next-line @angular-eslint/no-empty-lifecycle-method
   ngOnInit() {
+    //Does nothing
   }
 
   addNewClass(f: NgForm) {
     this.baggyBookService.addClass(f.value.teacherName, f.value.grade)
       .then(cls => {
-        this.onClassAdded.emit(cls);
+        this.classAdded.emit(cls);
         f.resetForm();
         this.status = `Class ${cls.teacherName} successfully added!`
         setTimeout(() => this.status = '', 2000);

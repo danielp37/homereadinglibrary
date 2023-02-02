@@ -28,7 +28,7 @@ export class StudentReservationHistoryComponent implements OnInit {
 
   ngOnInit() {
     this.baggyBookService.getClasses()
-      .then(classes => this.classes = classes);
+      .subscribe(classes => this.classes = classes);
   }
 
   displayClassListForCurrentTeacher(): void {
@@ -48,7 +48,7 @@ export class StudentReservationHistoryComponent implements OnInit {
         this.selectedStudentWithTeacher = student;
         this.displayStudentReservationHistory();
       })
-      .catch(err => {
+      .catch(() => {
         this.reservations = undefined;
         this.selectedStudentWithTeacher = {
           student: {

@@ -1,7 +1,6 @@
 import { BaggyBookService } from '../../services/baggy-book.service';
 import {Router} from '@angular/router';
 import { Component, OnInit } from '@angular/core';
-import { Location } from '@angular/common';
 import { NgForm } from '@angular/forms';
 import { Volunteer } from '../../entities/volunteer';
 import { VolunteerForClass } from '../../entities/volunteer-for-class';
@@ -24,7 +23,7 @@ export class SignupVolunteerComponent implements OnInit {
     const volunteer = Object.assign({}, signupVolunteer.value) as Volunteer;
     volunteer.volunteerForClasses = this.volunteerForClasses;
     this.baggyBookService.createVolunteer(volunteer)
-      .then(() => this.gotoVolunteerSignIn());
+      .subscribe(() => this.gotoVolunteerSignIn());
   }
 
   gotoVolunteerSignIn(): void {
@@ -48,7 +47,7 @@ export class SignupVolunteerComponent implements OnInit {
 
   ngOnInit() {
     this.baggyBookService.getClasses()
-      .then(classes => this.classes = classes);
+      .subscribe(classes => this.classes = classes);
   }
 
 }

@@ -2,9 +2,6 @@ import { Class } from './../../entities/class';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 import { CheckoutLogEntry } from './../../entities/checkout-log-entry';
 import { BookCopyWithBook } from './../../entities/book-copy-with-book';
-import { StudentWithTeacher } from './../../entities/student-with-teacher';
-import { Book } from './../../entities/book';
-import { Student } from './../../entities/student';
 import { UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
 import { BaggyBookService } from './../../services/baggy-book.service';
 import { Component, OnInit, Renderer2, TemplateRef } from '@angular/core';
@@ -86,7 +83,7 @@ export class CheckOutBookComponent implements OnInit {
       .then(bookCopy => {
           this.currentBook = bookCopy;
           this.baggyBookService.checkOutBookForStudent(bookCopyValue, barCodeValue)
-            .then(bookCopyReservation => {
+            .then(() => {
               this.checkoutLog.unshift(new CheckoutLogEntry(this.currentStudent, this.currentBook));
               this.playSuccessSound();
               setTimeout(() => this.resetForm(), 200);
@@ -115,9 +112,10 @@ export class CheckOutBookComponent implements OnInit {
     notificationFailure.play();
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   displayAddNewStudentModal(content: TemplateRef<any>) {
     this.baggyBookService.getClasses()
-      .then(classes => {
+      .subscribe(classes => {
         this.classes = classes;
         this.selectedClassId = '';
         this.modalRef = this.modalService.show(content);
