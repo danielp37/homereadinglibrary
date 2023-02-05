@@ -43,13 +43,15 @@ export class UploadStudentsComponent implements OnInit {
         lastName : match[1],
       };
       this.baggyBookService.addStudent(this.classId, newStudent)
-      .then(cls => {
-        this.lastClassUpdated = cls;
-        this.results.push(`${newStudent.firstName} ${newStudent.lastName} added!`);
-        this.addStudent(regex, students);
-      })
-      .catch(error => {
-        this.results.push(`${newStudent.firstName} ${newStudent.lastName} error: ${error._body || error}`)
+      .subscribe({ 
+        next: cls => {
+            this.lastClassUpdated = cls;
+            this.results.push(`${newStudent.firstName} ${newStudent.lastName} added!`);
+            this.addStudent(regex, students);
+          },
+        error: error => {
+          this.results.push(`${newStudent.firstName} ${newStudent.lastName} error: ${error._body || error}`)
+        }
       });
     } else {
       this.saved.emit(this.lastClassUpdated);

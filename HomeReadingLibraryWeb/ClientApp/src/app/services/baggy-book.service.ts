@@ -101,20 +101,24 @@ export class BaggyBookService {
       );
   }
 
-  getStudents(classId: string): Promise<Student[]> {
+  getStudents(classId: string): Observable<Student[]> {
     return this.http
-      .get<any>(`${this.classesUrl}/${classId}/students`, {headers: this.getAuthHeaders(false)})
-      .toPromise()
-      .then(response => response.data as Student[])
-      .catch(error => this.handleError(error));
+      .get<{ data: Student[] }>(`${this.classesUrl}/${classId}/students`, {headers: this.getAuthHeaders(false)})
+      .pipe(
+        map(response => {
+          return response.data;
+        }),
+        catchError(err => this.handleObservableError<Student[]>(err))
+      )
   }
 
-  addStudent(classId: string, newStudent: Student): Promise<Class> {
+  addStudent(classId: string, newStudent: Student): Observable<Class> {
     return this.http
-      .post<any>(`${this.classesUrl}/${classId}/students`, JSON.stringify(newStudent), {headers: this.getAuthHeaders(true)})
-      .toPromise()
-      .then(res => Class.fromObject(res.data))
-      .catch(error => this.handleError(error));
+      .post<{ data: Class }>(`${this.classesUrl}/${classId}/students`, JSON.stringify(newStudent), {headers: this.getAuthHeaders(true)})
+      .pipe(
+        map(res => res.data),
+        catchError(err => this.handleObservableError<Class>(err))
+      );
   }
 
   addNewStudent(classId: string, newStudent: Student): Promise<Class> {
