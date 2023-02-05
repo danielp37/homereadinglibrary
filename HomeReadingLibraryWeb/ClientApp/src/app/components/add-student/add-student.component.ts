@@ -52,11 +52,13 @@ export class AddStudentComponent implements OnInit {
     const newStudent = this.prepareNewStudent();
     if (this.allowBarCodeEntry) {
       this.baggyBookService.addNewStudent(this.classId, newStudent)
-        .then(cls => {
-          this.addStudentForm.reset();
-          this.saved.emit(cls);
-        })
-        .catch(err => this.errorMessage = this.processError(err));
+        .subscribe({ 
+            next: cls => {
+              this.addStudentForm.reset();
+              this.saved.emit(cls);
+            },
+            error: err => this.errorMessage = this.processError(err)
+          });
     } else {
       this.baggyBookService.addStudent(this.classId, newStudent)
         .subscribe({ 

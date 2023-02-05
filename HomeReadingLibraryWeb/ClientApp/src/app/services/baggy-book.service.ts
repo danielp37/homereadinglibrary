@@ -14,7 +14,7 @@ import { Injectable } from '@angular/core';
 
 import { Class } from '../entities/class';
 import { Book } from '../entities/book';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { OAuthService } from 'angular-oauth2-oidc';
 import { Volunteer } from '../entities/volunteer';
 import { Observable, of } from 'rxjs';
@@ -121,12 +121,13 @@ export class BaggyBookService {
       );
   }
 
-  addNewStudent(classId: string, newStudent: Student): Promise<Class> {
+  addNewStudent(classId: string, newStudent: Student): Observable<Class> {
     return this.http
-      .post<any>(`${this.classesUrl}/${classId}/newstudent`, JSON.stringify(newStudent), {headers: this.getAuthHeaders(true)})
-      .toPromise()
-      .then(res => Class.fromObject(res.data))
-      .catch(error => this.handleError(error));
+      .post<{ data: Class }>(`${this.classesUrl}/${classId}/newstudent`, JSON.stringify(newStudent), {headers: this.getAuthHeaders(true)})
+      .pipe(
+        map(res => res.data),
+        catchError(err => this.handleObservableError<Class>(err))
+      );
   }
 
   getStudentByBarCode(barCode: string): Promise<TeacherWithStudent> {
@@ -431,10 +432,10 @@ export class BaggyBookService {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private handleObservableError<T>(err: any): Observable<T> {
+  private handleObservableError<T>(err: HttpErrorResponse): Observable<T> {
     console.error('An error occurred', err);
     this.loaderService.display(false);
-    throw new Error(err);
+    throw new Error(JSON.stringify(err.error));
   }
 
   private EmptyArrayOf<T>() {
