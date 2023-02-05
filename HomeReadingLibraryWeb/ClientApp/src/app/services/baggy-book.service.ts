@@ -90,12 +90,15 @@ export class BaggyBookService {
     )
   }
 
-  addClass(teacherName: string, grade: number): Promise<Class> {
+  addClass(teacherName: string, grade: number): Observable<Class> {
     return this.http
-      .post<any>(`${this.classesUrl}`, JSON.stringify({teacherName: teacherName, grade: grade}), {headers: this.getAuthHeaders(true)})
-      .toPromise()
-      .then(res => Class.fromObject(res.data))
-      .catch(error => this.handleError(error));
+      .post<{ data: Class }>(`${this.classesUrl}`, JSON.stringify({teacherName: teacherName, grade: grade}), {headers: this.getAuthHeaders(true)})
+      .pipe(
+        map(response => {
+          return response.data;
+        }),
+        catchError(err => this.handleObservableError<Class>(err))
+      );
   }
 
   getStudents(classId: string): Promise<Student[]> {

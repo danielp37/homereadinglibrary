@@ -2,8 +2,8 @@ import { StudentStatistics } from "./student-statistics";
 
 export interface ClassStatistics {
     firstCheckOut: Date;
-    totalBooksCheckedOut: Number;
-    totalWeeks: Number;
-    averageCheckOutsPerWeek: Number;
+    totalBooksCheckedOut: number;
+    totalWeeks: number;
+    averageCheckOutsPerWeek: number;
     studentStats: StudentStatistics[];
 }

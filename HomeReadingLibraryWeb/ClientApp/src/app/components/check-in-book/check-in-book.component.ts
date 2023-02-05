@@ -43,7 +43,7 @@ export class CheckInBookComponent implements OnInit {
       .then(bookCopy => {
           this.currentBook = bookCopy;
           this.baggyBookService.checkInBookCopy(bookCopyValue)
-            .then(result => {
+            .then(() => {
               this.checkinLog.unshift(new CheckinLogEntry(this.currentBook));
               this.playSuccessSound();
               setTimeout(() => this.resetForm(), 500);

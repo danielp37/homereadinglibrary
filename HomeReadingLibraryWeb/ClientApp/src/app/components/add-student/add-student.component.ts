@@ -1,6 +1,6 @@
 import { Class } from './../../entities/class';
 import {BaggyBookService} from '../../services/baggy-book.service';
-import { Component, OnInit, Input, EventEmitter, Output, ViewChild, Renderer2 } from '@angular/core';
+import { Component, OnInit, Input, EventEmitter, Output, Renderer2 } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { Student } from '../../entities/student';
 
@@ -14,7 +14,7 @@ export class AddStudentComponent implements OnInit {
 
   @Input()classId: string;
   @Input()allowBarCodeEntry: boolean;
-  @Output()onSaved = new EventEmitter<Class>();
+  @Output()saved = new EventEmitter<Class>();
 
   errorMessage: string;
 
@@ -54,7 +54,7 @@ export class AddStudentComponent implements OnInit {
       this.baggyBookService.addNewStudent(this.classId, newStudent)
         .then(cls => {
           this.addStudentForm.reset();
-          this.onSaved.emit(cls);
+          this.saved.emit(cls);
         })
         .catch(err => this.errorMessage = this.processError(err));
     } else {
@@ -62,18 +62,19 @@ export class AddStudentComponent implements OnInit {
         .then(cls => {
           this.addStudentForm.reset();
           this.focusFirstName();
-          this.onSaved.emit(cls);
+          this.saved.emit(cls);
         })
         .catch(err => this.errorMessage = this.processError(err));
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   processError(error: any): string {
     let errorText = 'Error adding new student:\n';
     if (error._body) {
       const errorBody = JSON.parse(error._body);
       for (const prop in errorBody) {
-        if (errorBody.hasOwnProperty(prop)) {
+        if (Object.prototype.hasOwnProperty.call(errorBody, prop)) {
           errorText += `${prop}: ${errorBody[prop]}\n`
         }
       }

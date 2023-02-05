@@ -1,4 +1,3 @@
-import { BookCopy } from './../../entities/book-copy';
 import { BaggyBookService } from './../../services/baggy-book.service';
 import { Component, OnInit, Output, EventEmitter, Renderer2, Input, TemplateRef } from '@angular/core';
 import { BookLookupService } from '../../services/book-lookup.service';
@@ -21,7 +20,7 @@ export class AddBookComponent implements OnInit {
   currentBookComment: string;
   public modalRef: BsModalRef;
   private _currentBook: Book;
-  @Output()onBookAdded = new EventEmitter<Book>();
+  @Output()bookAdded = new EventEmitter<Book>();
 
   constructor(
     private bookLookupService: BookLookupService,
@@ -54,7 +53,7 @@ export class AddBookComponent implements OnInit {
           this.currentBook = book;
           this.focusBookBarCode();
         })
-        .catch(error => {
+        .catch(() => {
           this.bookLookupService.getBookFromIsbn(isbnInput.value)
             .then(book => {
               // Check to see if we can find the book by the returned isbn
@@ -63,7 +62,7 @@ export class AddBookComponent implements OnInit {
                   this.currentBook = existingBook;
                   this.focusBookBarCode();
                 })
-                .catch(error2 => {
+                .catch(() => {
                   book.guidedReadingLevel = this.addBookForm.get('readingLevel').value;
                   book.boxNumber = this.addBookForm.get('boxNumber').value;
 
@@ -71,7 +70,7 @@ export class AddBookComponent implements OnInit {
                   this.addBook(book);
                 });
             })
-            .catch(e => {
+            .catch(() => {
               this.enableNewBookEntry();
             });
         });
@@ -127,7 +126,7 @@ export class AddBookComponent implements OnInit {
   addBook(book: Book) {
     this.baggyBookService.addBook(book)
                       .then(b => {
-                        this.onBookAdded.emit(b)
+                        this.bookAdded.emit(b)
                         this.focusBookBarCode();
                         this.currentBook = b;
                         this.newBook = false;
@@ -139,7 +138,7 @@ export class AddBookComponent implements OnInit {
     if (bookCopyInput.value !== '' && bookCopyInput.value !== this.lastBookCopyValue) {
       this.baggyBookService.addBookCopy(this.currentBook.id, bookCopyInput.value)
         .then(book => {
-            this.onBookAdded.emit(book);
+            this.bookAdded.emit(book);
             this.currentBook = book;
             setTimeout(() => bookCopyInput.setValue(''), 0);
         });
@@ -153,7 +152,7 @@ export class AddBookComponent implements OnInit {
     if(window.confirm(`Are you sure you want to delete book copy ${barCode}?`)) {
       this.baggyBookService.removeBookCopy(this.currentBook.id, barCode)
         .then(book => {
-          this.onBookAdded.emit(book);
+          this.bookAdded.emit(book);
           this.currentBook = book;
         });
     }
@@ -162,7 +161,7 @@ export class AddBookComponent implements OnInit {
   markBookCopyLost(barCode: string) {
     this.baggyBookService.markBookCopyLost(this.currentBook.id, barCode)
       .then(book => {
-        this.onBookAdded.emit(book);
+        this.bookAdded.emit(book);
         this.currentBook = book;
       });
   }
@@ -170,7 +169,7 @@ export class AddBookComponent implements OnInit {
   markBookCopyFound(barCode: string) {
     this.baggyBookService.markBookCopyFound(this.currentBook.id, barCode)
       .then(book => {
-        this.onBookAdded.emit(book);
+        this.bookAdded.emit(book);
         this.currentBook = book;
       });
   }
@@ -178,7 +177,7 @@ export class AddBookComponent implements OnInit {
   markBookCopyDamaged(barCode: string) {
     this.baggyBookService.markBookCopyDamaged(this.currentBook.id, barCode)
       .then(book => {
-        this.onBookAdded.emit(book);
+        this.bookAdded.emit(book);
         this.currentBook = book;
       });
   }
@@ -208,14 +207,14 @@ export class AddBookComponent implements OnInit {
         book.title = this.addBookForm.get('editTitle').value;
         book.author = this.addBookForm.get('editAuthor').value;
         this.baggyBookService.updateBook(book)
-          .then(updatedBook => {
-            this.onBookAdded.emit(book);
+          .then(() => {
+            this.bookAdded.emit(book);
             this.currentBook = book;
           });
       });
   }
 
-  addComments(content: TemplateRef<any>, bookBarCode: string, bookCopyComments: string) {
+  addComments(content: TemplateRef<unknown>, bookBarCode: string, bookCopyComments: string) {
     this.currentBookCopy = bookBarCode;
     this.currentBookComment = bookCopyComments;
     this.modalRef = this.modalService.show(content);
@@ -224,7 +223,7 @@ export class AddBookComponent implements OnInit {
   saveBookComment() {
     this.baggyBookService.addCommentsToBookCopy(this.currentBook.id, this.currentBookCopy, this.currentBookComment)
       .then(book => {
-        this.onBookAdded.emit(book);
+        this.bookAdded.emit(book);
         this.currentBook = book;
         this.modalRef.hide()
       });

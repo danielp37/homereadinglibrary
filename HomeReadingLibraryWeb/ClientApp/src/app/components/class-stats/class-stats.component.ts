@@ -27,11 +27,6 @@ export class ClassStatsComponent implements OnInit {
     this.baggyBookService.getClasses()
       .subscribe(classes => this.classes = classes);
     this.months = new Array<Month>();
-    // this.months.push(new Month("September 2022", "202209"));
-    // this.months.push(new Month("October 2022", "202210"));
-    // this.months.push(new Month("November 2022", "202211"));
-    // this.months.push(new Month("December 2022", "202212"));
-    // this.months.push(new Month("January 2023", "202301"));
 
     const d: Date = new Date(Date.now());
     const curMonth: number = d.getMonth() + 1; //Month is zero based

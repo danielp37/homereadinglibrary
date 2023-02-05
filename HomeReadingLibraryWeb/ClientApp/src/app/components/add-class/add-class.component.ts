@@ -24,16 +24,18 @@ export class AddClassComponent implements OnInit {
 
   addNewClass(f: NgForm) {
     this.baggyBookService.addClass(f.value.teacherName, f.value.grade)
-      .then(cls => {
-        this.classAdded.emit(cls);
-        f.resetForm();
-        this.status = `Class ${cls.teacherName} successfully added!`
-        setTimeout(() => this.status = '', 2000);
-        this.focusTeacherName();
-      })
-      .catch(error => {
-        this.errorStatus = `Error: ${error}`;
-        setTimeout(() => this.errorStatus = '', 10000);
+      .subscribe({ 
+        next: cls => {
+          this.classAdded.emit(cls);
+          f.resetForm();
+          this.status = `Class ${cls.teacherName} successfully added!`
+          setTimeout(() => this.status = '', 2000);
+          this.focusTeacherName();
+        },
+        error: error => {
+          this.errorStatus = `Error: ${error}`;
+          setTimeout(() => this.errorStatus = '', 10000);
+        }
       });
   }
 

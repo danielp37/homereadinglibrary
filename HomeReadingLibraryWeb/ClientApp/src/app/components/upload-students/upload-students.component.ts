@@ -12,7 +12,7 @@ import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
 export class UploadStudentsComponent implements OnInit {
   addMultipleStudentsForm: UntypedFormGroup;
   @Input()classId: string;
-  @Output()onSaved = new EventEmitter<Class>();
+  @Output()saved = new EventEmitter<Class>();
   lastClassUpdated: Class;
   results: string[];
 
@@ -25,6 +25,7 @@ export class UploadStudentsComponent implements OnInit {
       this.results = [];
      }
 
+  // eslint-disable-next-line @angular-eslint/no-empty-lifecycle-method, @typescript-eslint/no-empty-function
   ngOnInit() {
   }
 
@@ -51,7 +52,7 @@ export class UploadStudentsComponent implements OnInit {
         this.results.push(`${newStudent.firstName} ${newStudent.lastName} error: ${error._body || error}`)
       });
     } else {
-      this.onSaved.emit(this.lastClassUpdated);
+      this.saved.emit(this.lastClassUpdated);
     }
   }
 }

@@ -5,6 +5,7 @@ import { Pipe, PipeTransform } from '@angular/core';
 })
 export class UtcDatePipe implements PipeTransform {
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   transform(value: string): any {
 
     if (!value) {

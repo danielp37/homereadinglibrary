@@ -5,11 +5,12 @@ import { Pipe, PipeTransform } from '@angular/core';
 })
 export class SortDatePipe implements PipeTransform {
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   transform(values: any[], args?: any): any {
     const sortedValues = values.slice(0);
     sortedValues.sort((val1, val2) => {
-      if (val1[args] < val2[args]) { return -1 };
-      if (val1[args] > val2[args]) { return 1 };
+      if (val1[args] < val2[args]) { return -1 }
+      if (val1[args] > val2[args]) { return 1 }
 
       return 0;
     })

@@ -3,7 +3,7 @@ export class CheckinLogEntry {
     private _logDate: Date;
     constructor(
         private _book: BookCopyWithBook,
-        private _error?: any
+        private _error?: unknown
     ) {
         this._logDate = new Date();
     }
@@ -12,7 +12,7 @@ export class CheckinLogEntry {
         return this._book;
     }
 
-    public get error(): any {
+    public get error(): unknown {
         return this._error;
     }
 

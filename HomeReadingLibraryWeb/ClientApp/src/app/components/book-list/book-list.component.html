@@ -1,6 +1,6 @@
 <div>
   <h2>Book List</h2>
-  <app-add-book (onBookAdded)="bookAdded($event)" [currentBookIsbn]="currentBookIsbn"></app-add-book>
+  <app-add-book (bookAdded)="bookAdded($event)" [currentBookIsbn]="currentBookIsbn"></app-add-book>
 
   <hr>
 

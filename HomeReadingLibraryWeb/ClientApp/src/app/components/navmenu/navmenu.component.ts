@@ -18,7 +18,7 @@ export class NavMenuComponent {
     listUl = faListUl;
     users = faUsers;
 
-    public isCollapsed : boolean = true;
+    public isCollapsed = true;
     constructor(private authGuard: AuthGuard,
         public authService: AuthService) {
     }

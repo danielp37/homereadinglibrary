@@ -24,6 +24,7 @@ export class Book {
         return book;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     public static fromObject(bookObj: any): Book {
         const book = new Book();
         Object.assign(book, bookObj);

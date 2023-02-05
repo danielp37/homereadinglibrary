@@ -7,7 +7,7 @@
     </div>
 
     <div class="modal-body">
-      <app-add-class (onClassAdded)="onClassAdded($event)"></app-add-class>
+      <app-add-class (classAdded)="onClassAdded($event)"></app-add-class>
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-outline-dark" (click)="modalRef.hide()">Close</button>
@@ -21,7 +21,7 @@
       </div>
   
       <div class="modal-body">
-        <app-upload-students [classId]="currentClass.classId" (onSaved)="onNewStudent($event)"></app-upload-students>
+        <app-upload-students [classId]="currentClass.classId"  (saved)="onNewStudent($event)"></app-upload-students>
       </div>
       <div class="modal-footer">
           <button type="button" class="btn btn-outline-dark" (click)="modalRef.hide()">Close</button>
@@ -43,7 +43,7 @@
       Loading...
     </div>
     <div *ngIf="currentClass">
-      <app-add-student [classId]="selectedClassId" (onSaved)="onNewStudent($event)"></app-add-student>
+      <app-add-student [classId]="selectedClassId" (saved)="onNewStudent($event)"></app-add-student>
 
       <button type="button" class="btn btn-primary" (click)="addMultipleStudents(addMultipleStudentsContent)">Add Multiple Students</button>
 

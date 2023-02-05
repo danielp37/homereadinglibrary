@@ -5,6 +5,7 @@ export class BookCopy {
     isDamaged?: boolean;
     damagedDate: Date;
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     static fromObject(bookCopyObj: any): BookCopy {
         const bookCopy = new BookCopy(bookCopyObj.barCode);
         Object.assign(bookCopy, bookCopyObj);

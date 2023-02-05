@@ -17,7 +17,7 @@ export class BookListComponent implements OnInit {
   lastSearchParams: DataTableParams;
   searchBookForm: UntypedFormGroup;
   currentBookIsbn: string;
-  loadingIndicator: boolean = false;
+  loadingIndicator = false;
   selected = [];
   columns = [
     { prop: 'title', sortable: false},
@@ -45,7 +45,7 @@ export class BookListComponent implements OnInit {
       searchType : ['Title'],
       searchText : [''],
     });
-    let params : DataTableParams = {
+    const params : DataTableParams = {
       offset : 0,
       limit : 10
     };
