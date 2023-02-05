@@ -44,19 +44,21 @@ export class StudentReservationHistoryComponent implements OnInit {
 
   onStudentBarCodeEntered(): void {
     this.baggyBookService.getStudentByBarCode(this.selectedStudentId)
-      .then(student => {
-        this.selectedStudentWithTeacher = student;
-        this.displayStudentReservationHistory();
-      })
-      .catch(() => {
-        this.reservations = undefined;
-        this.selectedStudentWithTeacher = {
-          student: {
-            firstName: 'Student',
-            lastName: 'Not Found'
-          },
-          teacherName: ''
-        };
+      .subscribe({
+        next: student => {
+          this.selectedStudentWithTeacher = student;
+          this.displayStudentReservationHistory();
+        },
+        error: () => {
+          this.reservations = undefined;
+          this.selectedStudentWithTeacher = {
+            student: {
+              firstName: 'Student',
+              lastName: 'Not Found'
+            },
+            teacherName: ''
+          }
+        }
       });
   }
 }

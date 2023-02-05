@@ -130,16 +130,17 @@ export class BaggyBookService {
       );
   }
 
-  getStudentByBarCode(barCode: string): Promise<TeacherWithStudent> {
+  getStudentByBarCode(barCode: string): Observable<TeacherWithStudent> {
     this.loaderService.display(true);
     return this.http
       .get<TeacherWithStudent>(`${this.studentsUrl}/${barCode}`, {headers: this.getAuthHeaders(false)})
-      .toPromise()
-      .then(res => {
-        this.loaderService.display(false);
-        return res
-      })
-      .catch(error => this.handleError(error));
+      .pipe(
+        map(res => {
+          this.loaderService.display(false);
+          return res;
+        }),
+        catchError(err => this.handleObservableError<TeacherWithStudent>(err))
+      );
   }
 
   getAllBooks(params: DataTableParams, searchParameters: BookSearchParameters): Promise<BookList> {

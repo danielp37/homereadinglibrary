@@ -64,14 +64,16 @@ export class CheckOutBookComponent implements OnInit {
     this.currentStudent = undefined;
     const barCodeValue = this.checkOutBookForm.value.studentBarCode;
     this.baggyBookService.getStudentByBarCode(barCodeValue)
-      .then(student => {
-        this.setFocusOnBookBarCode();
-        this.currentStudent = student;
-      })
-      .catch(error => {
-        this.checkoutLog.unshift(new CheckoutLogEntry(this.currentStudent, this.currentBook, error.error || error));
-        this.playFailureSound();
-        setTimeout(() => this.resetForm(), 200);
+      .subscribe({
+        next: student => {
+          this.setFocusOnBookBarCode();
+          this.currentStudent = student;
+        },
+        error: error => {
+          this.checkoutLog.unshift(new CheckoutLogEntry(this.currentStudent, this.currentBook, error.error || error));
+          this.playFailureSound();
+          setTimeout(() => this.resetForm(), 200);
+        }
       });
   }
 
