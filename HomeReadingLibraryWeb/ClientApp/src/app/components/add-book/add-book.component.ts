@@ -125,7 +125,7 @@ export class AddBookComponent implements OnInit {
 
   addBook(book: Book) {
     this.baggyBookService.addBook(book)
-                      .then(b => {
+                      .subscribe(b => {
                         this.bookAdded.emit(b)
                         this.focusBookBarCode();
                         this.currentBook = b;
