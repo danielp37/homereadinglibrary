@@ -143,18 +143,18 @@ export class BaggyBookService {
       );
   }
 
-  getAllBooks(params: DataTableParams, searchParameters: BookSearchParameters): Promise<BookList> {
+  getAllBooks(params: DataTableParams, searchParameters: BookSearchParameters): Observable<BookList> {
     return this.http
-      .get<any>(`${this.booksUrl}?${this.paramsToQueryString(params, searchParameters)}`, {headers: this.getAuthHeaders(false)})
-      .toPromise()
-      .then(res => {
-        const obj = res;
-        return {
-          count: obj.count,
-          books: obj.data.map(Book.fromObject)
-        }
-      })
-      .catch(error => this.handleError(error));
+      .get<{ count: number, data: Book[]}>(`${this.booksUrl}?${this.paramsToQueryString(params, searchParameters)}`, {headers: this.getAuthHeaders(false)})
+      .pipe(
+        map(res => {
+            return {
+              count: res.count,
+              books: res.data
+            }
+        }),
+        catchError(err => this.handleObservableError<BookList>(err))
+      )
   }
 
   exportBooks(searchParameters: BookSearchParameters) {

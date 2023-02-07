@@ -68,11 +68,13 @@ export class BookListComponent implements OnInit {
     this.loadingIndicator = true;
     this.lastSearchParams = params;
     this.baggyBookService.getAllBooks(params, this.getBookSearchParameters())
-      .then(bookList => {
-        this.bookList = bookList;
-        this.loadingIndicator = false;
-      })
-      .catch(() => this.loadingIndicator = false);
+      .subscribe({
+        next: bookList => {
+          this.bookList = bookList;
+          this.loadingIndicator = false;
+        }, 
+        error: () => this.loadingIndicator = false
+      });
   }
 
   bookAdded(newBook: Book) {
