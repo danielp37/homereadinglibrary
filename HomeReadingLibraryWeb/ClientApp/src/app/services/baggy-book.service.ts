@@ -199,25 +199,27 @@ export class BaggyBookService {
     return this.http
       .put<{data: Book}>(`${this.booksUrl}/${book.id}`, JSON.stringify(book), {headers: this.getAuthHeaders(true)})
       .pipe(
-        map(res => res.data),
+        map(res => Book.fromObject(res.data)),
         catchError(err => this.handleObservableError<Book>(err))
       )
   }
 
-  addBookCopy(bookId: string, barCode: string): Promise<Book> {
+  addBookCopy(bookId: string, barCode: string): Observable<Book> {
     return this.http
-      .post<any>(`${this.booksUrl}/${bookId}/bookcopy`, JSON.stringify({ barCode: barCode }), {headers: this.getAuthHeaders(true)})
-      .toPromise()
-      .then(book => Book.fromObject(book.data))
-      .catch(error => this.handleError(error));
+      .post<{data: Book}>(`${this.booksUrl}/${bookId}/bookcopy`, JSON.stringify({ barCode: barCode }), {headers: this.getAuthHeaders(true)})
+      .pipe(
+        map(res => Book.fromObject(res.data)),
+        catchError(err => this.handleObservableError<Book>(err))
+      )
   }
 
-  removeBookCopy(bookId: string, barCode: string): Promise<Book> {
+  removeBookCopy(bookId: string, barCode: string): Observable<Book> {
     return this.http
-      .delete<any>(`${this.booksUrl}/${bookId}/bookcopy/${barCode}`, {headers: this.getAuthHeaders(false)})
-      .toPromise()
-      .then(book => Book.fromObject(book.data))
-      .catch(error => this.handleError(error));
+      .delete<{data: Book}>(`${this.booksUrl}/${bookId}/bookcopy/${barCode}`, {headers: this.getAuthHeaders(false)})
+      .pipe(
+        map(res => Book.fromObject(res.data)),
+        catchError(err => this.handleObservableError<Book>(err))
+      )
   }
 
   markBookCopyLost(bookId: string, barCode: string): Promise<Book> {

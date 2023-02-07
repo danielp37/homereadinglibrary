@@ -137,7 +137,7 @@ export class AddBookComponent implements OnInit {
     const bookCopyInput = this.addBookForm.get('bookCopyBarCode');
     if (bookCopyInput.value !== '' && bookCopyInput.value !== this.lastBookCopyValue) {
       this.baggyBookService.addBookCopy(this.currentBook.id, bookCopyInput.value)
-        .then(book => {
+        .subscribe(book => {
             this.bookAdded.emit(book);
             this.currentBook = book;
             setTimeout(() => bookCopyInput.setValue(''), 0);
@@ -151,7 +151,7 @@ export class AddBookComponent implements OnInit {
   removeBookCopy(barCode: string) {
     if(window.confirm(`Are you sure you want to delete book copy ${barCode}?`)) {
       this.baggyBookService.removeBookCopy(this.currentBook.id, barCode)
-        .then(book => {
+        .subscribe(book => {
           this.bookAdded.emit(book);
           this.currentBook = book;
         });
