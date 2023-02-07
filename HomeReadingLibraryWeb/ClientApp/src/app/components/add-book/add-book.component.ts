@@ -207,7 +207,7 @@ export class AddBookComponent implements OnInit {
         book.title = this.addBookForm.get('editTitle').value;
         book.author = this.addBookForm.get('editAuthor').value;
         this.baggyBookService.updateBook(book)
-          .then(() => {
+          .subscribe(() => {
             this.bookAdded.emit(book);
             this.currentBook = book;
           });

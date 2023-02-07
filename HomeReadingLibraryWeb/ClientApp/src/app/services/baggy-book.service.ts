@@ -195,12 +195,13 @@ export class BaggyBookService {
       )
   }
 
-  updateBook(book: Book): Promise<Book> {
+  updateBook(book: Book): Observable<Book> {
     return this.http
-      .put<any>(`${this.booksUrl}/${book.id}`, JSON.stringify(book), {headers: this.getAuthHeaders(true)})
-      .toPromise()
-      .then(res => Book.fromObject(res.data))
-      .catch(error => this.handleError(error));
+      .put<{data: Book}>(`${this.booksUrl}/${book.id}`, JSON.stringify(book), {headers: this.getAuthHeaders(true)})
+      .pipe(
+        map(res => res.data),
+        catchError(err => this.handleObservableError<Book>(err))
+      )
   }
 
   addBookCopy(bookId: string, barCode: string): Promise<Book> {
