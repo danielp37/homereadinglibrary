@@ -1,4 +1,3 @@
-/// <reference path="../../../../node_modules/@types/jasmine/index.d.ts" />
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { AddBookComponent } from './add-book.component';

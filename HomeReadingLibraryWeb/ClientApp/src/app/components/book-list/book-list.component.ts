@@ -17,7 +17,7 @@ export class BookListComponent implements OnInit {
   lastSearchParams: DataTableParams;
   searchBookForm: UntypedFormGroup;
   currentBookIsbn: string;
-  loadingIndicator: boolean = false;
+  loadingIndicator = false;
   selected = [];
   columns = [
     { prop: 'title', sortable: false},
@@ -45,7 +45,7 @@ export class BookListComponent implements OnInit {
       searchType : ['Title'],
       searchText : [''],
     });
-    let params : DataTableParams = {
+    const params : DataTableParams = {
       offset : 0,
       limit : 10
     };
@@ -68,11 +68,13 @@ export class BookListComponent implements OnInit {
     this.loadingIndicator = true;
     this.lastSearchParams = params;
     this.baggyBookService.getAllBooks(params, this.getBookSearchParameters())
-      .then(bookList => {
-        this.bookList = bookList;
-        this.loadingIndicator = false;
-      })
-      .catch(() => this.loadingIndicator = false);
+      .subscribe({
+        next: bookList => {
+          this.bookList = bookList;
+          this.loadingIndicator = false;
+        }, 
+        error: () => this.loadingIndicator = false
+      });
   }
 
   bookAdded(newBook: Book) {

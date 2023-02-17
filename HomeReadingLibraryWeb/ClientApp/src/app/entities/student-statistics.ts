@@ -1,14 +1,14 @@
 export interface StudentStatistics {
-    firstName: String;
-    lastName: String;
-    totalBooksCheckedOut: Number;
+    firstName: string;
+    lastName: string;
+    totalBooksCheckedOut: number;
     firstCheckOut: Date;
     lastCheckOut: Date;
-    totalWeeks: Number;
-    averageCheckOutsPerWeek: Number;
-    checkOutsInLastMonth: Number;
-    checkOutsInPreviousMonth: Number;
-    daysSinceLastCheckOut: Number;
-    startingLevel: String;
-    currentLevel: String;
+    totalWeeks: number;
+    averageCheckOutsPerWeek: number;
+    checkOutsInLastMonth: number;
+    checkOutsInPreviousMonth: number;
+    daysSinceLastCheckOut: number;
+    startingLevel: string;
+    currentLevel: string;
 }

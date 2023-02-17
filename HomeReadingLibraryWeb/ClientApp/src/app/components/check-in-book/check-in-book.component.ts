@@ -40,24 +40,28 @@ export class CheckInBookComponent implements OnInit {
     this.currentBook = undefined;
     const bookCopyValue = this.checkInBookForm.value.bookCopyBarCode;
     this.baggyBookService.getBookCopyByBarCode(bookCopyValue)
-      .then(bookCopy => {
-          this.currentBook = bookCopy;
-          this.baggyBookService.checkInBookCopy(bookCopyValue)
-            .then(result => {
-              this.checkinLog.unshift(new CheckinLogEntry(this.currentBook));
-              this.playSuccessSound();
-              setTimeout(() => this.resetForm(), 500);
-            })
-            .catch(error => {
-              this.checkinLog.unshift(new CheckinLogEntry(this.currentBook, error.error || error));
-              this.playFailureSound();
-              setTimeout(() => this.resetForm(), 500);
-            });
-      })
-      .catch(error => {
-        this.checkinLog.unshift(new CheckinLogEntry(this.currentBook, error.error || error));
-        this.playFailureSound();
-        setTimeout(() => this.resetForm(), 500);
+      .subscribe({ 
+        next: bookCopy => {
+            this.currentBook = bookCopy;
+            this.baggyBookService.checkInBookCopy(bookCopyValue)
+              .subscribe({
+                next: () => {
+                  this.checkinLog.unshift(new CheckinLogEntry(this.currentBook));
+                  this.playSuccessSound();
+                  setTimeout(() => this.resetForm(), 500);
+                },
+                error: () => error => {
+                  this.checkinLog.unshift(new CheckinLogEntry(this.currentBook, error.error || error));
+                  this.playFailureSound();
+                  setTimeout(() => this.resetForm(), 500);
+                }
+              });
+        },
+        error: error => {
+          this.checkinLog.unshift(new CheckinLogEntry(this.currentBook, error.error || error));
+          this.playFailureSound();
+          setTimeout(() => this.resetForm(), 500);
+        }
       });
 
   }

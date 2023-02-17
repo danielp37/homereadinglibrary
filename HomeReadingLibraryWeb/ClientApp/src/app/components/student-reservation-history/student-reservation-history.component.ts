@@ -28,7 +28,7 @@ export class StudentReservationHistoryComponent implements OnInit {
 
   ngOnInit() {
     this.baggyBookService.getClasses()
-      .then(classes => this.classes = classes);
+      .subscribe(classes => this.classes = classes);
   }
 
   displayClassListForCurrentTeacher(): void {
@@ -39,24 +39,26 @@ export class StudentReservationHistoryComponent implements OnInit {
 
   displayStudentReservationHistory(): void {
     this.baggyBookService.getBookCopyReservations(this.selectedStudentId)
-      .then(reservations => this.reservations = reservations.reservations);
+      .subscribe(reservations => this.reservations = reservations.reservations);
   }
 
   onStudentBarCodeEntered(): void {
     this.baggyBookService.getStudentByBarCode(this.selectedStudentId)
-      .then(student => {
-        this.selectedStudentWithTeacher = student;
-        this.displayStudentReservationHistory();
-      })
-      .catch(err => {
-        this.reservations = undefined;
-        this.selectedStudentWithTeacher = {
-          student: {
-            firstName: 'Student',
-            lastName: 'Not Found'
-          },
-          teacherName: ''
-        };
+      .subscribe({
+        next: student => {
+          this.selectedStudentWithTeacher = student;
+          this.displayStudentReservationHistory();
+        },
+        error: () => {
+          this.reservations = undefined;
+          this.selectedStudentWithTeacher = {
+            student: {
+              firstName: 'Student',
+              lastName: 'Not Found'
+            },
+            teacherName: ''
+          }
+        }
       });
   }
 }

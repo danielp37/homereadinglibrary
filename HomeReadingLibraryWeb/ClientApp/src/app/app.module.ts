@@ -13,7 +13,7 @@ import { AppComponent } from './components/app/app.component';
 import { LoaderService } from './services/loader.service';
 import { NavMenuComponent } from './components/navmenu/navmenu.component';
 import { AuthModule } from './modules/app-auth/app-auth.module';
-import { BsModalService, ModalModule } from 'ngx-bootstrap/modal';
+import { ModalModule } from 'ngx-bootstrap/modal';
 import { SortClassPipe } from './pipes/sort-class.pipe';
 import { BaggyBookService } from './services/baggy-book.service';
 import { CheckInBookComponent } from './components/check-in-book/check-in-book.component';

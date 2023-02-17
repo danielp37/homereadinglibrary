@@ -2,7 +2,6 @@ import { BookSearchParameters } from './../../services/Book-Search-Parameters';
 import { DataTableParams } from 'angular-2-data-table';
 import { BookCopyReservationWithData } from './../../entities/book-copy-reservation-with-data';
 import { BaggyBookService } from './../../services/baggy-book.service';
-import { BookCopyReservation } from './../../entities/book-copy-reservation';
 import { Component, OnInit, Renderer2 } from '@angular/core';
 
 @Component({
@@ -41,7 +40,7 @@ export class BookCopyReservationsComponent implements OnInit {
 
   getBookCopyReservations() {
     this.baggyBookService.getBookCopyReservations(undefined, this.lastSearchParams, this.currentDaysBack, this.getBookSearchParameters())
-      .then(bcr => {
+      .subscribe(bcr => {
         this.totalCount = bcr.count;
         this.bookCopyReservations = bcr.reservations;
       });
@@ -50,7 +49,7 @@ export class BookCopyReservationsComponent implements OnInit {
   exportToTab() {
     this.baggyBookService.downloadBookCopyReservations(undefined, this.lastSearchParams, this.currentDaysBack
       , this.getBookSearchParameters())
-      .then(b => {
+      .subscribe(b => {
         this.downloadLink = b.downloadLink;
         setTimeout(() => this.clickDownloadLink(), 0);
       });
@@ -68,7 +67,6 @@ export class BookCopyReservationsComponent implements OnInit {
 
   setPage(pageInfo) {
     this.lastSearchParams.offset = pageInfo.offset * this.lastSearchParams.limit;
-    this.lastSearchParams.limit = this.lastSearchParams.limit;
     this.refreshBookList(this.lastSearchParams);
   }
 
@@ -89,20 +87,25 @@ export class BookCopyReservationsComponent implements OnInit {
       switch (this.searchType) {
         case 'Title':
           params.title = this.searchText;
+          break;
         case 'Author':
           params.author = this.searchText;
+          break;
         case 'ReadingLevel/Box':
           params.boxNumber = this.searchText;
+          break;
         case 'Book BarCode':
           params.bookBarCode = this.searchText;
+          break;
         case 'Teacher':
           params.teacherName = this.searchText;
+          break;
         case 'Student Name':
           params.studentName = this.searchText;
-        case 'Book BarCode':
-          params.bookBarCode = this.searchText;
+          break;
         case 'Grade':
           params.grade = this.searchText;
+          break;
       }
     }
     if (this.showOnlyMultiples) {

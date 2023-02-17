@@ -1,5 +1,5 @@
 import { Router } from '@angular/router';
-import { Injectable, PLATFORM_ID, Inject } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { OAuthService } from 'angular-oauth2-oidc';
 
 @Injectable()
@@ -24,6 +24,7 @@ export class AuthService {
         this.oauthService.logOut();
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     public get identity() : any {
         return this.oauthService.getIdentityClaims();
     }

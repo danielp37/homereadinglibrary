@@ -14,11 +14,10 @@ import { Injectable } from '@angular/core';
 
 import { Class } from '../entities/class';
 import { Book } from '../entities/book';
-import { BookCopy } from '../entities/book-copy';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { OAuthService } from 'angular-oauth2-oidc';
 import { Volunteer } from '../entities/volunteer';
-import { Observable } from 'rxjs';
+import { Observable} from 'rxjs';
 import { catchError, map  } from 'rxjs/operators';
 import { ClassStatistics } from '../entities/class-statistics';
 
@@ -52,99 +51,110 @@ export class BaggyBookService {
     return authHeader;
   }
 
-  createVolunteer(volunteer: Volunteer): Promise<Volunteer> {
+  createVolunteer(volunteer: Volunteer): Observable<Volunteer> {
     return this.http
       .post<Volunteer>(`${this.volunteersUrl}`, JSON.stringify(volunteer), {headers: this.getAuthHeaders(true)})
-      .toPromise()
-      .catch(error => this.handleError(error));
+      .pipe(
+        catchError(err => this.handleObservableError<Volunteer>(err))
+      );
   }
 
-  getVolunteers(): Promise<Volunteer[]> {
+  getVolunteers(): Observable<Volunteer[]> {
     return this.http
-      .get<Volunteer[]>(`${this.volunteersUrl}`)
-      .toPromise()
-      .catch(error => this.handleError(error));
+      .get<{ data: Volunteer[]}>(`${this.volunteersUrl}`)
+      .pipe(
+        map(resp => resp.data),
+        catchError(err => this.handleObservableError<Volunteer[]>(err))
+      );
   }
 
-  getClasses(): Promise<Class[]> {
+  getClasses(): Observable<Class[]> {
     return this.http
-      .get<any>(`${this.classesUrl}`)
-      .toPromise()
-      .then(response => response.data.map(Class.fromObject))
-      .catch(error => this.handleError(error));
-
+      .get<{ data: Class[]}>(`${this.classesUrl}`)
+      .pipe(
+        map(resp => resp.data),
+        catchError(err => this.handleObservableError<Class[]>(err))
+      );
   }
 
-
-
-  getClassesWithVolunteers(): Promise<ClassWithVolunteers[]> {
+  getClassesWithVolunteers(): Observable<ClassWithVolunteers[]> {
     this.loaderService.display(true);
     return this.http
     .get<ClassWithVolunteersResult>(`${this.volunteersUrl}/byclass`)
-    .toPromise()
-    .then(response => {
-      this.loaderService.display(false);
-      return response.data;
-    })
-    .catch(error => this.handleError(error));
+    .pipe(
+      map(response => {
+        this.loaderService.display(false);
+        return response.data;
+        }),
+      catchError(err => this.handleObservableError<ClassWithVolunteers[]>(err))
+    )
   }
 
-  addClass(teacherName: string, grade: number): Promise<Class> {
+  addClass(teacherName: string, grade: number): Observable<Class> {
     return this.http
-      .post<any>(`${this.classesUrl}`, JSON.stringify({teacherName: teacherName, grade: grade}), {headers: this.getAuthHeaders(true)})
-      .toPromise()
-      .then(res => Class.fromObject(res.data))
-      .catch(error => this.handleError(error));
+      .post<{ data: Class }>(`${this.classesUrl}`, JSON.stringify({teacherName: teacherName, grade: grade}), {headers: this.getAuthHeaders(true)})
+      .pipe(
+        map(response => {
+          return response.data;
+        }),
+        catchError(err => this.handleObservableError<Class>(err))
+      );
   }
 
-  getStudents(classId: string): Promise<Student[]> {
+  getStudents(classId: string): Observable<Student[]> {
     return this.http
-      .get<any>(`${this.classesUrl}/${classId}/students`, {headers: this.getAuthHeaders(false)})
-      .toPromise()
-      .then(response => response.data as Student[])
-      .catch(error => this.handleError(error));
+      .get<{ data: Student[] }>(`${this.classesUrl}/${classId}/students`, {headers: this.getAuthHeaders(false)})
+      .pipe(
+        map(response => {
+          return response.data;
+        }),
+        catchError(err => this.handleObservableError<Student[]>(err))
+      )
   }
 
-  addStudent(classId: string, newStudent: Student): Promise<Class> {
+  addStudent(classId: string, newStudent: Student): Observable<Class> {
     return this.http
-      .post<any>(`${this.classesUrl}/${classId}/students`, JSON.stringify(newStudent), {headers: this.getAuthHeaders(true)})
-      .toPromise()
-      .then(res => Class.fromObject(res.data))
-      .catch(error => this.handleError(error));
+      .post<{ data: Class }>(`${this.classesUrl}/${classId}/students`, JSON.stringify(newStudent), {headers: this.getAuthHeaders(true)})
+      .pipe(
+        map(res => res.data),
+        catchError(err => this.handleObservableError<Class>(err))
+      );
   }
 
-  addNewStudent(classId: string, newStudent: Student): Promise<Class> {
+  addNewStudent(classId: string, newStudent: Student): Observable<Class> {
     return this.http
-      .post<any>(`${this.classesUrl}/${classId}/newstudent`, JSON.stringify(newStudent), {headers: this.getAuthHeaders(true)})
-      .toPromise()
-      .then(res => Class.fromObject(res.data))
-      .catch(error => this.handleError(error));
+      .post<{ data: Class }>(`${this.classesUrl}/${classId}/newstudent`, JSON.stringify(newStudent), {headers: this.getAuthHeaders(true)})
+      .pipe(
+        map(res => res.data),
+        catchError(err => this.handleObservableError<Class>(err))
+      );
   }
 
-  getStudentByBarCode(barCode: string): Promise<TeacherWithStudent> {
+  getStudentByBarCode(barCode: string): Observable<TeacherWithStudent> {
     this.loaderService.display(true);
     return this.http
       .get<TeacherWithStudent>(`${this.studentsUrl}/${barCode}`, {headers: this.getAuthHeaders(false)})
-      .toPromise()
-      .then(res => {
-        this.loaderService.display(false);
-        return res
-      })
-      .catch(error => this.handleError(error));
+      .pipe(
+        map(res => {
+          this.loaderService.display(false);
+          return res;
+        }),
+        catchError(err => this.handleObservableError<TeacherWithStudent>(err))
+      );
   }
 
-  getAllBooks(params: DataTableParams, searchParameters: BookSearchParameters): Promise<BookList> {
+  getAllBooks(params: DataTableParams, searchParameters: BookSearchParameters): Observable<BookList> {
     return this.http
-      .get<any>(`${this.booksUrl}?${this.paramsToQueryString(params, searchParameters)}`, {headers: this.getAuthHeaders(false)})
-      .toPromise()
-      .then(res => {
-        const obj = res;
-        return {
-          count: obj.count,
-          books: obj.data.map(Book.fromObject)
-        }
-      })
-      .catch(error => this.handleError(error));
+      .get<{ count: number, data: Book[]}>(`${this.booksUrl}?${this.paramsToQueryString(params, searchParameters)}`, {headers: this.getAuthHeaders(false)})
+      .pipe(
+        map(res => {
+            return {
+              count: res.count,
+              books: res.data.map(Book.fromObject)
+            }
+        }),
+        catchError(err => this.handleObservableError<BookList>(err))
+      )
   }
 
   exportBooks(searchParameters: BookSearchParameters) {
@@ -176,103 +186,112 @@ export class BaggyBookService {
     return result.map(param => param.join('=')).join('&');
   }
 
-  addBook(book: Book): Promise<Book> {
+  addBook(book: Book): Observable<Book> {
     return this.http
-      .post<any>(`${this.booksUrl}`, JSON.stringify(book), {headers: this.getAuthHeaders(true)})
-      .toPromise()
-      .then(res => Book.fromObject(res.data))
-      .catch(error => this.handleError(error));
+      .post<{data: Book}>(`${this.booksUrl}`, JSON.stringify(book), {headers: this.getAuthHeaders(true)})
+      .pipe(
+        map(res => Book.fromObject(res.data)),
+        catchError(err => this.handleObservableError<Book>(err))
+      )
   }
 
-  updateBook(book: Book): Promise<Book> {
+  updateBook(book: Book): Observable<Book> {
     return this.http
-      .put<any>(`${this.booksUrl}/${book.id}`, JSON.stringify(book), {headers: this.getAuthHeaders(true)})
-      .toPromise()
-      .then(res => Book.fromObject(res.data))
-      .catch(error => this.handleError(error));
+      .put<{data: Book}>(`${this.booksUrl}/${book.id}`, JSON.stringify(book), {headers: this.getAuthHeaders(true)})
+      .pipe(
+        map(res => Book.fromObject(res.data)),
+        catchError(err => this.handleObservableError<Book>(err))
+      )
   }
 
-  addBookCopy(bookId: string, barCode: string): Promise<Book> {
+  addBookCopy(bookId: string, barCode: string): Observable<Book> {
     return this.http
-      .post<any>(`${this.booksUrl}/${bookId}/bookcopy`, JSON.stringify({ barCode: barCode }), {headers: this.getAuthHeaders(true)})
-      .toPromise()
-      .then(book => Book.fromObject(book.data))
-      .catch(error => this.handleError(error));
+      .post<{data: Book}>(`${this.booksUrl}/${bookId}/bookcopy`, JSON.stringify({ barCode: barCode }), {headers: this.getAuthHeaders(true)})
+      .pipe(
+        map(res => Book.fromObject(res.data)),
+        catchError(err => this.handleObservableError<Book>(err))
+      )
   }
 
-  removeBookCopy(bookId: string, barCode: string): Promise<Book> {
+  removeBookCopy(bookId: string, barCode: string): Observable<Book> {
     return this.http
-      .delete<any>(`${this.booksUrl}/${bookId}/bookcopy/${barCode}`, {headers: this.getAuthHeaders(false)})
-      .toPromise()
-      .then(book => Book.fromObject(book.data))
-      .catch(error => this.handleError(error));
+      .delete<{data: Book}>(`${this.booksUrl}/${bookId}/bookcopy/${barCode}`, {headers: this.getAuthHeaders(false)})
+      .pipe(
+        map(res => Book.fromObject(res.data)),
+        catchError(err => this.handleObservableError<Book>(err))
+      )
   }
 
-  markBookCopyLost(bookId: string, barCode: string): Promise<Book> {
+  markBookCopyLost(bookId: string, barCode: string): Observable<Book> {
     return this.http
-      .put<any>(`${this.booksUrl}/${bookId}/bookcopy/${barCode}/marklost`, '', {headers: this.getAuthHeaders(true)})
-      .toPromise()
-      .then(book => Book.fromObject(book.data))
-      .catch(error => this.handleError(error));
+      .put<{data: Book}>(`${this.booksUrl}/${bookId}/bookcopy/${barCode}/marklost`, '', {headers: this.getAuthHeaders(true)})
+      .pipe(
+        map(res => Book.fromObject(res.data)),
+        catchError(err => this.handleObservableError<Book>(err))
+      )
   }
 
-  markBookCopyFound(bookId: string, barCode: string): Promise<Book> {
+  markBookCopyFound(bookId: string, barCode: string): Observable<Book> {
     return this.http
-      .put<any>(`${this.booksUrl}/${bookId}/bookcopy/${barCode}/markfound`, '', {headers: this.getAuthHeaders(true)})
-      .toPromise()
-      .then(book => Book.fromObject(book.data))
-      .catch(error => this.handleError(error));
+      .put<{data: Book}>(`${this.booksUrl}/${bookId}/bookcopy/${barCode}/markfound`, '', {headers: this.getAuthHeaders(true)})
+      .pipe(
+        map(res => Book.fromObject(res.data)),
+        catchError(err => this.handleObservableError<Book>(err))
+      )
   }
 
-  addCommentsToBookCopy(bookId: string, barCode: string, comments: string): Promise<Book> {
+  addCommentsToBookCopy(bookId: string, barCode: string, comments: string): Observable<Book> {
     return this.http
-      .put<any>(`${this.booksUrl}/${bookId}/bookcopy/${barCode}/comments`, JSON.stringify({ comments: comments }), {headers: this.getAuthHeaders(true)})
-      .toPromise()
-      .then(book => Book.fromObject(book.data))
-      .catch(error => this.handleError(error));
+      .put<{data: Book}>(`${this.booksUrl}/${bookId}/bookcopy/${barCode}/comments`, JSON.stringify({ comments: comments }), {headers: this.getAuthHeaders(true)})
+      .pipe(
+        map(res => Book.fromObject(res.data)),
+        catchError(err => this.handleObservableError<Book>(err))
+      )
   }
 
-  markBookCopyDamaged(bookId: string, barCode: string): Promise<Book> {
+  markBookCopyDamaged(bookId: string, barCode: string): Observable<Book> {
     return this.http
-      .put<any>(`${this.booksUrl}/${bookId}/bookcopy/${barCode}/markdamaged`, '', {headers: this.getAuthHeaders(true)})
-      .toPromise()
-      .then(book => Book.fromObject(book.data))
-      .catch(error => this.handleError(error));
+      .put<{data: Book}>(`${this.booksUrl}/${bookId}/bookcopy/${barCode}/markdamaged`, '', {headers: this.getAuthHeaders(true)})
+      .pipe(
+        map(res => Book.fromObject(res.data)),
+        catchError(err => this.handleObservableError<Book>(err))
+      )
   }
 
-  getBook(bookId: string): Promise<Book> {
+  getBook(bookId: string): Observable<Book> {
     return this.http
-      .get<any>(`${this.booksUrl}/${bookId}`, {headers: this.getAuthHeaders(false)})
-      .toPromise()
-      .then(book => Book.fromObject(book.data))
-      .catch(error => {
-        if (error.status === 404) {
-          return Promise.reject('Book not found');
-        }
-        return this.handleError(error);
-      });
+      .get<{data: Book}>(`${this.booksUrl}/${bookId}`, {headers: this.getAuthHeaders(false)})
+      .pipe(
+        map(res => Book.fromObject(res.data)),
+        catchError(err => {
+          if (err.status === 404) {
+            throw new Error("Book not found");
+          }
+          return this.handleObservableError<Book>(err);
+        })
+      )
   }
 
-  getBookByIsbn(isbn: string): Promise<Book> {
+  getBookByIsbn(isbn: string): Observable<Book> {
     return this.http
-      .get<any>(`${this.booksUrl}/isbn/${isbn}`, {headers: this.getAuthHeaders(false)})
-      .toPromise()
-      .then(book => Book.fromObject(book.data))
-      .catch(error => {
-        if (error.status === 404) {
-          return Promise.reject('Book not found');
-        }
-        return this.handleError(error);
-      });
+      .get<{data: Book}>(`${this.booksUrl}/isbn/${isbn}`, {headers: this.getAuthHeaders(false)})
+      .pipe(
+        map(res => Book.fromObject(res.data)),
+        catchError(err => {
+          if (err.status === 404) {
+            throw new Error("Book not found");
+          }
+          return this.handleObservableError<Book>(err);
+        })
+      )
   }
 
-  getBookCopyByBarCode(barCode: string): Promise<BookCopyWithBook> {
+  getBookCopyByBarCode(barCode: string): Observable<BookCopyWithBook> {
     return this.http
-      .get<BookCopyWithBook>(`${this.booksUrl}/bookcopies/${barCode}`, {headers: this.getAuthHeaders(false)})
-      .toPromise();
+      .get<BookCopyWithBook>(`${this.booksUrl}/bookcopies/${barCode}`, {headers: this.getAuthHeaders(false)});
   }
 
-  checkOutBookForStudent(bookCopyBarCode: string, studentBarCode: string): Promise<BookCopyReservation> {
+  checkOutBookForStudent(bookCopyBarCode: string, studentBarCode: string): Observable<BookCopyReservation> {
     const bookCopyReservation: BookCopyReservation = {
       bookCopyBarCode: bookCopyBarCode,
       studentBarCode: studentBarCode
@@ -280,81 +299,82 @@ export class BaggyBookService {
     this.loaderService.display(true);
     return this.http
       .post<BookCopyReservation>(`${this.bookCheckOutUrl}`, JSON.stringify(bookCopyReservation), {headers: this.getAuthHeaders(true)})
-      .toPromise()
-      .then(bcr => {
-        this.loaderService.display(false);
-        return bcr
-      })
-      .catch(resp => {
-        this.loaderService.display(false);
-        return Promise.reject(resp);
-      });
+      .pipe(
+        map(bcr => {
+          this.loaderService.display(false);
+          return bcr
+        }),
+        catchError(err => this.handleObservableError<BookCopyReservation>(err))
+      )
   }
 
-  checkInBookCopy(bookCopyBarCode: string): Promise<any> {
+  checkInBookCopy(bookCopyBarCode: string): Observable<unknown> {
     this.loaderService.display(true);
     return this.http
     .post(`${this.bookCheckOutUrl}/checkin/${bookCopyBarCode}`, JSON.stringify({}), {headers: this.getAuthHeaders(true)})
-    .toPromise()
-    .then(resp => {
-      this.loaderService.display(false);
-      return resp;
-    });
+    .pipe(
+      map(resp => {
+        this.loaderService.display(false);
+        return resp;
+      })
+    )
   }
 
   getBookCopyReservations(studentId?: string, params?: DataTableParams, daysBack?: number
       , bookSearchParameters?: BookSearchParameters):
-      Promise<{count: number, reservations: BookCopyReservationWithData[]}> {
+      Observable<{count: number, reservations: BookCopyReservationWithData[]}> {
     this.loaderService.display(true);
     const checkoutParams = this.bookCopyParamsToQueryString(params, studentId, studentId !== undefined, daysBack
       , false, bookSearchParameters);
     return this.http
-      .get<any>(`${this.bookCheckOutUrl}${checkoutParams ? `?${checkoutParams}` : ''}`, {headers: this.getAuthHeaders(false)})
-      .toPromise()
-      .then(bcr => {
-        this.loaderService.display(false);
-        const result = bcr;
-        return {
-          count: result.count,
-          reservations: result.data as BookCopyReservationWithData[]
-        }
-      })
-      .catch(error => this.handleError(error));
+      .get<{count: number, data: BookCopyReservationWithData[]}>(`${this.bookCheckOutUrl}${checkoutParams ? `?${checkoutParams}` : ''}`, {headers: this.getAuthHeaders(false)})
+      .pipe(
+        map(bcr => {
+          this.loaderService.display(false);
+          const result = bcr;
+          return {
+            count: result.count,
+            reservations: result.data as BookCopyReservationWithData[]
+          }
+        }),
+        catchError(err => this.handleObservableError<{count: number, reservations: BookCopyReservationWithData[]}>(err))
+      )
   }
 
   getBookCopyReservationsForBookCopy(bookBarCode: string):
-    Promise<{count: number, reservations: BookCopyReservationWithData[]}> {
+    Observable<{count: number, reservations: BookCopyReservationWithData[]}> {
     this.loaderService.display(true);
     return this.http
-      .get<any>(`${this.bookCheckOutUrl}?bookBarCode=${bookBarCode}&fullHistory=true`, {headers: this.getAuthHeaders(false)})
-      .toPromise()
-      .then(bcr => {
-        this.loaderService.display(false);
-        const result = bcr;
-        return {
-          count: result.count,
-          reservations: result.data as BookCopyReservationWithData[]
-        }
-      })
-      .catch(error => this.handleError(error));
+      .get<{count: number, data: BookCopyReservationWithData[]}>(`${this.bookCheckOutUrl}?bookBarCode=${bookBarCode}&fullHistory=true`, {headers: this.getAuthHeaders(false)})
+      .pipe(
+        map(bcr => {
+          this.loaderService.display(false);
+          const result = bcr;
+          return {
+            count: result.count,
+            reservations: result.data as BookCopyReservationWithData[]
+          }
+        }),
+        catchError(err => this.handleObservableError<{count: number, reservations: BookCopyReservationWithData[]}>(err))
+      )
   }
 
   downloadBookCopyReservations(studentId?: string, params?: DataTableParams, daysBack?: number
       , bookSearchParameters?: BookSearchParameters):
-      Promise<{ downloadLink: string}> {
+      Observable<{ downloadLink: string}> {
     this.loaderService.display(true);
     const checkoutParams = this.bookCopyParamsToQueryString(params, studentId, studentId !== undefined, daysBack
       , true, bookSearchParameters);
     return this.http
-    .get(`${this.bookCheckOutUrl}${checkoutParams ? `?${checkoutParams}` : ''}`, {headers: this.getAuthHeaders(false)})
-    .toPromise()
-    .then(bcr => {
-      this.loaderService.display(false);
-      const result = bcr as { downloadLink: string };
-      return result;
-    })
-    .catch(error => this.handleError(error));
-
+    .get<{ downloadLink: string }>(`${this.bookCheckOutUrl}${checkoutParams ? `?${checkoutParams}` : ''}`, {headers: this.getAuthHeaders(false)})
+    .pipe(
+      map(bcr => {
+        this.loaderService.display(false);
+        const result = bcr as { downloadLink: string };
+        return result;
+      }),
+      catchError(err => this.handleObservableError<{ downloadLink: string }>(err))
+    )
   }
 
   bookCopyParamsToQueryString(params?: DataTableParams, studentId?: string, fullhistory?: boolean, daysBack?: number
@@ -377,7 +397,7 @@ export class BaggyBookService {
     }
     if (bookSearchParameters) {
       for (const key in bookSearchParameters) {
-        if (bookSearchParameters.hasOwnProperty(key)) {
+        if (Object.prototype.hasOwnProperty.call(bookSearchParameters, key)) {
           result.push([key, bookSearchParameters[key]]);
         }
       }
@@ -397,19 +417,20 @@ export class BaggyBookService {
     return result.map(param => param.join('=')).join('&');
   }
 
-  getVolunteerLoginsSinceDate(daysBack: number): Promise<VolunteerWithLogons[]> {
+  getVolunteerLoginsSinceDate(daysBack: number): Observable<VolunteerWithLogons[]> {
     this.loaderService.display(true);
     return this.http
-      .get(`${this.volunteersUrl}/logons?daysBack=${daysBack}`, {headers: this.getAuthHeaders(false)})
-      .toPromise()
-      .then(resp => {
-        this.loaderService.display(false);
-        return resp as VolunteerWithLogons[];
-      })
-      .catch(error => this.handleError(error));
+      .get<VolunteerWithLogons[]>(`${this.volunteersUrl}/logons?daysBack=${daysBack}`, {headers: this.getAuthHeaders(false)})
+      .pipe(
+        map(resp => {
+          this.loaderService.display(false);
+          return resp;
+        }),
+        catchError(err => this.handleObservableError<VolunteerWithLogons[]>(err))
+      )
   }
 
-  getClassStatistics(classId: string, monthId: string): Observable<{} | ClassStatistics> {
+  getClassStatistics(classId: string, monthId: string): Observable<ClassStatistics> {
     this.loaderService.display(true);
     return this.http
       .get<ClassStatistics>(`${this.classesUrl}/${classId}/stats?forMonth=${monthId}`, {headers: this.getAuthHeaders(false)})
@@ -418,19 +439,15 @@ export class BaggyBookService {
           this.loaderService.display(false);
           return val;
         }),
-        catchError(err => this.handleObservableError(err))
+        catchError(err => this.handleObservableError<ClassStatistics>(err))
       );
   }
 
-  private handleObservableError(err: any): any {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private handleObservableError<T>(err: HttpErrorResponse): Observable<T> {
     console.error('An error occurred', err);
     this.loaderService.display(false);
-    throw new Error(err);
+    throw new Error(JSON.stringify(err.error));
   }
 
-  private handleError(error: any): Promise<any> {
-    console.error('An error occurred', error);
-    this.loaderService.display(false);
-    return Promise.reject(error.message || error);
-  }
 }

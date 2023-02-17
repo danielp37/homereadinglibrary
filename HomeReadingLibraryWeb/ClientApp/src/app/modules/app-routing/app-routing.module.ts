@@ -2,7 +2,6 @@ import { BookReservationHistoryComponent } from './../../components/book-reserva
 import { StudentReservationHistoryComponent } from './../../components/student-reservation-history/student-reservation-history.component';
 import { VolunteerLogonsComponent } from './../../components/volunteer-logons/volunteer-logons.component';
 import { AuthGuard } from './../app-auth/services/authguard.service';
-import { AuthModule } from './../app-auth/app-auth.module';
 import { CheckInBookComponent } from './../../components/check-in-book/check-in-book.component';
 import { BookCopyReservationsComponent } from './../../components/book-copy-reservations/book-copy-reservations.component';
 import { CheckOutBookComponent } from './../../components/check-out-book/check-out-book.component';

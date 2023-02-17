@@ -5,7 +5,7 @@ export class CheckoutLogEntry {
     constructor(
         private _student: TeacherWithStudent,
         private _book: BookCopyWithBook,
-        private _error?: any
+        private _error?: unknown
     ) {
         this._logDate = new Date();
     }
@@ -18,7 +18,7 @@ export class CheckoutLogEntry {
         return this._book;
     }
 
-    public get error(): any {
+    public get error(): unknown {
         return this._error;
     }
 

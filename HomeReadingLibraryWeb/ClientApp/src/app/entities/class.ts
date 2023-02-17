@@ -1,11 +1,11 @@
 import { Student } from './student';
-import {Volunteer} from './volunteer';
 export class Class {
     classId: string;
     teacherName: string;
     grade: number;
-    students: Student[] = new Array();
+    students: Student[] = [];
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     public static fromObject(classObj: any): Class {
         const cls = new Class();
         Object.assign(cls, classObj);

@@ -48,6 +48,7 @@ namespace AspnetCore.Identity.MongoDb
       // Hosting doesn't add IHttpContextAccessor by default
       services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
+      services.TryAddScoped<IUserConfirmation<Volunteer>, DefaultUserConfirmation<Volunteer>>();
       services.TryAddScoped<IUserValidator<Volunteer>, VolunteerValidator>();
       services.TryAddScoped<IPasswordValidator<Volunteer>, PasswordValidator>();
       services.TryAddScoped<IPasswordHasher<Volunteer>, PasswordHasher>();
@@ -58,6 +59,7 @@ namespace AspnetCore.Identity.MongoDb
       services.TryAddScoped<IUserClaimsPrincipalFactory<Volunteer>, UserClaimsPrincipalFactory<Volunteer, VolunteerRole>>();
       services.TryAddScoped<RoleManager<VolunteerRole>, AspNetRoleManager<VolunteerRole>>();
       services.AddTransient<IProfileService, VolunteerProfileService>();
+      
     }
 
     public static void ConfigureIdentity(this IServiceCollection services, IConfiguration configuration)

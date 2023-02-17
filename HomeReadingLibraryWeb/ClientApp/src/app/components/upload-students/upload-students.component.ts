@@ -12,7 +12,7 @@ import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
 export class UploadStudentsComponent implements OnInit {
   addMultipleStudentsForm: UntypedFormGroup;
   @Input()classId: string;
-  @Output()onSaved = new EventEmitter<Class>();
+  @Output()saved = new EventEmitter<Class>();
   lastClassUpdated: Class;
   results: string[];
 
@@ -25,6 +25,7 @@ export class UploadStudentsComponent implements OnInit {
       this.results = [];
      }
 
+  // eslint-disable-next-line @angular-eslint/no-empty-lifecycle-method, @typescript-eslint/no-empty-function
   ngOnInit() {
   }
 
@@ -42,16 +43,18 @@ export class UploadStudentsComponent implements OnInit {
         lastName : match[1],
       };
       this.baggyBookService.addStudent(this.classId, newStudent)
-      .then(cls => {
-        this.lastClassUpdated = cls;
-        this.results.push(`${newStudent.firstName} ${newStudent.lastName} added!`);
-        this.addStudent(regex, students);
-      })
-      .catch(error => {
-        this.results.push(`${newStudent.firstName} ${newStudent.lastName} error: ${error._body || error}`)
+      .subscribe({ 
+        next: cls => {
+            this.lastClassUpdated = cls;
+            this.results.push(`${newStudent.firstName} ${newStudent.lastName} added!`);
+            this.addStudent(regex, students);
+          },
+        error: error => {
+          this.results.push(`${newStudent.firstName} ${newStudent.lastName} error: ${error._body || error}`)
+        }
       });
     } else {
-      this.onSaved.emit(this.lastClassUpdated);
+      this.saved.emit(this.lastClassUpdated);
     }
   }
 }

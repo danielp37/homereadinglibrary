@@ -1,4 +1,4 @@
-import { Injectable, Inject } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Book } from '../entities/book';
 import { IsbnEntry } from '../entities/isbn-entry';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
@@ -14,7 +14,7 @@ export class BookLookupService {
   ) { }
 
   private get authHeaders() : HttpHeaders {
-    let authHeader = new HttpHeaders({
+    const authHeader = new HttpHeaders({
       "Authorization": "Bearer " + this.oauthService.getAccessToken()
     });
     return authHeader;
@@ -32,6 +32,7 @@ export class BookLookupService {
       .catch(this.handleError);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private handleError(error: any): Promise<any> {
     console.error('An error occurred', error);
     return Promise.reject(error.message || error);

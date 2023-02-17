@@ -17,6 +17,7 @@ export class AuthGuard implements CanActivate {
 
     canActivate(
         route: ActivatedRouteSnapshot,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         state: RouterStateSnapshot): Observable<boolean> | Promise<boolean> | boolean {
         return this.isRouteAllowed(route.url)
     }
