@@ -40,7 +40,7 @@ export class BookCopyReservationsComponent implements OnInit {
 
   getBookCopyReservations() {
     this.baggyBookService.getBookCopyReservations(undefined, this.lastSearchParams, this.currentDaysBack, this.getBookSearchParameters())
-      .then(bcr => {
+      .subscribe(bcr => {
         this.totalCount = bcr.count;
         this.bookCopyReservations = bcr.reservations;
       });
@@ -49,7 +49,7 @@ export class BookCopyReservationsComponent implements OnInit {
   exportToTab() {
     this.baggyBookService.downloadBookCopyReservations(undefined, this.lastSearchParams, this.currentDaysBack
       , this.getBookSearchParameters())
-      .then(b => {
+      .subscribe(b => {
         this.downloadLink = b.downloadLink;
         setTimeout(() => this.clickDownloadLink(), 0);
       });

@@ -82,24 +82,28 @@ export class CheckOutBookComponent implements OnInit {
     const bookCopyValue = this.checkOutBookForm.value.bookCopyBarCode;
     const barCodeValue = this.checkOutBookForm.value.studentBarCode;
     this.baggyBookService.getBookCopyByBarCode(bookCopyValue)
-      .then(bookCopy => {
-          this.currentBook = bookCopy;
-          this.baggyBookService.checkOutBookForStudent(bookCopyValue, barCodeValue)
-            .then(() => {
-              this.checkoutLog.unshift(new CheckoutLogEntry(this.currentStudent, this.currentBook));
-              this.playSuccessSound();
-              setTimeout(() => this.resetForm(), 200);
-            })
-            .catch(error => {
-              this.checkoutLog.unshift(new CheckoutLogEntry(this.currentStudent, this.currentBook, error.error || error));
-              this.playFailureSound();
-              setTimeout(() => this.resetForm(), 200);
-            });
-      })
-      .catch(error => {
-        this.checkoutLog.unshift(new CheckoutLogEntry(this.currentStudent, this.currentBook, error.error || error));
-        this.playFailureSound();
-        setTimeout(() => this.resetForm(), 200);
+      .subscribe({
+        next: bookCopy => {
+            this.currentBook = bookCopy;
+            this.baggyBookService.checkOutBookForStudent(bookCopyValue, barCodeValue)
+              .subscribe({
+                next: () => {
+                  this.checkoutLog.unshift(new CheckoutLogEntry(this.currentStudent, this.currentBook));
+                  this.playSuccessSound();
+                  setTimeout(() => this.resetForm(), 200);
+                },
+                error: error => {
+                  this.checkoutLog.unshift(new CheckoutLogEntry(this.currentStudent, this.currentBook, error.error || error));
+                  this.playFailureSound();
+                  setTimeout(() => this.resetForm(), 200);
+                }
+              });
+        },
+        error: error => {
+          this.checkoutLog.unshift(new CheckoutLogEntry(this.currentStudent, this.currentBook, error.error || error));
+          this.playFailureSound();
+          setTimeout(() => this.resetForm(), 200);
+        }
       });
 
   }

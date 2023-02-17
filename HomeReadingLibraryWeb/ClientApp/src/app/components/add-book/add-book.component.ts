@@ -49,30 +49,34 @@ export class AddBookComponent implements OnInit {
     const isbnInput = this.addBookForm.get('isbn');
     if (isbnInput.value !== '' && isbnInput.value !== this.lastIsbnValue) {
       this.baggyBookService.getBookByIsbn(isbnInput.value)
-        .then(book => {
-          this.currentBook = book;
-          this.focusBookBarCode();
-        })
-        .catch(() => {
-          this.bookLookupService.getBookFromIsbn(isbnInput.value)
-            .then(book => {
-              // Check to see if we can find the book by the returned isbn
-              this.baggyBookService.getBookByIsbn(book.isbn)
-                .then(existingBook => {
-                  this.currentBook = existingBook;
-                  this.focusBookBarCode();
-                })
-                .catch(() => {
-                  book.guidedReadingLevel = this.addBookForm.get('readingLevel').value;
-                  book.boxNumber = this.addBookForm.get('boxNumber').value;
+        .subscribe({
+          next: book => {
+            this.currentBook = book;
+            this.focusBookBarCode();
+          },
+          error: () => {
+            this.bookLookupService.getBookFromIsbn(isbnInput.value)
+              .then(book => {
+                // Check to see if we can find the book by the returned isbn
+                this.baggyBookService.getBookByIsbn(book.isbn)
+                  .subscribe({
+                    next: existingBook => {
+                      this.currentBook = existingBook;
+                      this.focusBookBarCode();
+                    },
+                    error: () => {
+                      book.guidedReadingLevel = this.addBookForm.get('readingLevel').value;
+                      book.boxNumber = this.addBookForm.get('boxNumber').value;
 
-                  this.newBook = false;
-                  this.addBook(book);
-                });
-            })
-            .catch(() => {
-              this.enableNewBookEntry();
-            });
+                      this.newBook = false;
+                      this.addBook(book);
+                    }
+                  });
+              })
+              .catch(() => {
+                this.enableNewBookEntry();
+              });
+          }
         });
     }
     this.lastIsbnValue = isbnInput.value;
@@ -93,7 +97,7 @@ export class AddBookComponent implements OnInit {
   @Input()set currentBookIsbn(isbn: string) {
     if (isbn) {
       this.baggyBookService.getBookByIsbn(isbn)
-        .then(existingBook => {
+        .subscribe(existingBook => {
           this.currentBook = existingBook;
           this.addBookForm.value.isbn = isbn;
           this.focusBookBarCode();
@@ -160,7 +164,7 @@ export class AddBookComponent implements OnInit {
 
   markBookCopyLost(barCode: string) {
     this.baggyBookService.markBookCopyLost(this.currentBook.id, barCode)
-      .then(book => {
+      .subscribe(book => {
         this.bookAdded.emit(book);
         this.currentBook = book;
       });
@@ -168,7 +172,7 @@ export class AddBookComponent implements OnInit {
 
   markBookCopyFound(barCode: string) {
     this.baggyBookService.markBookCopyFound(this.currentBook.id, barCode)
-      .then(book => {
+      .subscribe(book => {
         this.bookAdded.emit(book);
         this.currentBook = book;
       });
@@ -176,7 +180,7 @@ export class AddBookComponent implements OnInit {
 
   markBookCopyDamaged(barCode: string) {
     this.baggyBookService.markBookCopyDamaged(this.currentBook.id, barCode)
-      .then(book => {
+      .subscribe(book => {
         this.bookAdded.emit(book);
         this.currentBook = book;
       });
@@ -201,7 +205,7 @@ export class AddBookComponent implements OnInit {
   updateBook() {
     this.editingBook = false;
     this.baggyBookService.getBook(this.currentBook.id)
-      .then(book => {
+      .subscribe(book => {
         book.guidedReadingLevel = this.addBookForm.get('readingLevel').value;
         book.boxNumber = this.addBookForm.get('boxNumber').value;
         book.title = this.addBookForm.get('editTitle').value;
@@ -222,7 +226,7 @@ export class AddBookComponent implements OnInit {
 
   saveBookComment() {
     this.baggyBookService.addCommentsToBookCopy(this.currentBook.id, this.currentBookCopy, this.currentBookComment)
-      .then(book => {
+      .subscribe(book => {
         this.bookAdded.emit(book);
         this.currentBook = book;
         this.modalRef.hide()

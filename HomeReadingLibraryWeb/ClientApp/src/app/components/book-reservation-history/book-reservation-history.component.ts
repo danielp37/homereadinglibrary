@@ -40,7 +40,7 @@ export class BookReservationHistoryComponent implements OnInit {
   onBookCopyEntered() {
     this.selectedBookBarCode = this.checkInBookForm.value.bookCopyBarCode;
     this.baggyBookService.getBookCopyReservationsForBookCopy(this.selectedBookBarCode)
-      .then(reservations => {
+      .subscribe(reservations => {
         this.reservations = reservations.reservations;
         const firstReservation = this.reservations[0];
         if(firstReservation)

@@ -39,7 +39,7 @@ export class StudentReservationHistoryComponent implements OnInit {
 
   displayStudentReservationHistory(): void {
     this.baggyBookService.getBookCopyReservations(this.selectedStudentId)
-      .then(reservations => this.reservations = reservations.reservations);
+      .subscribe(reservations => this.reservations = reservations.reservations);
   }
 
   onStudentBarCodeEntered(): void {

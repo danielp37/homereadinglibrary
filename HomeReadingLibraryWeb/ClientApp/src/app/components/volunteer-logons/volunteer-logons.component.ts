@@ -25,7 +25,7 @@ export class VolunteerLogonsComponent implements OnInit {
 
   public getVolunteerLoginsSinceDate(daysBack: number) {
     this.baggyBookService.getVolunteerLoginsSinceDate(daysBack)
-      .then(volunteers => this.volunteersWithLogons = volunteers);
+      .subscribe(volunteers => this.volunteersWithLogons = volunteers);
   }
 
   private getDayOfWeekString(dayOfWeek: DayOfWeek): string {
