@@ -9,7 +9,7 @@
             "command": "dotnet",
             "args": [
                 "build",
-                "${workspaceRoot}/website/website.csproj"
+                "${workspaceRoot}/homereadinglibraryweb/homereadinglibraryweb.csproj"
             ],
             "problemMatcher": "$msCompile",
             "group": {

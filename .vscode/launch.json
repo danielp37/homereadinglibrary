@@ -10,9 +10,9 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceRoot}/website/bin/Debug/netcoreapp2.0/website.dll",
+            "program": "${workspaceRoot}/homereadinglibraryweb/bin/Debug/net7.0/homereadinglibraryweb.dll",
             "args": [],
-            "cwd": "${workspaceRoot}/website",
+            "cwd": "${workspaceRoot}/homereadinglibraryweb",
             "stopAtEntry": false,
             "internalConsoleOptions": "openOnSessionStart",
             "launchBrowser": {
@@ -30,8 +30,8 @@
                 }
             },
             "env": {
-                "CUSTOMCONNSTR_mongodb": "mongodb://127.0.0.1",
-                "ASPNETCORE_ENVIRONMENT": "Development"
+                "ASPNETCORE_ENVIRONMENT": "Development",
+                "ASPNETCORE_URLS": "https://localhost:5001;http://localhost:5000"
             },
             "sourceFileMap": {
                 "/Views": "${workspaceRoot}/Views"

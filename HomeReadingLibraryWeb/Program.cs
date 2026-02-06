@@ -48,7 +48,8 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 
   X509Store certStore = new X509Store(StoreName.My, StoreLocation.CurrentUser);
   certStore.Open(OpenFlags.ReadOnly);
-  var certsFound = certStore.Certificates.Find(X509FindType.FindByThumbprint, "C23735CD63DDFF6C38751022B944B07C8246FAF7", false);
+  var certsFound = certStore.Certificates.Find(X509FindType.FindBySubjectDistinguishedName, 
+    "CN=gchomereadinglibrary.preeceworld.com", false);
   var cert = certsFound.Count > 0 ? certsFound[0] : throw new FileNotFoundException("Could not find signing certificate!");
   //services.ConfigureIdentity(Configuration);
   services.AddIdentityServer(options =>
