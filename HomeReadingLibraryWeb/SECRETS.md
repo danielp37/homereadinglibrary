@@ -1,6 +1,6 @@
 # Local Development Secrets
 
-Sensitive configuration (MongoDB connection string and JWT signing key) is stored in user secrets for local development. These are not committed to source control.
+Sensitive configuration (MongoDB connection string, JWT signing key, and Duende license key) is stored in user secrets for local development. These are not committed to source control.
 
 ## Setup
 
@@ -9,6 +9,7 @@ From the `HomeReadingLibraryWeb` directory, run:
 ```powershell
 dotnet user-secrets set "ConnectionStrings:mongodb" "your-mongodb-connection-string"
 dotnet user-secrets set "JwtKey" "your-jwt-signing-key"
+dotnet user-secrets set "Duende:LicenseKey" "your-duende-license-key"
 ```
 
 ## Configuration Priority

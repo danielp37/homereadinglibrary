@@ -198,6 +198,9 @@ UpgradeLog*.htm
 *.mdf
 *.ldf
 
+# Local Duende signing keys (environment-specific, do not commit)
+/keys/
+
 # Business Intelligence projects
 *.rdl.data
 *.bim.layout

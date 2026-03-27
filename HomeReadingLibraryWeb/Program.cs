@@ -1,5 +1,6 @@
 using HomeReadingLibraryWeb;
 using Duende.IdentityServer.Models;
+using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,7 +18,7 @@ using System.Linq;
 
 var builder = WebApplication.CreateBuilder(args);
 
-ConfigureServices(builder.Services, builder.Configuration);
+ConfigureServices(builder.Services, builder.Configuration, builder.Environment);
 
 var app = builder.Build();
 
@@ -25,7 +26,7 @@ Configure(app, app.Environment);
 
 await app.RunAsync();
 
-void ConfigureServices(IServiceCollection services, IConfiguration configuration)
+void ConfigureServices(IServiceCollection services, IConfiguration configuration, IHostEnvironment environment)
 {
   services.AddMvc(opt =>
   {
@@ -46,6 +47,12 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 
   var spaClient = new Client();
   configuration.GetSection("SpaClient").Bind(spaClient);
+  var duendeLicenseKey = configuration["Duende:LicenseKey"];
+
+  if (!environment.IsDevelopment() && string.IsNullOrWhiteSpace(duendeLicenseKey))
+  {
+    throw new InvalidOperationException("Duende license key must be configured outside Development.");
+  }
 
   X509Store certStore = new X509Store(StoreName.My, StoreLocation.CurrentUser);
   certStore.Open(OpenFlags.ReadOnly);
@@ -56,6 +63,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
   services.AddIdentityServer(options =>
   {
     options.UserInteraction.LoginUrl = "~/account/signin";
+    options.LicenseKey = duendeLicenseKey;
   })
     .AddSigningCredential(cert)
     .AddDeveloperSigningCredential()
