@@ -1,5 +1,5 @@
 using HomeReadingLibraryWeb;
-using IdentityServer4.Models;
+using Duende.IdentityServer.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
 using System.Text.Json.Serialization;
+using System.Linq;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -80,12 +81,20 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
   services.AddAuthorization(options =>
   {
     options.AddPolicy("VolunteerUser", policy => {
-      policy.RequireScope("library");
+      policy.RequireAssertion(ctx =>
+      {
+        var scopeClaims = ctx.User.FindAll("scope").Select(x => x.Value);
+        return scopeClaims.Any(value => value.Split(' ').Contains("library"));
+      });
       policy.RequireRole("VolunteerAccess");
     });
     options.AddPolicy("AdminUser", policy =>
     {
-      policy.RequireScope("library");
+      policy.RequireAssertion(ctx =>
+      {
+        var scopeClaims = ctx.User.FindAll("scope").Select(x => x.Value);
+        return scopeClaims.Any(value => value.Split(' ').Contains("library"));
+      });
       policy.RequireRole("AdminAccess");
     });
   });

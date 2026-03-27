@@ -14,7 +14,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
 using System.Threading.Tasks;
-using IdentityServer4.Services;
+using Duende.IdentityServer.Services;
 using AspnetCore.Identity.MongoDb.Services;
 
 namespace AspnetCore.Identity.MongoDb

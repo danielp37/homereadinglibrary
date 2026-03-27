@@ -4,13 +4,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using HomeReadingLibrary.Domain.Services;
 using IdentityModel;
-using IdentityServer4.Events;
-using IdentityServer4.Extensions;
-using IdentityServer4.Models;
-using IdentityServer4.Services;
+using Duende.IdentityServer.Events;
+using Duende.IdentityServer.Extensions;
+using Duende.IdentityServer.Models;
+using Duende.IdentityServer.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace HomeReadingLibraryWeb.Identity.Accounts
@@ -56,7 +57,7 @@ namespace HomeReadingLibraryWeb.Identity.Accounts
           await events.RaiseAsync(new UserLoginSuccessEvent(user.FullName, user.Id, user.FullName));
 
           // issue authentication cookie with subject ID and username
-          await HttpContext.SignInAsync(new IdentityServer4.IdentityServerUser(user.Id)
+          await HttpContext.SignInAsync(new Duende.IdentityServer.IdentityServerUser(user.Id)
           {
             DisplayName = user.FullName
           });
@@ -118,7 +119,7 @@ namespace HomeReadingLibraryWeb.Identity.Accounts
           await events.RaiseAsync(new UserLoginSuccessEvent(user.FullName, user.Id, user.FullName));
 
           // issue authentication cookie with subject ID and username
-          await HttpContext.SignInAsync(new IdentityServer4.IdentityServerUser(user.Id)
+          await HttpContext.SignInAsync(new Duende.IdentityServer.IdentityServerUser(user.Id)
           {
             DisplayName = user.FullName
           });
@@ -236,9 +237,9 @@ namespace HomeReadingLibraryWeb.Identity.Accounts
       if (user?.Identity.IsAuthenticated == true)
       {
         var idp = user.FindFirst(JwtClaimTypes.IdentityProvider)?.Value;
-        if (idp != null && idp != IdentityServer4.IdentityServerConstants.LocalIdentityProvider)
+        if (idp != null && idp != Duende.IdentityServer.IdentityServerConstants.LocalIdentityProvider)
         {
-          var providerSupportsSignout = await HttpContext.GetSchemeSupportsSignOutAsync(idp);
+          var providerSupportsSignout = await SupportsSignOutAsync(HttpContext, idp);
           if (providerSupportsSignout)
           {
             if (vm.LogoutId == null)
@@ -255,6 +256,18 @@ namespace HomeReadingLibraryWeb.Identity.Accounts
       }
 
       return vm;
+    }
+
+    private static async Task<bool> SupportsSignOutAsync(HttpContext httpContext, string scheme)
+    {
+      var handlerProvider = httpContext.RequestServices.GetService<IAuthenticationHandlerProvider>();
+      if (handlerProvider == null)
+      {
+        return false;
+      }
+
+      var handler = await handlerProvider.GetHandlerAsync(httpContext, scheme);
+      return handler is IAuthenticationSignOutHandler;
     }
   }
 }
