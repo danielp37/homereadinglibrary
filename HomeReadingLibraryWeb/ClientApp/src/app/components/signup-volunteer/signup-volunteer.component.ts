@@ -8,6 +8,7 @@ import { Class } from '../../entities/class';
 import { DayOfWeek } from '../../entities/day-of-week.enum';
 
 @Component({
+    standalone: false,
   selector: 'app-signup-volunteer',
   templateUrl: './signup-volunteer.component.html',
   styleUrls: ['./signup-volunteer.component.css'],

@@ -5,6 +5,7 @@ import { UntypedFormBuilder, Validators, UntypedFormGroup } from '@angular/forms
 import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
 
 @Component({
+    standalone: false,
   selector: 'app-upload-students',
   templateUrl: './upload-students.component.html',
   styleUrls: ['./upload-students.component.css']

@@ -7,6 +7,7 @@ import { AuthService } from '../../modules/app-auth/services/auth.service';
 import { Router } from '@angular/router';
 
 @Component({
+    standalone: false,
     // tslint:disable-next-line:component-selector
     selector: 'app-root',
     templateUrl: './app.component.html',

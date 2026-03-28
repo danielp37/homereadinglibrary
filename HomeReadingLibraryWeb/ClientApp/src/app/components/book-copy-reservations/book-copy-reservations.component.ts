@@ -1,10 +1,11 @@
 import { BookSearchParameters } from './../../services/Book-Search-Parameters';
-import { DataTableParams } from 'angular-2-data-table';
+import { DataTableParams } from './../../models/data-table-params';
 import { BookCopyReservationWithData } from './../../entities/book-copy-reservation-with-data';
 import { BaggyBookService } from './../../services/baggy-book.service';
 import { Component, OnInit, Renderer2 } from '@angular/core';
 
 @Component({
+    standalone: false,
   selector: 'app-book-copy-reservations',
   templateUrl: './book-copy-reservations.component.html',
   styleUrls: ['./book-copy-reservations.component.css']

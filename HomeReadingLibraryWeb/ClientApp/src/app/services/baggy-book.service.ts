@@ -7,7 +7,7 @@ import { BookCopyWithBook } from './../entities/book-copy-with-book';
 import { TeacherWithStudent } from './../entities/teacher-with-student';
 import { BookSearchParameters } from './Book-Search-Parameters';
 import { BookList } from './../entities/book-list';
-import { DataTableParams } from 'angular-2-data-table';
+import { DataTableParams } from './../models/data-table-params';
 import { BookCopyReservation } from './../entities/book-copy-reservation';
 import { Student } from './../entities/student';
 import { Injectable } from '@angular/core';

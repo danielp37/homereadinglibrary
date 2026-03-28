@@ -4,6 +4,7 @@ import { Class } from '../../entities/class';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 
 @Component({
+    standalone: false,
   selector: 'app-class-lists',
   templateUrl: './class-lists.component.html',
   styleUrls: ['./class-lists.component.css']

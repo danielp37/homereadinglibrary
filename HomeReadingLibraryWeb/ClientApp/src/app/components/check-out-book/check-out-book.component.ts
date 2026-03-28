@@ -8,6 +8,7 @@ import { Component, OnInit, Renderer2, TemplateRef } from '@angular/core';
 import { TeacherWithStudent } from '../../entities/teacher-with-student';
 
 @Component({
+    standalone: false,
   selector: 'app-check-out-book',
   templateUrl: './check-out-book.component.html',
   styleUrls: ['./check-out-book.component.css']

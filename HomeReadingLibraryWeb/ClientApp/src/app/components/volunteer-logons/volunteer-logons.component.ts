@@ -4,6 +4,7 @@ import { BaggyBookService } from './../../services/baggy-book.service';
 import { Component, OnInit } from '@angular/core';
 
 @Component({
+    standalone: false,
   selector: 'app-volunteer-logons',
   templateUrl: './volunteer-logons.component.html',
   styleUrls: ['./volunteer-logons.component.css']

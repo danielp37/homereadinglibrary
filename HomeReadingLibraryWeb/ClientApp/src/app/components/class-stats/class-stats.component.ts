@@ -5,6 +5,7 @@ import { ClassStatistics } from 'src/app/entities/class-statistics';
 import { Month } from 'src/app/entities/Month';
 
 @Component({
+    standalone: false,
   selector: 'app-class-stats',
   templateUrl: './class-stats.component.html',
   styleUrls: ['./class-stats.component.scss']

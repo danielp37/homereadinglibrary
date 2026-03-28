@@ -5,6 +5,7 @@ import { Component } from '@angular/core';
 import { faHome, faBook, faBookReader, faListAlt, faListUl, faUsers } from "@fortawesome/free-solid-svg-icons";
 
 @Component({
+    standalone: false,
     selector: 'app-nav-menu',
     templateUrl: './navmenu.component.html',
     styleUrls: ['./navmenu.component.css']

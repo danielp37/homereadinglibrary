@@ -1,12 +1,13 @@
 import { BookSearchParameters } from './../../services/Book-Search-Parameters';
 import { UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
-import { DataTableParams } from 'angular-2-data-table';
+import { DataTableParams } from './../../models/data-table-params';
 import { BookList } from './../../entities/book-list';
 import { Component, OnInit } from '@angular/core';
 import { BaggyBookService } from '../../services/baggy-book.service';
 import { Book } from '../../entities/book';
 
 @Component({
+    standalone: false,
   selector: 'app-book-list',
   templateUrl: './book-list.component.html',
   styleUrls: ['./book-list.component.css']

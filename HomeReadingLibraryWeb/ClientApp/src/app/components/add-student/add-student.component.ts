@@ -5,6 +5,7 @@ import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms
 import { Student } from '../../entities/student';
 
 @Component({
+    standalone: false,
   selector: 'app-add-student',
   templateUrl: './add-student.component.html',
   styleUrls: ['./add-student.component.css']

@@ -2,6 +2,7 @@ import { ClassWithVolunteers } from './../entities/class-with-volunteers';
 import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
+    standalone: false,
   name: 'sortClass'
 })
 export class SortClassPipe implements PipeTransform {

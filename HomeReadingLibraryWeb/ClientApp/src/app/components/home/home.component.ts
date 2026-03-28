@@ -3,6 +3,7 @@ import { AuthService } from '../../modules/app-auth/services/auth.service';
 import { Router } from '@angular/router';
 
 @Component({
+    standalone: false,
     // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'home',
     templateUrl: './home.component.html'

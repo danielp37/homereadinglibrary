@@ -6,6 +6,7 @@ import { Component, OnInit } from '@angular/core';
 import { TeacherWithStudent } from '../../entities/teacher-with-student';
 
 @Component({
+    standalone: false,
   selector: 'app-student-reservation-history',
   templateUrl: './student-reservation-history.component.html',
   styleUrls: ['./student-reservation-history.component.css']
