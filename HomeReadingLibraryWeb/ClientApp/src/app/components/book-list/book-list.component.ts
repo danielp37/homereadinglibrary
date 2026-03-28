@@ -2,9 +2,10 @@ import { BookSearchParameters } from './../../services/Book-Search-Parameters';
 import { UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
 import { DataTableParams } from './../../models/data-table-params';
 import { BookList } from './../../entities/book-list';
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, NgZone, OnInit, ViewChild } from '@angular/core';
 import { BaggyBookService } from '../../services/baggy-book.service';
 import { Book } from '../../entities/book';
+import { DatatableComponent } from '@swimlane/ngx-datatable';
 
 @Component({
     standalone: false,
@@ -13,6 +14,7 @@ import { Book } from '../../entities/book';
   styleUrls: ['./book-list.component.css']
 })
 export class BookListComponent implements OnInit {
+  @ViewChild(DatatableComponent) table?: DatatableComponent;
 
   bookList: BookList;
   lastSearchParams: DataTableParams;
@@ -34,6 +36,8 @@ export class BookListComponent implements OnInit {
   constructor(
     private baggyBookService: BaggyBookService,
     private fb: UntypedFormBuilder,
+    private ngZone: NgZone,
+    private cdr: ChangeDetectorRef,
   ) {
     this.bookList = {
       books: [],
@@ -71,10 +75,22 @@ export class BookListComponent implements OnInit {
     this.baggyBookService.getAllBooks(params, this.getBookSearchParameters())
       .subscribe({
         next: bookList => {
-          this.bookList = bookList;
-          this.loadingIndicator = false;
+          this.ngZone.run(() => {
+            this.bookList = {
+              count: bookList.count,
+              books: [...bookList.books]
+            };
+            this.recalculateTable();
+            this.loadingIndicator = false;
+            this.cdr.detectChanges();
+          });
         }, 
-        error: () => this.loadingIndicator = false
+        error: () => {
+          this.ngZone.run(() => {
+            this.loadingIndicator = false;
+            this.cdr.detectChanges();
+          });
+        }
       });
   }
 
@@ -84,8 +100,19 @@ export class BookListComponent implements OnInit {
       this.refreshBookList(this.lastSearchParams);
     } else {
       const index = this.bookList.books.indexOf(existingBook);
-      this.bookList.books[index] = newBook;
+      const updatedBooks = [...this.bookList.books];
+      updatedBooks[index] = newBook;
+      this.bookList = {
+        count: this.bookList.count,
+        books: updatedBooks
+      };
+      this.recalculateTable();
     }
+  }
+
+  private recalculateTable() {
+    // ngx-datatable can miss initial async row updates unless layout is recalculated.
+    setTimeout(() => this.table?.recalculate(), 0);
   }
 
   getBookSearchParameters(): BookSearchParameters {

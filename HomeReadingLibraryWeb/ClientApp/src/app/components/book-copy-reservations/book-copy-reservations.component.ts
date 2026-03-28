@@ -2,7 +2,8 @@ import { BookSearchParameters } from './../../services/Book-Search-Parameters';
 import { DataTableParams } from './../../models/data-table-params';
 import { BookCopyReservationWithData } from './../../entities/book-copy-reservation-with-data';
 import { BaggyBookService } from './../../services/baggy-book.service';
-import { Component, OnInit, Renderer2 } from '@angular/core';
+import { ChangeDetectorRef, Component, NgZone, OnInit, Renderer2, ViewChild } from '@angular/core';
+import { DatatableComponent } from '@swimlane/ngx-datatable';
 
 @Component({
     standalone: false,
@@ -11,6 +12,7 @@ import { Component, OnInit, Renderer2 } from '@angular/core';
   styleUrls: ['./book-copy-reservations.component.css']
 })
 export class BookCopyReservationsComponent implements OnInit {
+  @ViewChild(DatatableComponent) table?: DatatableComponent;
 
   totalCount: number;
   bookCopyReservations: BookCopyReservationWithData[];
@@ -21,11 +23,14 @@ export class BookCopyReservationsComponent implements OnInit {
   searchType = 'Title';
   searchText = '';
   showOnlyMultiples = false;
+  private isInitialized = false;
 
 
   constructor(
     private baggyBookService: BaggyBookService,
-    private renderer: Renderer2
+    private renderer: Renderer2,
+    private ngZone: NgZone,
+    private cdr: ChangeDetectorRef
   ) {
     this.lastSearchParams = {
       offset: 0,
@@ -36,14 +41,21 @@ export class BookCopyReservationsComponent implements OnInit {
   }
 
   ngOnInit() {
-    setTimeout(() => this.refreshBookList(this.lastSearchParams), 0);
+    if (!this.isInitialized) {
+      this.isInitialized = true;
+      this.refreshBookList(this.lastSearchParams);
+    }
   }
 
   getBookCopyReservations() {
     this.baggyBookService.getBookCopyReservations(undefined, this.lastSearchParams, this.currentDaysBack, this.getBookSearchParameters())
       .subscribe(bcr => {
-        this.totalCount = bcr.count;
-        this.bookCopyReservations = bcr.reservations;
+        this.ngZone.run(() => {
+          this.totalCount = bcr.count;
+          this.bookCopyReservations = [...bcr.reservations];
+          this.recalculateTable();
+          this.cdr.detectChanges();
+        });
       });
   }
 
@@ -67,7 +79,12 @@ export class BookCopyReservationsComponent implements OnInit {
   }
 
   setPage(pageInfo) {
-    this.lastSearchParams.offset = pageInfo.offset * this.lastSearchParams.limit;
+    const nextOffset = pageInfo.offset * this.lastSearchParams.limit;
+    if (nextOffset === this.lastSearchParams.offset) {
+      return;
+    }
+
+    this.lastSearchParams.offset = nextOffset;
     this.refreshBookList(this.lastSearchParams);
   }
 
@@ -113,5 +130,10 @@ export class BookCopyReservationsComponent implements OnInit {
       params.showMultiples = true;
     }
     return params;
+  }
+
+  private recalculateTable() {
+    // ngx-datatable can miss initial async row updates unless layout is recalculated.
+    setTimeout(() => this.table?.recalculate(), 0);
   }
 }

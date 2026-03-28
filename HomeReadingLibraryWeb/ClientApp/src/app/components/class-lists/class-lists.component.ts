@@ -1,7 +1,8 @@
-import { Component, OnInit, TemplateRef } from '@angular/core';
+import { ChangeDetectorRef, Component, NgZone, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { BaggyBookService } from '../../services/baggy-book.service';
 import { Class } from '../../entities/class';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
+import { DatatableComponent } from '@swimlane/ngx-datatable';
 
 @Component({
     standalone: false,
@@ -10,6 +11,7 @@ import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
   styleUrls: ['./class-lists.component.css']
 })
 export class ClassListsComponent implements OnInit {
+  @ViewChild(DatatableComponent) table?: DatatableComponent;
   classes: Class[];
   currentClass: Class;
   selectedClassId: string;
@@ -23,22 +25,43 @@ export class ClassListsComponent implements OnInit {
 
   constructor(
     private baggyBookService: BaggyBookService,
-    private modalService: BsModalService
+    private modalService: BsModalService,
+    private ngZone: NgZone,
+    private cdr: ChangeDetectorRef
   ) { }
 
   displayClassListForCurrentTeacher() {
-    this.currentClass = this.classes.find(cls => cls.classId === this.selectedClassId);
+    if (!this.classes) {
+      this.currentClass = undefined;
+      return;
+    }
+
+    const cls = this.classes.find(foundClass => foundClass.classId === this.selectedClassId);
+    this.currentClass = cls
+      ? { ...cls, students: [...(cls.students || [])] }
+      : undefined;
+    this.recalculateTable();
   }
 
   onNewStudent(updatedClass: Class) {
     const classIdx = this.classes.findIndex(cls => cls.classId === updatedClass.classId);
-    this.classes[classIdx] = updatedClass;
+    if (classIdx !== -1) {
+      const updatedClasses = [...this.classes];
+      updatedClasses[classIdx] = updatedClass;
+      this.classes = updatedClasses;
+    }
     this.displayClassListForCurrentTeacher();
   }
 
   ngOnInit() {
     this.baggyBookService.getClasses()
-      .subscribe(classes => this.classes = classes);
+      .subscribe(classes => {
+        this.ngZone.run(() => {
+          this.classes = [...classes];
+          this.recalculateTable();
+          this.cdr.detectChanges();
+        });
+      });
     this.selectedClassId = '';
   }
 
@@ -55,7 +78,16 @@ export class ClassListsComponent implements OnInit {
   onClassAdded() {
     this.baggyBookService.getClasses()
       .subscribe(classes => {
-        this.classes = classes;
+        this.ngZone.run(() => {
+          this.classes = [...classes];
+          this.recalculateTable();
+          this.cdr.detectChanges();
+        });
       });
+  }
+
+  private recalculateTable() {
+    // ngx-datatable can miss initial async row updates unless layout is recalculated.
+    setTimeout(() => this.table?.recalculate(), 0);
   }
 }

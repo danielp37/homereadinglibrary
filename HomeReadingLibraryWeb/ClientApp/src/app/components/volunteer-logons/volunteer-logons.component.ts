@@ -1,7 +1,7 @@
 import {DayOfWeek} from '../../entities/day-of-week.enum';
 import { VolunteerWithLogons } from './../../entities/volunteer-with-logons';
 import { BaggyBookService } from './../../services/baggy-book.service';
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, NgZone, OnInit } from '@angular/core';
 
 @Component({
     standalone: false,
@@ -15,7 +15,9 @@ export class VolunteerLogonsComponent implements OnInit {
   volunteersWithLogons: VolunteerWithLogons[];
 
   constructor(
-    private baggyBookService: BaggyBookService
+    private baggyBookService: BaggyBookService,
+    private ngZone: NgZone,
+    private cdr: ChangeDetectorRef
   ) {
     this.volunteersWithLogons = new Array<VolunteerWithLogons>();
    }
@@ -26,7 +28,12 @@ export class VolunteerLogonsComponent implements OnInit {
 
   public getVolunteerLoginsSinceDate(daysBack: number) {
     this.baggyBookService.getVolunteerLoginsSinceDate(daysBack)
-      .subscribe(volunteers => this.volunteersWithLogons = volunteers);
+      .subscribe(volunteers => {
+        this.ngZone.run(() => {
+          this.volunteersWithLogons = [...volunteers];
+          this.cdr.detectChanges();
+        });
+      });
   }
 
   private getDayOfWeekString(dayOfWeek: DayOfWeek): string {
