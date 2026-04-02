@@ -53,6 +53,15 @@ export default defineConfig({
   webServer: useManagedLocalStack
     ? [
         {
+          command: 'npm start -- --host 127.0.0.1 --port 4200',
+          url: 'http://localhost:4200/home',
+          cwd: '.',
+          reuseExistingServer: !process.env.CI,
+          timeout: 120_000,
+          stdout: 'pipe',
+          stderr: 'pipe'
+        },
+        {
           command: 'dotnet run --project ..\\HomeReadingLibraryWeb.csproj --launch-profile HomeReadingLibraryWeb',
           url: 'https://localhost:5001',
           cwd: '.',
@@ -61,16 +70,8 @@ export default defineConfig({
           ignoreHTTPSErrors: true,
           stdout: 'pipe',
           stderr: 'pipe'
-        },
-        {
-          command: 'npm start -- --host 127.0.0.1 --port 4200',
-          url: 'http://localhost:4200/home',
-          cwd: '.',
-          reuseExistingServer: !process.env.CI,
-          timeout: 120_000,
-          stdout: 'pipe',
-          stderr: 'pipe'
         }
+
       ]
     : undefined,
   projects: projects as PlaywrightTestConfig['projects']
