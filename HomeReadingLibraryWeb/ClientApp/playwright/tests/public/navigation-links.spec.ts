@@ -16,4 +16,12 @@ test.describe('public navigation links', () => {
     await expect(page).toHaveURL(/\/signup$/i);
     await expect(page.locator('#formFirstName')).toBeVisible();
   });
+
+  test('sign-in page go-back button returns to home', async ({ page }) => {
+    await page.goto('/account/signin');
+
+    await page.getByRole('button', { name: /go back home/i }).click();
+    await expect(page).toHaveURL(/\/home$/i);
+    await expect(page.getByRole('link', { name: /sign in as volunteer/i })).toBeVisible();
+  });
 });
