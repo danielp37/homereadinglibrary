@@ -11,6 +11,7 @@ using System.IO;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using HomeReadingLibrary.Domain.Services;
+using System.Collections.Generic;
 
 namespace HomeReadingLibrary.Controllers.Controllers
 {
@@ -265,18 +266,39 @@ namespace HomeReadingLibrary.Controllers.Controllers
     public async Task<IActionResult> GetBookCopyByBarCode(string barCode)
     {
       var filter = Builders<Book>.Filter.ElemMatch(b => b.BookCopies, bc => bc.BarCode == barCode);
-      var bookCopy = await bookCollection.Find(filter)
-                          .Project(b => new
-                          {
-                            b.Title,
-                            b.Author,
-                            BarCode = b.BookCopies.Single(bc => bc.BarCode == barCode).BarCode
-                          }).FirstOrDefaultAsync();
+      var projection = Builders<Book>.Projection
+        .Exclude("_id")
+        .Include(b => b.Title)
+        .Include(b => b.Author)
+        .ElemMatch(b => b.BookCopies, bc => bc.BarCode == barCode);
+
+      var bookInfo = await bookCollection.Find(filter)
+                          .Project<BookCopyLookupProjection>(projection)
+                          .FirstOrDefaultAsync();
+      if (bookInfo == null)
+      {
+        return NotFound($"Could not find BookCopy with barCode {barCode}.");
+      }
+
+      var bookCopy = bookInfo.BookCopies?.FirstOrDefault();
       if (bookCopy == null)
       {
         return NotFound($"Could not find BookCopy with barCode {barCode}.");
       }
-      return Ok(bookCopy);
+
+      return Ok(new
+      {
+        bookInfo.Title,
+        bookInfo.Author,
+        bookCopy.BarCode
+      });
+    }
+
+    private class BookCopyLookupProjection
+    {
+      public string Title { get; set; }
+      public string Author { get; set; }
+      public List<BookCopy> BookCopies { get; set; }
     }
 
     public class BarCodeBody

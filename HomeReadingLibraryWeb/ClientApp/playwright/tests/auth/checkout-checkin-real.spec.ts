@@ -9,7 +9,7 @@ test.describe('real checkout/checkin flow', () => {
     await signInThroughRealLogin(page);
   });
 
-  test('checks out and then checks in the same real book for a real student via API', async ({ page, request }) => {
+  test('checks out and then checks in the same real book for a real student via UI pages', async ({ page, request }) => {
     const accessToken = await getAccessToken(page);
     if (!accessToken) {
       test.skip(true, 'No OAuth access token found after login.');
@@ -25,27 +25,29 @@ test.describe('real checkout/checkin flow', () => {
       );
     }
 
-    const checkoutResponse = await request.post('/api/bookcopyreservations', {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-      data: {
-        bookCopyBarCode: bookBarCode,
-        studentBarCode,
-      },
-      timeout: 15_000,
-    });
+    await page.goto('/checkout');
+    await expect(page).toHaveURL(/\/checkout$/);
 
-    await expect(checkoutResponse.ok()).toBeTruthy();
+    await page.locator('#formStudentBarCode').fill(studentBarCode);
+    await page.locator('#formStudentBarCode').press('Enter');
+    await expect(page.locator('#formBookBarcode')).toBeVisible();
 
-    const checkinResponse = await request.post(`/api/bookcopyreservations/checkin/${bookBarCode}`, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-      timeout: 15_000,
-    });
+    await page.locator('#formBookBarcode').fill(bookBarCode);
+    await page.locator('#formBookBarcode').press('Enter');
 
-    await expect(checkinResponse.ok()).toBeTruthy();
+    const checkoutSuccessEntry = page.locator('span.bg-success').first();
+    await expect(checkoutSuccessEntry).toBeVisible();
+    await expect(checkoutSuccessEntry).toContainText(/successfully checked out book/i);
+
+    await page.goto('/checkin');
+    await expect(page).toHaveURL(/\/checkin$/);
+
+    await page.locator('#formBookBarcode').fill(bookBarCode);
+    await page.locator('#formBookBarcode').press('Enter');
+
+    const checkinSuccessEntry = page.locator('span.bg-success').first();
+    await expect(checkinSuccessEntry).toBeVisible();
+    await expect(checkinSuccessEntry).toContainText(/successfully checked in book/i);
   });
 });
 

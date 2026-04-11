@@ -133,20 +133,37 @@ namespace HomeReadingLibrary.Controllers.Controllers
     public async Task<IActionResult> GetStudentByBarCode(string studentBarCode)
     {
       var filter = Builders<Class>.Filter.ElemMatch(cls => cls.Students, student => student.BarCode == studentBarCode);
-      var studentInfo = await classCollection.Find(filter)
-          .Project(c => new
-          {
-            c.TeacherName,
-            Student = c.Students.SingleOrDefault(s => s.BarCode == studentBarCode)
-          })
+      var projection = Builders<Class>.Projection
+        .Exclude("_id")
+        .Include(c => c.TeacherName)
+        .ElemMatch(c => c.Students, s => s.BarCode == studentBarCode);
+
+      var classInfo = await classCollection.Find(filter)
+          .Project<StudentLookupProjection>(projection)
           .FirstOrDefaultAsync();
 
-      if (studentInfo == null)
+      if (classInfo == null)
       {
         return NotFound($"Student with barcode {studentBarCode} not found");
       }
 
-      return Ok(studentInfo);
+      var student = classInfo.Students?.FirstOrDefault();
+      if (student == null)
+      {
+        return NotFound($"Student with barcode {studentBarCode} not found");
+      }
+
+      return Ok(new
+      {
+        classInfo.TeacherName,
+        Student = student
+      });
+    }
+
+    private class StudentLookupProjection
+    {
+      public string TeacherName { get; set; }
+      public List<Student> Students { get; set; }
     }
 
     private async Task<string> GenerateUniqueBarCode()
