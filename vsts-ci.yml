@@ -20,12 +20,12 @@ steps:
     projects: '**/*Tests.csproj'
     arguments: '--configuration $(BuildConfiguration)'
 
-# Node Tool Installer
-# Finds or Downloads and caches specified version spec of Node and adds it to the PATH.
-- task: NodeTool@0
+# Use Node.js
+# Finds or downloads and caches the specified Node.js version and adds it to PATH.
+- task: UseNode@1
   displayName: "Ensure version of node"
   inputs:
-    versionSpec: '>=18.13.0' 
+    versionSpec: '>=24.14.1' 
     #checkLatest: false # Optional
 
 - script: npm install npm@latest -g
