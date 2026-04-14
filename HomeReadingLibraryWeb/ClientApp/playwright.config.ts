@@ -62,7 +62,7 @@ export default defineConfig({
           stderr: 'pipe'
         },
         {
-          command: 'dotnet run --project ..\\HomeReadingLibraryWeb.csproj --launch-profile HomeReadingLibraryWeb',
+          command: 'dotnet run --project ../HomeReadingLibraryWeb.csproj --launch-profile HomeReadingLibraryWeb',
           url: 'https://localhost:5001',
           cwd: '.',
           reuseExistingServer: !process.env.CI,

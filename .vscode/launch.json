@@ -10,9 +10,9 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceRoot}/homereadinglibraryweb/bin/Debug/net10.0/homereadinglibraryweb.dll",
+            "program": "${workspaceRoot}/HomeReadingLibraryWeb/bin/Debug/net10.0/HomeReadingLibraryWeb.dll",
             "args": [],
-            "cwd": "${workspaceRoot}/homereadinglibraryweb",
+            "cwd": "${workspaceRoot}/HomeReadingLibraryWeb",
             "stopAtEntry": false,
             "internalConsoleOptions": "openOnSessionStart",
             "launchBrowser": {
@@ -42,9 +42,9 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceRoot}/homereadinglibraryweb/bin/Debug/net10.0/homereadinglibraryweb.dll",
+            "program": "${workspaceRoot}/HomeReadingLibraryWeb/bin/Debug/net10.0/HomeReadingLibraryWeb.dll",
             "args": [],
-            "cwd": "${workspaceRoot}/homereadinglibraryweb",
+            "cwd": "${workspaceRoot}/HomeReadingLibraryWeb",
             "stopAtEntry": false,
             "internalConsoleOptions": "openOnSessionStart",
             "launchBrowser": {
