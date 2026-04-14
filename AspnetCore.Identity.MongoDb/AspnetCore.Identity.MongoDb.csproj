@@ -9,15 +9,14 @@
   <ItemGroup>
     <PackageReference Include="Duende.IdentityServer" Version="7.4.7" />
     <PackageReference Include="IdentityModel" Version="7.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.0" />
     <PackageReference Include="Microsoft.AspNet.Identity.Core" Version="2.2.3">
       <NoWarn>NU1701</NoWarn>
     </PackageReference>
-    <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
     <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.17.0" />
     <PackageReference Include="MongoDb.Driver" Version="3.7.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.17.0" />
-    <PackageReference Include="System.Security.Cryptography.Xml" Version="10.0.5" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Stores\" />
