@@ -25,8 +25,8 @@ steps:
 - task: UseNode@1
   displayName: "Ensure version of node"
   inputs:
-    versionSpec: '>=24.14.1' 
-    #checkLatest: false # Optional
+    version: '24.x'
+    checkLatest: true
 
 - script: npm install npm@latest -g
   displayName: "Ensure latest version of npm"
