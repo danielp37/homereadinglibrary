@@ -1,8 +1,9 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { CollapseModule } from "ngx-bootstrap/collapse";
-import { HttpClientModule } from "@angular/common/http";
+import { HTTP_INTERCEPTORS, HttpClientModule } from "@angular/common/http";
 import { OAuthModule } from "angular-oauth2-oidc";
+import { ZoneHttpInterceptor } from './services/zone-http-interceptor';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgxDatatableModule } from "@swimlane/ngx-datatable";
 
@@ -75,7 +76,10 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
     NgbModule,
     FontAwesomeModule
   ],
-  providers: [LoaderService, BaggyBookService, BookLookupService],
+  providers: [
+    LoaderService, BaggyBookService, BookLookupService,
+    { provide: HTTP_INTERCEPTORS, useClass: ZoneHttpInterceptor, multi: true }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

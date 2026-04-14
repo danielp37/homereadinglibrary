@@ -4,6 +4,7 @@ import { BaggyBookService } from './../../services/baggy-book.service';
 import { Component, OnInit } from '@angular/core';
 
 @Component({
+    standalone: false,
   selector: 'app-volunteer-logons',
   templateUrl: './volunteer-logons.component.html',
   styleUrls: ['./volunteer-logons.component.css']
@@ -25,7 +26,9 @@ export class VolunteerLogonsComponent implements OnInit {
 
   public getVolunteerLoginsSinceDate(daysBack: number) {
     this.baggyBookService.getVolunteerLoginsSinceDate(daysBack)
-      .subscribe(volunteers => this.volunteersWithLogons = volunteers);
+      .subscribe(volunteers => {
+        this.volunteersWithLogons = [...volunteers];
+      });
   }
 
   private getDayOfWeekString(dayOfWeek: DayOfWeek): string {

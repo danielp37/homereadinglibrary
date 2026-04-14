@@ -4,6 +4,7 @@ import { BaggyBookService } from './../../services/baggy-book.service';
 import { Component, OnInit, Output, EventEmitter, Renderer2 } from '@angular/core';
 
 @Component({
+    standalone: false,
   selector: 'app-add-class',
   templateUrl: './add-class.component.html',
   styleUrls: ['./add-class.component.css']

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Text;
 using AspnetCore.Identity.MongoDb.Entities;
 using AspnetCore.Identity.MongoDb.JwtModels;
@@ -14,7 +14,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
 using System.Threading.Tasks;
-using IdentityServer4.Services;
+using Duende.IdentityServer.Services;
 using AspnetCore.Identity.MongoDb.Services;
 
 namespace AspnetCore.Identity.MongoDb
@@ -36,7 +36,11 @@ namespace AspnetCore.Identity.MongoDb
 
       services.AddTransient<IJwtFactory, JwtFactory>();
       var jwtAppSettingOptions = configuration.GetSection(nameof(JwtIssuerOptions));
-      var secretKey = Environment.GetEnvironmentVariable("JWT_Key");
+      var secretKey = configuration["JwtKey"] ?? Environment.GetEnvironmentVariable("JWT_Key");
+      if (string.IsNullOrEmpty(secretKey))
+      {
+        throw new InvalidOperationException("JWT signing key must be configured via user secrets (JwtKey), or JWT_Key environment variable.");
+      }
       var signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secretKey));
       services.Configure<JwtIssuerOptions>(options =>
       {
@@ -106,7 +110,11 @@ namespace AspnetCore.Identity.MongoDb
       // jwt wire up
       // Get options from app settings
       var jwtAppSettingOptions = configuration.GetSection(nameof(JwtIssuerOptions));
-      var secretKey = Environment.GetEnvironmentVariable("JWT_Key"); 
+      var secretKey = configuration["JwtKey"] ?? Environment.GetEnvironmentVariable("JWT_Key");
+      if (string.IsNullOrEmpty(secretKey))
+      {
+        throw new InvalidOperationException("JWT signing key must be configured via user secrets (JwtKey), or JWT_Key environment variable.");
+      }
       var signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secretKey));
 
       services.AddTransient<IJwtFactory, JwtFactory>();

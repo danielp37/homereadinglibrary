@@ -4,6 +4,7 @@ import { BookCopyReservationWithData } from './../../entities/book-copy-reservat
 import { Component, OnInit, Renderer2 } from '@angular/core';
 
 @Component({
+    standalone: false,
   selector: 'app-book-reservation-history',
   templateUrl: './book-reservation-history.component.html',
   styleUrls: ['./book-reservation-history.component.css']

@@ -29,6 +29,9 @@
 /.sass-cache
 /connect.lock
 /coverage
+/playwright/.auth
+/playwright-report
+/test-results
 /libpeerconnection.log
 npm-debug.log
 yarn-error.log

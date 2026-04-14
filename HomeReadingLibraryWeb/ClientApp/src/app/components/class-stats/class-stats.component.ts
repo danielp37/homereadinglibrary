@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, NgZone, OnInit } from '@angular/core';
 import { BaggyBookService } from 'src/app/services/baggy-book.service';
 import { Class } from 'src/app/entities/class';
 import { ClassStatistics } from 'src/app/entities/class-statistics';
 import { Month } from 'src/app/entities/Month';
 
 @Component({
+    standalone: false,
   selector: 'app-class-stats',
   templateUrl: './class-stats.component.html',
   styleUrls: ['./class-stats.component.scss']
@@ -18,14 +19,21 @@ export class ClassStatsComponent implements OnInit {
   classStats: unknown | ClassStatistics;
 
   constructor(
-    private baggyBookService: BaggyBookService
+    private baggyBookService: BaggyBookService,
+    private ngZone: NgZone,
+    private cdr: ChangeDetectorRef
   ) {
     this.selectedMonth = "YTD"
   }
 
   ngOnInit() {
     this.baggyBookService.getClasses()
-      .subscribe(classes => this.classes = classes);
+      .subscribe(classes => {
+        this.ngZone.run(() => {
+          this.classes = [...classes];
+          this.cdr.detectChanges();
+        });
+      });
     this.months = new Array<Month>();
 
     const d: Date = new Date(Date.now());
@@ -47,7 +55,12 @@ export class ClassStatsComponent implements OnInit {
     if(this.selectedClassId)
     {
       this.baggyBookService.getClassStatistics(this.selectedClassId, this.selectedMonth)
-        .subscribe(classStats => this.classStats = classStats);
+        .subscribe(classStats => {
+          this.ngZone.run(() => {
+            this.classStats = classStats;
+            this.cdr.detectChanges();
+          });
+        });
     }
     else
     {

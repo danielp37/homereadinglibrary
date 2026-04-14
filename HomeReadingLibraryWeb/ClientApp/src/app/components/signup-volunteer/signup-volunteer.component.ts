@@ -1,6 +1,6 @@
 import { BaggyBookService } from '../../services/baggy-book.service';
 import {Router} from '@angular/router';
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, NgZone, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Volunteer } from '../../entities/volunteer';
 import { VolunteerForClass } from '../../entities/volunteer-for-class';
@@ -8,6 +8,7 @@ import { Class } from '../../entities/class';
 import { DayOfWeek } from '../../entities/day-of-week.enum';
 
 @Component({
+    standalone: false,
   selector: 'app-signup-volunteer',
   templateUrl: './signup-volunteer.component.html',
   styleUrls: ['./signup-volunteer.component.css'],
@@ -40,14 +41,21 @@ export class SignupVolunteerComponent implements OnInit {
 
   constructor(
       private baggyBookService: BaggyBookService,
-      private router: Router
+      private router: Router,
+      private ngZone: NgZone,
+      private cdr: ChangeDetectorRef
       ) {
         this.volunteerForClasses = [];
        }
 
   ngOnInit() {
     this.baggyBookService.getClasses()
-      .subscribe(classes => this.classes = classes);
+      .subscribe(classes => {
+        this.ngZone.run(() => {
+          this.classes = [...classes];
+          this.cdr.detectChanges();
+        });
+      });
   }
 
 }

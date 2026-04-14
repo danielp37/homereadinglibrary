@@ -6,6 +6,7 @@ import { Book } from '../../entities/book';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 
 @Component({
+    standalone: false,
   selector: 'app-add-book',
   templateUrl: './add-book.component.html',
   styleUrls: ['./add-book.component.css']

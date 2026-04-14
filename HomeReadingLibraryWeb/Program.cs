@@ -1,5 +1,6 @@
 using HomeReadingLibraryWeb;
-using IdentityServer4.Models;
+using Duende.IdentityServer.Models;
+using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,10 +14,11 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
 using System.Text.Json.Serialization;
+using System.Linq;
 
 var builder = WebApplication.CreateBuilder(args);
 
-ConfigureServices(builder.Services, builder.Configuration);
+ConfigureServices(builder.Services, builder.Configuration, builder.Environment);
 
 var app = builder.Build();
 
@@ -24,7 +26,7 @@ Configure(app, app.Environment);
 
 await app.RunAsync();
 
-void ConfigureServices(IServiceCollection services, IConfiguration configuration)
+void ConfigureServices(IServiceCollection services, IConfiguration configuration, IHostEnvironment environment)
 {
   services.AddMvc(opt =>
   {
@@ -45,15 +47,23 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 
   var spaClient = new Client();
   configuration.GetSection("SpaClient").Bind(spaClient);
+  var duendeLicenseKey = configuration["Duende:LicenseKey"];
 
-  X509Store certStore = new X509Store(StoreName.My, StoreLocation.CurrentUser);
+  if (!environment.IsDevelopment() && string.IsNullOrWhiteSpace(duendeLicenseKey))
+  {
+    throw new InvalidOperationException("Duende license key must be configured outside Development.");
+  }
+
+  using X509Store certStore = new X509Store(StoreName.My, StoreLocation.CurrentUser);
   certStore.Open(OpenFlags.ReadOnly);
-  var certsFound = certStore.Certificates.Find(X509FindType.FindByThumbprint, "C23735CD63DDFF6C38751022B944B07C8246FAF7", false);
+  var certsFound = certStore.Certificates.Find(X509FindType.FindBySubjectDistinguishedName, 
+    "CN=gchomereadinglibrary.preeceworld.com", false);
   var cert = certsFound.Count > 0 ? certsFound[0] : throw new FileNotFoundException("Could not find signing certificate!");
   //services.ConfigureIdentity(Configuration);
   services.AddIdentityServer(options =>
   {
     options.UserInteraction.LoginUrl = "~/account/signin";
+    options.LicenseKey = duendeLicenseKey;
   })
     .AddSigningCredential(cert)
     .AddDeveloperSigningCredential()
@@ -79,12 +89,20 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
   services.AddAuthorization(options =>
   {
     options.AddPolicy("VolunteerUser", policy => {
-      policy.RequireScope("library");
+      policy.RequireAssertion(ctx =>
+      {
+        var scopeClaims = ctx.User.FindAll("scope").Select(x => x.Value);
+        return scopeClaims.Any(value => value.Split(' ').Contains("library"));
+      });
       policy.RequireRole("VolunteerAccess");
     });
     options.AddPolicy("AdminUser", policy =>
     {
-      policy.RequireScope("library");
+      policy.RequireAssertion(ctx =>
+      {
+        var scopeClaims = ctx.User.FindAll("scope").Select(x => x.Value);
+        return scopeClaims.Any(value => value.Split(' ').Contains("library"));
+      });
       policy.RequireRole("AdminAccess");
     });
   });

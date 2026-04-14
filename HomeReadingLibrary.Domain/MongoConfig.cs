@@ -22,8 +22,13 @@ namespace HomeReadingLibrary.Domain
             _config = config;
             SetConventions();
             var mongoConfig = _config.GetSection("mongodb");
-            _connectionString = Environment.GetEnvironmentVariable("CUSTOMCONNSTR_mongodb");
-            //_connectionString = mongoConfig.GetValue("connectionString", "mongodb://127.0.0.1");
+            _connectionString = _config["ConnectionStrings:mongodb"]
+                ?? Environment.GetEnvironmentVariable("CUSTOMCONNSTR_mongodb")
+                ?? mongoConfig["connectionString"];
+            if (string.IsNullOrEmpty(_connectionString))
+            {
+                throw new InvalidOperationException("MongoDB connection string must be configured via user secrets (ConnectionStrings:mongodb), CUSTOMCONNSTR_mongodb environment variable, or mongodb.connectionString in appsettings.");
+            }
             _database = mongoConfig.GetValue("database", "baggybooks");
         }
 

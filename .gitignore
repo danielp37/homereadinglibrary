@@ -241,3 +241,4 @@ website/localhost.cer
 website/localhost.key
 /mongodb/Connect-BaggyBooksMongo.ps1
 /mongodb/studentStartAndEndBookLevels.csv
+/.local/

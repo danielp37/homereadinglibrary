@@ -5,6 +5,7 @@ import { BookCopyWithBook } from './../../entities/book-copy-with-book';
 import { Component, OnInit, Renderer2 } from '@angular/core';
 
 @Component({
+    standalone: false,
   selector: 'app-check-in-book',
   templateUrl: './check-in-book.component.html',
   styleUrls: ['./check-in-book.component.css']

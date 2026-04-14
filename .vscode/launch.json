@@ -10,9 +10,9 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceRoot}/website/bin/Debug/netcoreapp2.0/website.dll",
+            "program": "${workspaceRoot}/HomeReadingLibraryWeb/bin/Debug/net10.0/HomeReadingLibraryWeb.dll",
             "args": [],
-            "cwd": "${workspaceRoot}/website",
+            "cwd": "${workspaceRoot}/HomeReadingLibraryWeb",
             "stopAtEntry": false,
             "internalConsoleOptions": "openOnSessionStart",
             "launchBrowser": {
@@ -30,18 +30,90 @@
                 }
             },
             "env": {
-                "CUSTOMCONNSTR_mongodb": "mongodb://127.0.0.1",
-                "ASPNETCORE_ENVIRONMENT": "Development"
+                "ASPNETCORE_ENVIRONMENT": "Development",
+                "ASPNETCORE_URLS": "https://localhost:5001;http://localhost:5000"
             },
             "sourceFileMap": {
                 "/Views": "${workspaceRoot}/Views"
             }
         },
         {
+            "name": ".NET Core Launch (web, no browser)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceRoot}/HomeReadingLibraryWeb/bin/Debug/net10.0/HomeReadingLibraryWeb.dll",
+            "args": [],
+            "cwd": "${workspaceRoot}/HomeReadingLibraryWeb",
+            "stopAtEntry": false,
+            "internalConsoleOptions": "openOnSessionStart",
+            "launchBrowser": {
+                "enabled": false
+            },
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development",
+                "ASPNETCORE_URLS": "https://localhost:5001;http://localhost:5000"
+            },
+            "sourceFileMap": {
+                "/Views": "${workspaceRoot}/Views"
+            }
+        },
+        {
+            "name": "Playwright: Admin Auth Debug",
+            "type": "node",
+            "request": "launch",
+            "cwd": "${workspaceRoot}/homereadinglibraryweb/clientapp",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": [
+                "run",
+                "e2e",
+                "--",
+                "--project=chromium-authenticated",
+                "--headed",
+                "--workers=1"
+            ],
+            "env": {
+                "BAGGY_E2E_ROLE": "admin",
+                "BAGGY_E2E_USE_LOCAL_STACK": "false",
+                "BAGGY_E2E_BASE_URL": "https://localhost:5001",
+                "BAGGY_E2E_USERNAME": "${input:baggyAdminUsername}",
+                "BAGGY_E2E_PASSWORD": "${input:baggyAdminPassword}",
+                "PWDEBUG": "1"
+            },
+            "console": "integratedTerminal",
+            "skipFiles": [
+                "<node_internals>/**"
+            ]
+        },
+        {
             "name": ".NET Core Attach",
             "type": "coreclr",
             "request": "attach",
             "processId": "${command:pickProcess}"
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Debug Admin Login (.NET + Playwright)",
+            "configurations": [
+                ".NET Core Launch (web, no browser)",
+                "Playwright: Admin Auth Debug"
+            ],
+            "stopAll": true
+        }
+    ],
+    "inputs": [
+        {
+            "id": "baggyAdminUsername",
+            "type": "promptString",
+            "description": "Baggy admin username",
+            "default": "aliciapreece"
+        },
+        {
+            "id": "baggyAdminPassword",
+            "type": "promptString",
+            "description": "Baggy admin password",
+            "password": true
         }
     ]
 }

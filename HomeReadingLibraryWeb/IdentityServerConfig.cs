@@ -1,4 +1,4 @@
-﻿using IdentityServer4.Models;
+﻿using Duende.IdentityServer.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
