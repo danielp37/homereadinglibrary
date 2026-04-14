@@ -54,7 +54,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
     throw new InvalidOperationException("Duende license key must be configured outside Development.");
   }
 
-  X509Store certStore = new X509Store(StoreName.My, StoreLocation.CurrentUser);
+  using X509Store certStore = new X509Store(StoreName.My, StoreLocation.CurrentUser);
   certStore.Open(OpenFlags.ReadOnly);
   var certsFound = certStore.Certificates.Find(X509FindType.FindBySubjectDistinguishedName, 
     "CN=gchomereadinglibrary.preeceworld.com", false);
