@@ -1,0 +1,40 @@
+<ng-template #content>
+  <div class="modal-header">
+    <h4 class="modal-title">Add Book</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="close()"></button>
+  </div>
+  <div class="modal-body">
+    <form [formGroup]="addBookForm" (ngSubmit)="save()" novalidate>
+      <div class="mb-3">
+        <label for="addBookTitle" class="form-label">Title</label>
+        <input id="addBookTitle" class="form-control" formControlName="title" aria-label="Title" />
+        <div *ngIf="addBookForm.get('title').invalid && addBookForm.get('title').touched" class="text-danger">Title is required</div>
+      </div>
+      <div class="mb-3">
+        <label for="addBookAuthor" class="form-label">Author</label>
+        <input id="addBookAuthor" class="form-control" formControlName="author" aria-label="Author" />
+        <div *ngIf="addBookForm.get('author').invalid && addBookForm.get('author').touched" class="text-danger">Author is required</div>
+      </div>
+      <div class="mb-3">
+        <label for="addBookIsbn" class="form-label">ISBN</label>
+        <input id="addBookIsbn" class="form-control" formControlName="isbn" aria-label="ISBN" />
+      </div>
+      <div class="mb-3">
+        <label for="addBookPublisher" class="form-label">Publisher</label>
+        <input id="addBookPublisher" class="form-control" formControlName="publisher" aria-label="Publisher" />
+      </div>
+      <div class="mb-3">
+        <label for="addBookYear" class="form-label">Year</label>
+        <input id="addBookYear" type="number" class="form-control" formControlName="year" aria-label="Year" />
+      </div>
+      <div class="mb-3">
+        <label for="addBookNotes" class="form-label">Notes (optional)</label>
+        <textarea id="addBookNotes" class="form-control" formControlName="notes" aria-label="Notes"></textarea>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" [disabled]="addBookForm.invalid" (click)="save()">Save</button>
+    <button type="button" class="btn btn-outline-dark" (click)="close()">Close</button>
+  </div>
+</ng-template>
