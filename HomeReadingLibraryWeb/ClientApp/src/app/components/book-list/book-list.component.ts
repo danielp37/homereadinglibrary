@@ -1,14 +1,18 @@
 import { BookSearchParameters } from './../../services/Book-Search-Parameters';
-import { UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { DataTableParams } from './../../models/data-table-params';
 import { BookList } from './../../entities/book-list';
 import { ChangeDetectorRef, Component, NgZone, OnInit, ViewChild } from '@angular/core';
 import { BaggyBookService } from '../../services/baggy-book.service';
 import { Book } from '../../entities/book';
-import { DatatableComponent } from '@swimlane/ngx-datatable';
+import { DatatableComponent, NgxDatatableModule } from '@swimlane/ngx-datatable';
+import { AddBookModalComponent } from '../add-book-modal/add-book-modal.component';
+import { AddBookComponent } from '../add-book/add-book.component';
+import { CommonModule } from '@angular/common';
 
 @Component({
-    standalone: false,
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, NgxDatatableModule, AddBookModalComponent, AddBookComponent],
   selector: 'app-book-list',
   templateUrl: './book-list.component.html',
   styleUrls: ['./book-list.component.css']

@@ -1,12 +1,14 @@
 import { BaggyBookService } from './../../services/baggy-book.service';
 import { Component, OnInit, Output, EventEmitter, Renderer2, Input, TemplateRef } from '@angular/core';
 import { BookLookupService } from '../../services/book-lookup.service';
-import { UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Book } from '../../entities/book';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
+import { CommonModule } from '@angular/common';
 
 @Component({
-    standalone: false,
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
   selector: 'app-add-book',
   templateUrl: './add-book.component.html',
   styleUrls: ['./add-book.component.css']

@@ -1,10 +1,13 @@
 import { Component, EventEmitter, Output, ViewChild, TemplateRef, Renderer2, OnInit } from '@angular/core';
-import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 import { BaggyBookService } from '../../services/baggy-book.service';
 import { Book } from '../../entities/book';
 
 @Component({
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule],
   selector: 'app-add-book-modal',
   templateUrl: './add-book-modal.component.html',
   styleUrls: ['./add-book-modal.component.css']

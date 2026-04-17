@@ -21,8 +21,6 @@ import { CheckInBookComponent } from './components/check-in-book/check-in-book.c
 import { CheckOutBookComponent } from './components/check-out-book/check-out-book.component';
 import { AddStudentComponent } from './components/add-student/add-student.component';
 import { BookListComponent } from './components/book-list/book-list.component';
-import { AddBookComponent } from './components/add-book/add-book.component';
-import { AddBookModalComponent } from './components/add-book-modal/add-book-modal.component';
 import { BookLookupService } from './services/book-lookup.service';
 import { SortNamePipe } from './pipes/sort-name.pipe';
 import { SortDatePipe } from './pipes/sort-date.pipe';
@@ -51,9 +49,6 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
     CheckInBookComponent,
     CheckOutBookComponent,
     AddStudentComponent,
-    BookListComponent,
-    AddBookComponent,
-    AddBookModalComponent,
     ClassListsComponent,
     AddClassComponent,
     UploadStudentsComponent,
@@ -76,7 +71,8 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
     ReactiveFormsModule,
     NgxDatatableModule,
     NgbModule,
-    FontAwesomeModule
+    FontAwesomeModule,
+    BookListComponent
   ],
   providers: [
     LoaderService, BaggyBookService, BookLookupService,
