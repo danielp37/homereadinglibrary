@@ -53,8 +53,8 @@ test.describe('book list real API workflows', () => {
     await openBookList(page);
     await searchBooks(page, 'Title', created.title);
     await page.getByRole('button', { name: /^edit$/i }).first().click();
-    await expect(page.getByDisplayValue(created.title)).toBeVisible();
-    await expect(page.getByDisplayValue(created.author)).toBeVisible();
+    await expect(page.locator('input#editTitle')).toHaveValue(created.title);
+    await expect(page.locator('input#editAuthor')).toHaveValue(created.author);
     await expect(page.getByRole('button', { name: /update book/i })).toBeVisible();
   });
 
@@ -73,8 +73,8 @@ test.describe('book list real API workflows', () => {
     await openBookList(page);
     await searchBooks(page, 'Title', created.title);
     await page.getByRole('button', { name: /^add copy$/i }).first().click();
-    await expect(page.getByText(created.title)).toBeVisible();
     await expect(page.getByLabel('Book Copy Barcode')).toBeVisible();
+    await expect(page.locator('form').locator('strong').filter({ hasText: created.title })).toBeVisible();
   });
 
   test('search by Title', async ({ page, request }) => {
@@ -202,9 +202,9 @@ test.describe('book list real API workflows', () => {
 
     await openBookList(page);
     await searchBooks(page, 'Title', created.title);
-    await page.getByRole('cell', { name: created.title }).first().click();
-    await page.locator('#formBookBarcode').fill(barcode);
-    await page.locator('#formBookBarcode').press('Enter');
+    await page.getByRole('button', { name: /^add copy$/i }).first().click();
+    await page.locator('#bookCopyBarCode').fill(barcode);
+    await page.locator('#bookCopyBarCode').press('Enter');
 
     await expect(page.locator('li', { hasText: barcode })).toBeVisible();
   });
@@ -224,7 +224,7 @@ test.describe('book list real API workflows', () => {
 
     await openBookList(page);
     await searchBooks(page, 'Title', created.title);
-    await page.getByRole('cell', { name: created.title }).first().click();
+    await page.getByRole('button', { name: /^add copy$/i }).first().click();
 
     page.once('dialog', dialog => dialog.accept());
     await page.locator('li', { hasText: barcode }).getByRole('button', { name: /delete/i }).click();
@@ -248,7 +248,7 @@ test.describe('book list real API workflows', () => {
 
     await openBookList(page);
     await searchBooks(page, 'Title', created.title);
-    await page.getByRole('cell', { name: created.title }).first().click();
+    await page.getByRole('button', { name: /^add copy$/i }).first().click();
 
     await expect(page.locator('li', { hasText: barcode }).getByRole('button', { name: /mark found/i })).toBeVisible();
   });
@@ -269,7 +269,7 @@ test.describe('book list real API workflows', () => {
 
     await openBookList(page);
     await searchBooks(page, 'Title', created.title);
-    await page.getByRole('cell', { name: created.title }).first().click();
+    await page.getByRole('button', { name: /^add copy$/i }).first().click();
 
     await expect(page.locator('li', { hasText: barcode }).getByRole('button', { name: /mark damaged/i })).toHaveCount(0);
   });
@@ -291,7 +291,7 @@ test.describe('book list real API workflows', () => {
 
     await openBookList(page);
     await searchBooks(page, 'Title', created.title);
-    await page.getByRole('cell', { name: created.title }).first().click();
+    await page.getByRole('button', { name: /^add copy$/i }).first().click();
 
     await expect(page.locator('li', { hasText: barcode }).getByRole('button', { name: /edit comments/i })).toBeVisible();
     await expect(page.getByText(`Comments: ${comment}`)).toBeVisible();
@@ -313,10 +313,9 @@ test.describe('book list real API workflows', () => {
 
     await openBookList(page);
     await searchBooks(page, 'Title', created.title);
-    await page.getByRole('cell', { name: created.title }).first().click();
-    await page.getByRole('button', { name: /^edit book$/i }).click();
-    await page.locator('#formEditTitle').fill(updatedTitle);
-    await page.locator('#formEditAuthor').fill(updatedAuthor);
+    await page.getByRole('button', { name: /^edit$/i }).first().click();
+    await page.locator('#editTitle').fill(updatedTitle);
+    await page.locator('#editAuthor').fill(updatedAuthor);
     await Promise.all([
       page.waitForResponse(response => {
         return response.url().includes(`/api/books/${created.id}`) && response.request().method() === 'PUT' && response.status() === 200;

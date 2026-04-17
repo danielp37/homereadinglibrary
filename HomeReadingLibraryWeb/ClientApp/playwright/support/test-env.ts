@@ -97,7 +97,10 @@ export async function signInThroughRealLogin(page: Page): Promise<void> {
   const credentials = getAuthCredentials();
   const expectedRole = getExpectedRole();
 
-  if (credentials.loginUrl) {
+  // Clear all cookies to ensure clean login state
+  await page.context().clearCookies();
+
+if (credentials.loginUrl) {
     await page.goto(credentials.loginUrl, { waitUntil: 'domcontentloaded' });
   } else {
     await page.goto('/home');
@@ -109,7 +112,7 @@ export async function signInThroughRealLogin(page: Page): Promise<void> {
       signInLink.click()
     ]);
   }
-
+  
   if (await page.locator('#classDropdown').count()) {
     await signInFromBaggySignInPage(page, credentials, expectedRole);
   } else {
