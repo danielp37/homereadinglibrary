@@ -8,12 +8,12 @@ import { Book } from '../../entities/book';
 import { DatatableComponent, NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { AddBookModalComponent } from '../add-book-modal/add-book-modal.component';
 import { EditBookModalComponent } from '../edit-book-modal/edit-book-modal.component';
-import { AddBookComponent } from '../add-book/add-book.component';
+
 import { CommonModule } from '@angular/common';
 
 @Component({
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, NgxDatatableModule, AddBookModalComponent, EditBookModalComponent, AddBookComponent],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, NgxDatatableModule, AddBookModalComponent, EditBookModalComponent],
   selector: 'app-book-list',
   templateUrl: './book-list.component.html',
   styleUrls: ['./book-list.component.css']
@@ -25,7 +25,6 @@ export class BookListComponent implements OnInit {
   bookList: BookList;
   lastSearchParams: DataTableParams;
   searchBookForm: UntypedFormGroup;
-  currentBookIsbn: string;
   loadingIndicator = false;
   selected = [];
   columns = [
@@ -148,12 +147,7 @@ export class BookListComponent implements OnInit {
     this.baggyBookService.exportBooks(this.getBookSearchParameters());
   }
 
-  rowClicked(rowEvent) {
-    this.currentBookIsbn = rowEvent.row.item.isbn;
-  }
-
   onSelect({ selected }) {
-    this.currentBookIsbn = selected[0].isbn;
   }
 
   openEditBookModal(book: Book): void {

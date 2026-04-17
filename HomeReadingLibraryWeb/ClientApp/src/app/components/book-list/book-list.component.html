@@ -3,7 +3,6 @@
   <button class="btn btn-primary mb-2" (click)="addBookModal.open()">Add Book</button>
   <app-add-book-modal #addBookModal (bookAdded)="bookAdded($event)"></app-add-book-modal>
   <app-edit-book-modal #editBookModal (bookUpdated)="bookAdded($event)"></app-edit-book-modal>
-  <app-add-book (bookAdded)="bookAdded($event)" [currentBookIsbn]="currentBookIsbn"></app-add-book>
 
   <hr>
 
