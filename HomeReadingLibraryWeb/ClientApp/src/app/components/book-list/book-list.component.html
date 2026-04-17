@@ -36,6 +36,14 @@
         [selectionType]="'single'"
         (select)="onSelect($event)"
         (page)='setPage($event)'>
+        <ngx-datatable-column prop="isbn" name="ISBN" [sortable]="false"></ngx-datatable-column>
+        <ngx-datatable-column prop="title" name="Title" [sortable]="false"></ngx-datatable-column>
+        <ngx-datatable-column prop="author" name="Author" [sortable]="false"></ngx-datatable-column>
+        <ngx-datatable-column prop="guidedReadingLevel" name="Reading Level" [sortable]="false"></ngx-datatable-column>
+        <ngx-datatable-column prop="publisherText" name="Publisher" [sortable]="false"></ngx-datatable-column>
+        <ngx-datatable-column prop="boxNumber" name="Box" [sortable]="false"></ngx-datatable-column>
+        <ngx-datatable-column prop="bookCopyCount" name="Copies" [sortable]="false"></ngx-datatable-column>
+        <ngx-datatable-column prop="reservedCopies" name="CheckedOut" [sortable]="false"></ngx-datatable-column>
         <ngx-datatable-column name="Actions" [width]="180" [sortable]="false" [canAutoResize]="false">
           <ng-template let-row="row" ngx-datatable-cell-template>
             <button class="btn btn-sm btn-info me-1" (click)="openEditBookModal(row)">Edit</button>

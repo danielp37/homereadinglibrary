@@ -28,12 +28,11 @@ export class AddBookModalComponent implements OnInit {
 
   ngOnInit(): void {
     this.addBookForm = this.fb.group({
+      isbn: [''],
       title: ['', Validators.required],
       author: ['', Validators.required],
-      isbn: [''],
-      publisher: [''],
-      year: [''],
-      notes: ['']
+      guidedReadingLevel: [''],
+      boxNumber: ['']
     });
   }
 
@@ -52,10 +51,11 @@ export class AddBookModalComponent implements OnInit {
   save(): void {
     if (this.addBookForm.invalid) { return; }
     const book = new Book();
+    book.isbn = this.addBookForm.get('isbn').value;
     book.title = this.addBookForm.get('title').value;
     book.author = this.addBookForm.get('author').value;
-    book.isbn = this.addBookForm.get('isbn').value;
-    book.publisherText = this.addBookForm.get('publisher').value;
+    book.guidedReadingLevel = this.addBookForm.get('guidedReadingLevel').value;
+    book.boxNumber = this.addBookForm.get('boxNumber').value;
     book.createdDate = undefined;
 
     this.baggyBookService.addBook(book).subscribe({
