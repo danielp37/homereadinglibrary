@@ -31,8 +31,8 @@ export class AddBookModalComponent implements OnInit {
       isbn: [''],
       title: ['', Validators.required],
       author: ['', Validators.required],
-      guidedReadingLevel: [''],
-      boxNumber: ['']
+      guidedReadingLevel: ['A'],
+      boxNumber: ['1']
     });
   }
 
@@ -40,7 +40,7 @@ export class AddBookModalComponent implements OnInit {
     if (!this.content) { return; }
     this.modalRef = this.modalService.show(this.content);
     setTimeout(() => {
-      try { this.renderer.selectRootElement('#addBookTitle').focus(); } catch { }
+      try { this.renderer.selectRootElement('#addBookIsbn').focus(); } catch { }
     }, 200);
   }
 
