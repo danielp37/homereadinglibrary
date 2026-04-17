@@ -7,18 +7,20 @@ import { BaggyBookService } from '../../services/baggy-book.service';
 import { Book } from '../../entities/book';
 import { DatatableComponent, NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { AddBookModalComponent } from '../add-book-modal/add-book-modal.component';
+import { EditBookModalComponent } from '../edit-book-modal/edit-book-modal.component';
 import { AddBookComponent } from '../add-book/add-book.component';
 import { CommonModule } from '@angular/common';
 
 @Component({
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, NgxDatatableModule, AddBookModalComponent, AddBookComponent],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, NgxDatatableModule, AddBookModalComponent, EditBookModalComponent, AddBookComponent],
   selector: 'app-book-list',
   templateUrl: './book-list.component.html',
   styleUrls: ['./book-list.component.css']
 })
 export class BookListComponent implements OnInit {
   @ViewChild(DatatableComponent) table?: DatatableComponent;
+  @ViewChild(EditBookModalComponent) editBookModal?: EditBookModalComponent;
 
   bookList: BookList;
   lastSearchParams: DataTableParams;
@@ -152,6 +154,14 @@ export class BookListComponent implements OnInit {
 
   onSelect({ selected }) {
     this.currentBookIsbn = selected[0].isbn;
+  }
+
+  openEditBookModal(book: Book): void {
+    this.editBookModal?.open(book, 'edit');
+  }
+
+  openAddCopyModal(book: Book): void {
+    this.editBookModal?.open(book, 'add-copy');
   }
 
 }

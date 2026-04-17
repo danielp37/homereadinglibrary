@@ -2,6 +2,7 @@
   <h2>Book List</h2>
   <button class="btn btn-primary mb-2" (click)="addBookModal.open()">Add Book</button>
   <app-add-book-modal #addBookModal (bookAdded)="bookAdded($event)"></app-add-book-modal>
+  <app-edit-book-modal #editBookModal (bookUpdated)="bookAdded($event)"></app-edit-book-modal>
   <app-add-book (bookAdded)="bookAdded($event)" [currentBookIsbn]="currentBookIsbn"></app-add-book>
 
   <hr>
@@ -35,6 +36,12 @@
         [selectionType]="'single'"
         (select)="onSelect($event)"
         (page)='setPage($event)'>
+        <ngx-datatable-column name="Actions" [width]="180" [sortable]="false" [canAutoResize]="false">
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            <button class="btn btn-sm btn-info me-1" (click)="openEditBookModal(row)">Edit</button>
+            <button class="btn btn-sm btn-success" (click)="openAddCopyModal(row)">Add Copy</button>
+          </ng-template>
+        </ngx-datatable-column>
       </ngx-datatable>
 
     </div>

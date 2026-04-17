@@ -16,6 +16,67 @@ test.describe('book list real API workflows', () => {
     test.skip(getExpectedRole() !== 'admin', 'Book list is an admin page.');
   });
 
+  test('opening add-book modal displays form', async ({ page, request }) => {
+    const token = await requireAccessToken(page);
+    const id = uniqueId();
+    const title = `E2E-AddModal-${id}`;
+    const author = `E2E-AddModalAuthor-${id}`;
+
+    await createBook(request, token, {
+      title,
+      author,
+      guidedReadingLevel: 'A',
+      boxNumber: '1',
+      isbn: buildUniqueIsbn('978'),
+    });
+    await waitForBookVisibleViaApi(request, token, `title=${encodeURIComponent(title)}`);
+
+    await openBookList(page);
+    await page.getByRole('button', { name: /add book/i }).click();
+    await expect(page.getByLabel('Title')).toBeVisible();
+    await expect(page.getByLabel('Author')).toBeVisible();
+    await expect(page.getByRole('button', { name: /save/i })).toBeVisible();
+  });
+
+  test('opening edit-book modal displays form with existing data', async ({ page, request }) => {
+    const token = await requireAccessToken(page);
+    const id = uniqueId();
+    const created = await createBook(request, token, {
+      title: `E2E-EditModal-${id}`,
+      author: `E2E-EditModalAuthor-${id}`,
+      guidedReadingLevel: 'B',
+      boxNumber: '2',
+      isbn: buildUniqueIsbn('979'),
+    });
+    await waitForBookVisibleViaApi(request, token, `title=${encodeURIComponent(created.title)}`);
+
+    await openBookList(page);
+    await searchBooks(page, 'Title', created.title);
+    await page.getByRole('button', { name: /^edit$/i }).first().click();
+    await expect(page.getByDisplayValue(created.title)).toBeVisible();
+    await expect(page.getByDisplayValue(created.author)).toBeVisible();
+    await expect(page.getByRole('button', { name: /update book/i })).toBeVisible();
+  });
+
+  test('opening add-copy modal displays copy form', async ({ page, request }) => {
+    const token = await requireAccessToken(page);
+    const id = uniqueId();
+    const created = await createBook(request, token, {
+      title: `E2E-AddCopyModal-${id}`,
+      author: `E2E-AddCopyModalAuthor-${id}`,
+      guidedReadingLevel: 'C',
+      boxNumber: '3',
+      isbn: buildUniqueIsbn('977'),
+    });
+    await waitForBookVisibleViaApi(request, token, `title=${encodeURIComponent(created.title)}`);
+
+    await openBookList(page);
+    await searchBooks(page, 'Title', created.title);
+    await page.getByRole('button', { name: /^add copy$/i }).first().click();
+    await expect(page.getByText(created.title)).toBeVisible();
+    await expect(page.getByLabel('Book Copy Barcode')).toBeVisible();
+  });
+
   test('search by Title', async ({ page, request }) => {
     const token = await requireAccessToken(page);
     const id = uniqueId();

@@ -1,0 +1,33 @@
+/* Edit Book Modal Component Styles */
+.modal-header {
+  border-bottom: 1px solid #e9ecef;
+}
+
+.modal-footer {
+  border-top: 1px solid #e9ecef;
+}
+
+.badge {
+  margin-left: 0.5rem;
+}
+
+.btn-sm {
+  margin-right: 0.25rem;
+}
+
+ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+li {
+  padding: 0.5rem;
+  border: 1px solid #dee2e6;
+  border-radius: 0.25rem;
+  background-color: #f8f9fa;
+}
+
+.text-muted {
+  color: #6c757d;
+  font-size: 0.875rem;
+}
