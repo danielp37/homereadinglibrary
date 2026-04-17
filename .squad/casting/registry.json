@@ -1,0 +1,10 @@
+{
+  "registry": [
+    {"persistent_name":"kepler","universe":"Orion","created_at":"2026-04-17T02:05:00Z","legacy_named":false,"status":"active"},
+    {"persistent_name":"cassini","universe":"Orion","created_at":"2026-04-17T02:05:00Z","legacy_named":false,"status":"active"},
+    {"persistent_name":"voyager","universe":"Orion","created_at":"2026-04-17T02:05:00Z","legacy_named":false,"status":"active"},
+    {"persistent_name":"halley","universe":"Orion","created_at":"2026-04-17T02:05:00Z","legacy_named":false,"status":"active"},
+    {"persistent_name":"scribe","universe":"Orion","created_at":"2026-04-17T02:05:00Z","legacy_named":false,"status":"active"},
+    {"persistent_name":"ralph","universe":"Orion","created_at":"2026-04-17T02:05:00Z","legacy_named":false,"status":"active"}
+  ]
+}

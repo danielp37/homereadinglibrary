@@ -1,0 +1,5 @@
+{
+  "universe": "Orion",
+  "max_agents": 8,
+  "allow_legacy_names": true
+}
