@@ -1,12 +1,14 @@
 import { defineConfig, devices, type PlaywrightTestConfig, type Project } from '@playwright/test';
+import { loadConfig, getConfigValue } from './playwright/config/load-config';
 
-const baseURL = process.env.BAGGY_E2E_BASE_URL ?? process.env.PLAYWRIGHT_BASE_URL ?? 'https://localhost:5001';
-const requestedRole = process.env.BAGGY_E2E_ROLE ?? 'volunteer';
-const hasAuthCredentials = requestedRole === 'volunteer' || Boolean(process.env.BAGGY_E2E_USERNAME && process.env.BAGGY_E2E_PASSWORD);
+const appConfig = loadConfig();
+const baseURL = getConfigValue(appConfig, 'baseUrl', process.env.BAGGY_E2E_BASE_URL ?? process.env.PLAYWRIGHT_BASE_URL ?? 'https://localhost:5001');
+const requestedRole = getConfigValue(appConfig, 'role', (process.env.BAGGY_E2E_ROLE ?? 'volunteer') as 'admin' | 'volunteer');
+const hasAuthCredentials = requestedRole === 'volunteer' || Boolean((appConfig.username || process.env.BAGGY_E2E_USERNAME) && (appConfig.password || process.env.BAGGY_E2E_PASSWORD));
 const useManagedLocalStack =
-  !process.env.BAGGY_E2E_BASE_URL &&
-  !process.env.PLAYWRIGHT_BASE_URL &&
-  process.env.BAGGY_E2E_USE_LOCAL_STACK !== 'false';
+  !baseURL.startsWith('https://localhost') &&
+  !baseURL.startsWith('http://localhost') &&
+  getConfigValue(appConfig, 'useLocalStack', process.env.BAGGY_E2E_USE_LOCAL_STACK !== 'false');
 
 const projects: Project[] = [
   {
