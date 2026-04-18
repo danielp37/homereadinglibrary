@@ -27,16 +27,6 @@ export class BookListComponent implements OnInit {
   searchBookForm: UntypedFormGroup;
   loadingIndicator = false;
   selected = [];
-  columns = [
-    { prop: 'title', sortable: false},
-    { prop: 'author', sortable: false},
-    { prop: 'guidedReadingLevel', name: "Reading Level", sortable: false},
-    { prop: 'publisherText', name: "Publisher Text", sortable: false},
-    { prop: 'boxNumber', name:"Box", sortable: false},
-    { prop: 'isbn', name: "ISBN", sortable: false},
-    { prop: 'bookCopyCount', name:"Copies", sortable: false},
-    { prop: 'reservedCopies', name:"CheckedOut", sortable: false},
-  ];
 
   constructor(
     private baggyBookService: BaggyBookService,
