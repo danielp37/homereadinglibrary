@@ -44,6 +44,10 @@
                                 (click)="isCollapsed = true">
                                 <fa-icon [icon]="listAlt"></fa-icon> Class Stats
                             </a>
+                            <a [routerLink]="['/adminreports']" [routerLinkActive]="['active']" *ngIf="isAdmin" class="dropdown-item"
+                                (click)="isCollapsed = true">
+                                <fa-icon [icon]="fileAlt"></fa-icon> Year End Student Progress
+                            </a>
                         </div>
 
                     </li>
