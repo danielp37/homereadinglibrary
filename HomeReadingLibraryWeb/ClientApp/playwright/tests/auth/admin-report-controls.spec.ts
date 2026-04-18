@@ -108,13 +108,24 @@ test.describe('administrative reports page', () => {
 
     await page.goto('/adminreports');
     await expect(page).toHaveURL(/\/adminreports$/);
-    await expect(page.getByRole('heading', { name: /administrative reports.*end-of-year student reading levels/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /year end student progress/i })).toBeVisible();
   });
 
-  test('data table has expected column headers', async ({ page }) => {
+  test('Run Report and Export CSV buttons are visible before running', async ({ page }) => {
     test.skip(getExpectedRole() !== 'admin', 'Admin-only report page checks.');
 
     await page.goto('/adminreports');
+
+    await expect(page.getByRole('button', { name: /run report/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /export csv/i })).toBeVisible();
+    await expect(page.locator('table')).toHaveCount(0);
+  });
+
+  test('data table has expected column headers after clicking Run Report', async ({ page }) => {
+    test.skip(getExpectedRole() !== 'admin', 'Admin-only report page checks.');
+
+    await page.goto('/adminreports');
+    await page.getByRole('button', { name: /run report/i }).click();
 
     await expect(page.getByRole('columnheader', { name: /teacher/i })).toBeVisible();
     await expect(page.getByRole('columnheader', { name: /grade/i })).toBeVisible();

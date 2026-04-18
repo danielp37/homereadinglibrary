@@ -460,8 +460,11 @@ export class BaggyBookService {
       );
   }
 
-  exportEndOfYearStudentReport(): void {
-    window.location.href = '/api/reports/endofyearstudents/export';
+  exportEndOfYearStudentReport(): Observable<Blob> {
+    return this.http.get('/api/reports/endofyearstudents/export', {
+      headers: this.getAuthHeaders(false),
+      responseType: 'blob'
+    });
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

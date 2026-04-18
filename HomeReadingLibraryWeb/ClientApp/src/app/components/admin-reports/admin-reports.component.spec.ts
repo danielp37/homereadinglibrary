@@ -34,6 +34,10 @@ describe('AdminReportsComponent', () => {
       'exportEndOfYearStudentReport'
     ]);
     mockBaggyBookService.getEndOfYearStudentReport.and.returnValue(of(mockReportData));
+    mockBaggyBookService.exportEndOfYearStudentReport.and.returnValue(of(new Blob(['test'], { type: 'text/csv' })));
+
+    spyOn(URL, 'createObjectURL').and.returnValue('blob:fake');
+    spyOn(URL, 'revokeObjectURL');
 
     TestBed.configureTestingModule({
       declarations: [ AdminReportsComponent ],
@@ -45,40 +49,56 @@ describe('AdminReportsComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(AdminReportsComponent);
     component = fixture.componentInstance;
+    fixture.detectChanges();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should call getEndOfYearStudentReport on init and populate rows', (done) => {
-    fixture.detectChanges();
+  it('should not load data on init — report requires user to click Run Report', () => {
+    expect(mockBaggyBookService.getEndOfYearStudentReport).not.toHaveBeenCalled();
+    expect(component.rows).toEqual([]);
+    expect(component.hasRun).toBeFalse();
+  });
+
+  it('should load data and set hasRun when runReport is called', (done) => {
+    component.runReport();
 
     setTimeout(() => {
       expect(mockBaggyBookService.getEndOfYearStudentReport).toHaveBeenCalled();
       expect(component.rows).toEqual(mockReportData);
       expect(component.loading).toBe(false);
+      expect(component.hasRun).toBeTrue();
       done();
     }, 10);
   });
 
-  it('should set loading to false on error', (done) => {
+  it('should set hasRun and loading to false on error', (done) => {
     mockBaggyBookService.getEndOfYearStudentReport.and.returnValue(
       throwError(() => new Error('Failed to load'))
     );
 
-    fixture.detectChanges();
+    component.runReport();
 
     setTimeout(() => {
-      expect(mockBaggyBookService.getEndOfYearStudentReport).toHaveBeenCalled();
       expect(component.rows).toEqual([]);
       expect(component.loading).toBe(false);
+      expect(component.hasRun).toBeTrue();
       done();
     }, 10);
   });
 
-  it('should call exportEndOfYearStudentReport when exportCSV is called', () => {
+  it('should call exportEndOfYearStudentReport and trigger download when exportCSV is called', (done) => {
     component.exportCSV();
-    expect(mockBaggyBookService.exportEndOfYearStudentReport).toHaveBeenCalled();
+    expect(component.exporting).toBeTrue();
+
+    setTimeout(() => {
+      expect(mockBaggyBookService.exportEndOfYearStudentReport).toHaveBeenCalled();
+      expect(URL.createObjectURL).toHaveBeenCalled();
+      expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:fake');
+      expect(component.exporting).toBeFalse();
+      done();
+    }, 10);
   });
 });
