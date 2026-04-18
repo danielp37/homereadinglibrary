@@ -76,3 +76,61 @@ test.describe('admin report controls', () => {
     await expect(daysBack).toHaveValue('30');
   });
 });
+
+const mockReportData = {
+  data: [
+    {
+      teacherName: 'Smith, Jane',
+      grade: '3',
+      lastName: 'Doe',
+      firstName: 'John',
+      startingReadingLevel: 'B',
+      endingReadingLevel: 'D'
+    }
+  ]
+};
+
+test.describe('administrative reports page', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.route('**/api/reports/endofyearstudents', async route => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(mockReportData),
+      });
+    });
+
+    await signInThroughRealLogin(page);
+  });
+
+  test('navigates to /adminreports and the page is accessible', async ({ page }) => {
+    test.skip(getExpectedRole() !== 'admin', 'Admin-only report page checks.');
+
+    await page.goto('/adminreports');
+    await expect(page).toHaveURL(/\/adminreports$/);
+    await expect(page.getByRole('heading', { name: /administrative reports.*end-of-year student reading levels/i })).toBeVisible();
+  });
+
+  test('data table has expected column headers', async ({ page }) => {
+    test.skip(getExpectedRole() !== 'admin', 'Admin-only report page checks.');
+
+    await page.goto('/adminreports');
+
+    await expect(page.getByRole('columnheader', { name: /teacher/i })).toBeVisible();
+    await expect(page.getByRole('columnheader', { name: /grade/i })).toBeVisible();
+    await expect(page.getByRole('columnheader', { name: /last name/i })).toBeVisible();
+    await expect(page.getByRole('columnheader', { name: /first name/i })).toBeVisible();
+    await expect(page.getByRole('columnheader', { name: /starting level/i })).toBeVisible();
+    await expect(page.getByRole('columnheader', { name: /ending level/i })).toBeVisible();
+  });
+
+  test('export CSV button is visible and clickable', async ({ page }) => {
+    test.skip(getExpectedRole() !== 'admin', 'Admin-only report page checks.');
+
+    await page.goto('/adminreports');
+
+    const exportButton = page.getByRole('button', { name: /export csv/i });
+    await expect(exportButton).toBeVisible();
+    await expect(exportButton).toBeEnabled();
+  });
+});

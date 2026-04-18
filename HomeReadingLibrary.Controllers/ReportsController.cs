@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using HomeReadingLibrary.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
@@ -101,16 +102,22 @@ namespace HomeReadingLibrary.Controllers.Controllers
             {
                 var item = new StudentYearEndReportItem
                 {
-                    TeacherName = doc.GetValue("teacherName", BsonNull.Value).IsBsonNull ? null : doc["teacherName"].AsString,
-                    Grade = doc.GetValue("grade", BsonNull.Value).IsBsonNull ? null : doc["grade"].AsString,
-                    LastName = doc.GetValue("lastName", BsonNull.Value).IsBsonNull ? null : doc["lastName"].AsString,
-                    FirstName = doc.GetValue("firstName", BsonNull.Value).IsBsonNull ? null : doc["firstName"].AsString,
+                    TeacherName = BsonToString(doc.GetValue("teacherName", BsonNull.Value)),
+                    Grade = BsonToString(doc.GetValue("grade", BsonNull.Value)),
+                    LastName = BsonToString(doc.GetValue("lastName", BsonNull.Value)),
+                    FirstName = BsonToString(doc.GetValue("firstName", BsonNull.Value)),
                     StartingReadingLevel = GetReadingLevel(doc, "startingBookCopy"),
                     EndingReadingLevel = GetReadingLevel(doc, "endingBookCopy")
                 };
                 results.Add(item);
             }
             return results;
+        }
+
+        private static string BsonToString(BsonValue value)
+        {
+            if (value == null || value.IsBsonNull) return null;
+            return value.IsString ? value.AsString : value.ToString();
         }
 
         private string GetReadingLevel(BsonDocument doc, string field)
@@ -124,7 +131,7 @@ namespace HomeReadingLibrary.Controllers.Controllers
             if (first == null || !first.Contains("guidedReadingLevel"))
                 return null;
             var val = first["guidedReadingLevel"];
-            return val.IsBsonNull ? null : val.AsString;
+            return BsonToString(val);
         }
 
         private string GenerateCsv(List<StudentYearEndReportItem> items)
