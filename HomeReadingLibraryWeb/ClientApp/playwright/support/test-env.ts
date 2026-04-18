@@ -100,7 +100,7 @@ export async function signInThroughRealLogin(page: Page): Promise<void> {
   // Clear all cookies to ensure clean login state
   await page.context().clearCookies();
 
-if (credentials.loginUrl) {
+  if (credentials.loginUrl) {
     await page.goto(credentials.loginUrl, { waitUntil: 'domcontentloaded' });
   } else {
     await page.goto('/home');

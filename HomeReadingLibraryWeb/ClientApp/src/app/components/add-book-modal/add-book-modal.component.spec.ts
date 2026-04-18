@@ -15,8 +15,7 @@ describe('AddBookModalComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ AddBookModalComponent ],
-      imports: [ ReactiveFormsModule, ModalModule.forRoot() ],
+      imports: [ AddBookModalComponent, ReactiveFormsModule, ModalModule.forRoot() ],
       providers: [ { provide: BaggyBookService, useValue: baggyBookServiceStub }, BsModalService ]
     })
     .compileComponents();

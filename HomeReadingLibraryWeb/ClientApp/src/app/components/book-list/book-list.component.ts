@@ -148,6 +148,7 @@ export class BookListComponent implements OnInit {
   }
 
   onSelect({ selected }) {
+    this.selected = selected;
   }
 
   openEditBookModal(book: Book): void {

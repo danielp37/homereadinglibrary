@@ -6,8 +6,8 @@ const baseURL = getConfigValue(appConfig, 'baseUrl', process.env.BAGGY_E2E_BASE_
 const requestedRole = getConfigValue(appConfig, 'role', (process.env.BAGGY_E2E_ROLE ?? 'volunteer') as 'admin' | 'volunteer');
 const hasAuthCredentials = requestedRole === 'volunteer' || Boolean((appConfig.username || process.env.BAGGY_E2E_USERNAME) && (appConfig.password || process.env.BAGGY_E2E_PASSWORD));
 const useManagedLocalStack =
-  !baseURL.startsWith('https://localhost') &&
-  !baseURL.startsWith('http://localhost') &&
+  (baseURL.startsWith('https://localhost') ||
+   baseURL.startsWith('http://localhost')) &&
   getConfigValue(appConfig, 'useLocalStack', process.env.BAGGY_E2E_USE_LOCAL_STACK !== 'false');
 
 const projects: Project[] = [
