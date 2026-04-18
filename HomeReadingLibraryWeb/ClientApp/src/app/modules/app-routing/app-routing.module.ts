@@ -13,6 +13,7 @@ import { RouterModule, Routes } from '@angular/router';
 
 import { HomeComponent } from './../../components/home/home.component';
 import { ClassStatsComponent } from 'src/app/components/class-stats/class-stats.component';
+import { AdminReportsComponent } from 'src/app/components/admin-reports/admin-reports.component';
 
 
 const routes: Routes = [
@@ -28,6 +29,7 @@ const routes: Routes = [
             { path: 'checkouthistory', component: StudentReservationHistoryComponent, canActivate: [AuthGuard]},
             { path: 'bookcheckouthistory', component: BookReservationHistoryComponent, canActivate: [AuthGuard]},
             { path: 'classstats', component: ClassStatsComponent, canActivate: [AuthGuard]},
+            { path: 'adminreports', component: AdminReportsComponent, canActivate: [AuthGuard]},
             { path: '**', redirectTo: 'home' }
         ];
 /*[

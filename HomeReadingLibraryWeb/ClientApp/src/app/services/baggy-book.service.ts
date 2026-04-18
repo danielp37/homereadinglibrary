@@ -25,6 +25,8 @@ interface ClassWithVolunteersResult {
     data : ClassWithVolunteers[]
 }
 
+import { StudentYearEndReportItem } from '../entities/student-year-end-report-item';
+
 @Injectable()
 export class BaggyBookService {
   private studentsUrl = '/api/students';
@@ -441,6 +443,25 @@ export class BaggyBookService {
         }),
         catchError(err => this.handleObservableError<ClassStatistics>(err))
       );
+  }
+
+  // End-of-year student report
+
+  getEndOfYearStudentReport(): Observable<StudentYearEndReportItem[]> {
+    this.loaderService.display(true);
+    return this.http
+      .get<{ data: StudentYearEndReportItem[] }>('/api/reports/endofyearstudents', { headers: this.getAuthHeaders(false) })
+      .pipe(
+        map(res => {
+          this.loaderService.display(false);
+          return res.data;
+        }),
+        catchError(err => this.handleObservableError<StudentYearEndReportItem[]>(err))
+      );
+  }
+
+  exportEndOfYearStudentReport(): void {
+    window.location.href = '/api/reports/endofyearstudents/export';
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

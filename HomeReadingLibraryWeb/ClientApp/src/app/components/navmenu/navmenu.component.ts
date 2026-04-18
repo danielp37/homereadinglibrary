@@ -2,7 +2,7 @@ import { UrlSegment } from '@angular/router';
 import { AuthGuard } from './../../modules/app-auth/services/authguard.service';
 import { AuthService } from './../../modules/app-auth/services/auth.service';
 import { Component } from '@angular/core';
-import { faHome, faBook, faBookReader, faListAlt, faListUl, faUsers } from "@fortawesome/free-solid-svg-icons";
+import { faHome, faBook, faBookReader, faListAlt, faListUl, faUsers, faFileAlt } from "@fortawesome/free-solid-svg-icons";
 
 @Component({
     standalone: false,
@@ -18,6 +18,7 @@ export class NavMenuComponent {
     listAlt = faListAlt;
     listUl = faListUl;
     users = faUsers;
+    fileAlt = faFileAlt;
 
     public isCollapsed = true;
     constructor(private authGuard: AuthGuard,

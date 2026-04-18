@@ -1,0 +1,22 @@
+<div class="container">
+  <h2>Administrative Reports: End-of-Year Student Reading Levels</h2>
+  <button class="btn btn-primary mb-3" (click)="exportCSV()">
+    <fa-icon [icon]="'file-alt'" class="me-2"></fa-icon> Export CSV
+  </button>
+  <ngx-datatable
+    class="bootstrap"
+    [rows]="rows"
+    [loadingIndicator]="loading"
+    [columnMode]="'force'"
+    [headerHeight]="50"
+    [footerHeight]="50"
+    [rowHeight]="40"
+    [limit]="100">
+    <ngx-datatable-column name="Teacher" prop="teacherName"></ngx-datatable-column>
+    <ngx-datatable-column name="Grade" prop="grade"></ngx-datatable-column>
+    <ngx-datatable-column name="Last Name" prop="lastName"></ngx-datatable-column>
+    <ngx-datatable-column name="First Name" prop="firstName"></ngx-datatable-column>
+    <ngx-datatable-column name="Starting Level" prop="startingReadingLevel"></ngx-datatable-column>
+    <ngx-datatable-column name="Ending Level" prop="endingReadingLevel"></ngx-datatable-column>
+  </ngx-datatable>
+</div>

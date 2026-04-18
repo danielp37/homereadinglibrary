@@ -35,6 +35,7 @@ import { StudentReservationHistoryComponent } from './components/student-reserva
 import { VolunteerLogonsComponent } from './components/volunteer-logons/volunteer-logons.component';
 import { BookCopyReservationsComponent } from './components/book-copy-reservations/book-copy-reservations.component';
 import { ClassStatsComponent } from './components/class-stats/class-stats.component';
+import { AdminReportsComponent } from './components/admin-reports/admin-reports.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 @NgModule({
@@ -57,7 +58,8 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
     StudentReservationHistoryComponent,
     VolunteerLogonsComponent,
     BookCopyReservationsComponent,
-    ClassStatsComponent
+    ClassStatsComponent,
+    AdminReportsComponent
   ],
   imports: [
     BrowserModule,

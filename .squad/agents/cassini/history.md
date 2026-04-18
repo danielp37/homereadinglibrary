@@ -4,6 +4,12 @@ Stack: Angular 21 frontend
 Assigned to implement UI components and integrate with backend APIs.
 
 ## Learnings
+
+- Added a new Administrative Reports page for end-of-year student reading levels, using a new backend API and matching existing Angular and service patterns.
+- Discovered that duplicate service methods and imports can cause Angular build failures; always check for and remove duplicates after multiple edit passes.
+- The nav menu uses FontAwesome icons and requires explicit import and assignment for new icons.
+- The project uses non-standalone components and explicit module registration for new features.
+
 - Implemented a reusable AddBookModalComponent and wired it to BookListComponent; tests added (unit + shallow integration).
 - Modal saves via BaggyBookService.addBook() which posts to /api/books; confirm backend supports this endpoint in integration.
 - Chose local component using existing ngx-bootstrap modals to keep changes minimal; consider shared modal service if reuse grows.
