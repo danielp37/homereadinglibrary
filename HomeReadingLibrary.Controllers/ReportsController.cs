@@ -154,7 +154,7 @@ namespace HomeReadingLibrary.Controllers.Controllers
         private string Escape(string s)
         {
             if (string.IsNullOrEmpty(s)) return "";
-            if (s.Contains(",") || s.Contains("\""))
+            if (s.Contains(",") || s.Contains("\"") || s.Contains("\r") || s.Contains("\n"))
                 return $"\"{s.Replace("\"", "\"\"")}\"";
             return s;
         }
