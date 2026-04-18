@@ -1,0 +1,43 @@
+## Day 1 — Seeded context
+Project: Home Reading Library
+Stack: Angular 21 frontend
+Assigned to implement UI components and integrate with backend APIs.
+
+## Learnings
+- Implemented a reusable AddBookModalComponent and wired it to BookListComponent; tests added (unit + shallow integration).
+- Modal saves via BaggyBookService.addBook() which posts to /api/books; confirm backend supports this endpoint in integration.
+- Chose local component using existing ngx-bootstrap modals to keep changes minimal; consider shared modal service if reuse grows.
+
+## Day 2 — Modal refactoring (edit & copy operations)
+Refactored app-add-book component to separate concerns:
+- **AddBookModalComponent**: Focused on adding NEW books; dialog-only, simple form.
+- **EditBookModalComponent**: NEW component for editing books and adding copies to existing books; modal with two modes (edit/add-copy).
+- Updated BookListComponent to:
+  - Show Edit and Add Copy buttons in the datatable row (via ngx-datatable template).
+  - Wire both modals via ViewChild references.
+  - Emit bookAdded when either modal updates.
+- Updated playwright tests to cover opening add-book modal, edit-book modal, and add-copy modal variants.
+- Build verified: `ng build` succeeds with no TypeScript errors.
+- App-add-book component is deprecated; can be removed in future refactoring (currently still imported for backward compatibility).
+
+## Key Decisions
+- Used same BsModalService and modal pattern for consistency with existing code.
+- EditBookModalComponent accepts mode parameter ('edit' | 'add-copy') to display conditional UI.
+- Form prefill logic isolates per mode to avoid confusion (edit shows title/author fields, copy shows barcode/book details).
+- Tests focus on user interactions (opening modals, form submission, barcode entry) rather than implementation details.
+
+## Day 3 — Book list table and modal fields fix
+**Issue**: Book-list table was missing all book data columns (title, author, ISBN, etc.) and only showing action buttons. AddBookModalComponent had incorrect fields.
+
+**Changes**:
+- **book-list.component.html**: Added explicit ngx-datatable columns (ISBN, Title, Author, Reading Level, Publisher, Box, Copies, CheckedOut) before Actions column.
+- **add-book-modal.component.ts**: 
+  - Reordered form fields: ISBN, Title, Author, Reading Level, Box Number
+  - Removed Year and Notes fields from FormGroup
+  - Updated save() to map guidedReadingLevel and boxNumber to Book entity
+- **add-book-modal.component.html**: 
+  - Updated field order to ISBN → Title → Author → Reading Level → Box Number
+  - Converted Reading Level to select dropdown with options: K, 1-3, 4-6, 7-9, 10-12, Adult
+  - Removed Publisher, Year, Notes fields; kept ISBN optional
+
+**Validation**: `ng build` succeeded with no TypeScript errors. All columns now render properly in datatable.

@@ -1,6 +1,9 @@
 import { expect, type Locator, type Page } from '@playwright/test';
+import { loadConfig, getConfigValue } from '../config/load-config';
 
 export type AuthRole = 'admin' | 'volunteer';
+
+const appConfig = loadConfig();
 
 interface AuthCredentials {
   username?: string;
@@ -55,20 +58,20 @@ const defaultPostLoginConfirmSelectors = [
 ];
 
 export function getBaseUrl(): string {
-  return process.env.BAGGY_E2E_BASE_URL ?? process.env.PLAYWRIGHT_BASE_URL ?? 'https://localhost:5001';
+  return getConfigValue(appConfig, 'baseUrl', process.env.BAGGY_E2E_BASE_URL ?? process.env.PLAYWRIGHT_BASE_URL ?? 'https://localhost:5001');
 }
 
 export function hasAuthCredentials(): boolean {
-  return getExpectedRole() === 'volunteer' || Boolean(process.env.BAGGY_E2E_USERNAME && process.env.BAGGY_E2E_PASSWORD);
+  return getExpectedRole() === 'volunteer' || Boolean((appConfig.username || process.env.BAGGY_E2E_USERNAME) && (appConfig.password || process.env.BAGGY_E2E_PASSWORD));
 }
 
 export function getExpectedRole(): AuthRole {
-  return process.env.BAGGY_E2E_ROLE === 'admin' ? 'admin' : 'volunteer';
+  return getConfigValue(appConfig, 'role', (process.env.BAGGY_E2E_ROLE ?? 'volunteer') as 'admin' | 'volunteer') === 'admin' ? 'admin' : 'volunteer';
 }
 
 export function getAuthCredentials(): AuthCredentials {
-  const username = process.env.BAGGY_E2E_USERNAME;
-  const password = process.env.BAGGY_E2E_PASSWORD;
+  const username = appConfig.username || process.env.BAGGY_E2E_USERNAME;
+  const password = appConfig.password || process.env.BAGGY_E2E_PASSWORD;
 
   if (getExpectedRole() === 'admin' && (!username || !password)) {
     throw new Error('BAGGY_E2E_USERNAME and BAGGY_E2E_PASSWORD must both be set for admin authenticated UI tests.');
@@ -77,13 +80,13 @@ export function getAuthCredentials(): AuthCredentials {
   return {
     username,
     password,
-    loginUrl: process.env.BAGGY_E2E_LOGIN_URL,
-    usernameSelectors: toSelectorList(process.env.BAGGY_E2E_USERNAME_SELECTOR, defaultUsernameSelectors),
-    passwordSelectors: toSelectorList(process.env.BAGGY_E2E_PASSWORD_SELECTOR, defaultPasswordSelectors),
-    nextSelectors: toSelectorList(process.env.BAGGY_E2E_NEXT_SELECTOR, defaultNextSelectors),
-    submitSelectors: toSelectorList(process.env.BAGGY_E2E_SUBMIT_SELECTOR, defaultSubmitSelectors),
+    loginUrl: appConfig.loginUrl || process.env.BAGGY_E2E_LOGIN_URL,
+    usernameSelectors: toSelectorList(appConfig.usernameSelector || process.env.BAGGY_E2E_USERNAME_SELECTOR, defaultUsernameSelectors),
+    passwordSelectors: toSelectorList(appConfig.passwordSelector || process.env.BAGGY_E2E_PASSWORD_SELECTOR, defaultPasswordSelectors),
+    nextSelectors: toSelectorList(appConfig.nextSelector || process.env.BAGGY_E2E_NEXT_SELECTOR, defaultNextSelectors),
+    submitSelectors: toSelectorList(appConfig.submitSelector || process.env.BAGGY_E2E_SUBMIT_SELECTOR, defaultSubmitSelectors),
     postLoginConfirmSelectors: toSelectorList(
-      process.env.BAGGY_E2E_POST_LOGIN_CONFIRM_SELECTOR,
+      appConfig.postLoginConfirmSelector || process.env.BAGGY_E2E_POST_LOGIN_CONFIRM_SELECTOR,
       defaultPostLoginConfirmSelectors
     )
   };
@@ -93,6 +96,9 @@ export async function signInThroughRealLogin(page: Page): Promise<void> {
   const baseUrl = getBaseUrl();
   const credentials = getAuthCredentials();
   const expectedRole = getExpectedRole();
+
+  // Clear all cookies to ensure clean login state
+  await page.context().clearCookies();
 
   if (credentials.loginUrl) {
     await page.goto(credentials.loginUrl, { waitUntil: 'domcontentloaded' });
@@ -106,7 +112,7 @@ export async function signInThroughRealLogin(page: Page): Promise<void> {
       signInLink.click()
     ]);
   }
-
+  
   if (await page.locator('#classDropdown').count()) {
     await signInFromBaggySignInPage(page, credentials, expectedRole);
   } else {

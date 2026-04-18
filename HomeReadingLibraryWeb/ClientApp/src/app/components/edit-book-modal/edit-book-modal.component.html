@@ -1,0 +1,121 @@
+<ng-template #content>
+  <div class="modal-header">
+    <h4 class="modal-title">
+      {{ mode === 'edit' ? 'Edit Book' : 'Add Book Copy' }}
+    </h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="close()"></button>
+  </div>
+
+  <div class="modal-body">
+    <form [formGroup]="editBookForm">
+      <!-- Edit Mode -->
+      <div *ngIf="mode === 'edit' && currentBook">
+        <div class="mb-3">
+          <label for="editReadingLevel" class="form-label">Reading Level</label>
+          <select id="editReadingLevel" class="form-control" formControlName="readingLevel">
+            <option>A</option>
+            <option>B</option>
+            <option>C</option>
+            <option>D</option>
+            <option>E</option>
+            <option>F</option>
+            <option>G</option>
+            <option>H</option>
+            <option>I</option>
+            <option>J</option>
+            <option>K</option>
+            <option>L</option>
+            <option>M</option>
+            <option>N</option>
+            <option>O</option>
+            <option>P</option>
+            <option>Q</option>
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label for="editBoxNumber" class="form-label">Box Number</label>
+          <select id="editBoxNumber" class="form-control" formControlName="boxNumber">
+            <option *ngFor="let i of [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25]">{{i}}</option>
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label for="editTitle" class="form-label">Title</label>
+          <input id="editTitle" type="text" class="form-control" formControlName="editTitle" />
+        </div>
+
+        <div class="mb-3">
+          <label for="editAuthor" class="form-label">Author</label>
+          <input id="editAuthor" type="text" class="form-control" formControlName="editAuthor" />
+        </div>
+      </div>
+
+      <!-- Add Copy Mode -->
+      <div *ngIf="mode === 'add-copy' && currentBook">
+        <div class="mb-3">
+          <p><strong>{{ currentBook.title }}</strong> by {{ currentBook.author }}</p>
+          <p>ISBN: {{ currentBook.isbn }}</p>
+          <p>Reading Level: {{ currentBook.guidedReadingLevel }}, Box: {{ currentBook.boxNumber }}</p>
+        </div>
+
+        <div class="mb-3">
+          <label for="bookCopyBarCode" class="form-label">Book Copy Barcode</label>
+          <input
+            id="bookCopyBarCode"
+            type="text"
+            class="form-control"
+            formControlName="bookCopyBarCode"
+            (keyup.enter)="onBookCopyEntered()"
+            placeholder="Enter barcode and press Enter" />
+        </div>
+
+        <div *ngIf="currentBook.bookCopyCount > 0" class="mt-4">
+          <h5>Existing Copies</h5>
+          <ul>
+            <li *ngFor="let bookCopy of currentBook.bookCopies" class="mb-2">
+              <strong>{{ bookCopy.barCode }}</strong>
+              <span *ngIf="bookCopy.isLost" class="badge bg-warning">Lost: {{bookCopy.lostDate | utcDate | date:'shortDate'}}</span>
+              <span *ngIf="bookCopy.isDamaged" class="badge bg-danger">Damaged: {{bookCopy.damagedDate | utcDate | date:'shortDate'}}</span>
+              <div class="mt-1">
+                <button *ngIf="!bookCopy.isLost && !bookCopy.isDamaged" type="button" class="btn btn-sm btn-danger" (click)="removeBookCopy(bookCopy.barCode)">Delete</button>
+                <button *ngIf="!bookCopy.isLost && !bookCopy.isDamaged" type="button" class="btn btn-sm btn-warning" (click)="markBookCopyLost(bookCopy.barCode)">Mark Lost</button>
+                <button *ngIf="bookCopy.isLost && !bookCopy.isDamaged" type="button" class="btn btn-sm btn-info" (click)="markBookCopyFound(bookCopy.barCode)">Mark Found</button>
+                <button *ngIf="!bookCopy.isLost && !bookCopy.isDamaged" type="button" class="btn btn-sm btn-warning" (click)="markBookCopyDamaged(bookCopy.barCode)">Mark Damaged</button>
+                <button type="button" class="btn btn-sm btn-secondary" (click)="addComments(addComment, bookCopy.barCode, bookCopy.comments)">{{bookCopy.comments ? "Edit" : "Add"}} Comments</button>
+              </div>
+              <div *ngIf="bookCopy.comments" class="mt-1 text-muted">
+                Comments: {{ bookCopy.comments }}
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div class="modal-footer">
+    <button
+      *ngIf="mode === 'edit'"
+      type="button"
+      class="btn btn-primary"
+      (click)="updateBook()">
+      Update Book
+    </button>
+    <button type="button" class="btn btn-outline-dark" (click)="close()">Close</button>
+  </div>
+
+  <ng-template #addComment>
+    <div class="modal-header">
+      <h4 class="modal-title">Book Comments</h4>
+      <button type="button" class="btn-close" aria-label="Close" (click)="commentModalRef.hide()"></button>
+    </div>
+    <div class="modal-body">
+      <textarea [(ngModel)]="currentBookComment" rows="5" cols="60" class="form-control"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-primary" (click)="saveBookComment()">Save</button>
+      <button type="button" class="btn btn-outline-dark" (click)="commentModalRef.hide()">Close</button>
+    </div>
+  </ng-template>
+</ng-template>

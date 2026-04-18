@@ -16,6 +16,67 @@ test.describe('book list real API workflows', () => {
     test.skip(getExpectedRole() !== 'admin', 'Book list is an admin page.');
   });
 
+  test('opening add-book modal displays form', async ({ page, request }) => {
+    const token = await requireAccessToken(page);
+    const id = uniqueId();
+    const title = `E2E-AddModal-${id}`;
+    const author = `E2E-AddModalAuthor-${id}`;
+
+    await createBook(request, token, {
+      title,
+      author,
+      guidedReadingLevel: 'A',
+      boxNumber: '1',
+      isbn: buildUniqueIsbn('978'),
+    });
+    await waitForBookVisibleViaApi(request, token, `title=${encodeURIComponent(title)}`);
+
+    await openBookList(page);
+    await page.getByRole('button', { name: /add book/i }).click();
+    await expect(page.getByLabel('Title')).toBeVisible();
+    await expect(page.getByLabel('Author')).toBeVisible();
+    await expect(page.getByRole('button', { name: /save/i })).toBeVisible();
+  });
+
+  test('opening edit-book modal displays form with existing data', async ({ page, request }) => {
+    const token = await requireAccessToken(page);
+    const id = uniqueId();
+    const created = await createBook(request, token, {
+      title: `E2E-EditModal-${id}`,
+      author: `E2E-EditModalAuthor-${id}`,
+      guidedReadingLevel: 'B',
+      boxNumber: '2',
+      isbn: buildUniqueIsbn('979'),
+    });
+    await waitForBookVisibleViaApi(request, token, `title=${encodeURIComponent(created.title)}`);
+
+    await openBookList(page);
+    await searchBooks(page, 'Title', created.title);
+    await page.getByRole('button', { name: /^edit$/i }).first().click();
+    await expect(page.locator('input#editTitle')).toHaveValue(created.title);
+    await expect(page.locator('input#editAuthor')).toHaveValue(created.author);
+    await expect(page.getByRole('button', { name: /update book/i })).toBeVisible();
+  });
+
+  test('opening add-copy modal displays copy form', async ({ page, request }) => {
+    const token = await requireAccessToken(page);
+    const id = uniqueId();
+    const created = await createBook(request, token, {
+      title: `E2E-AddCopyModal-${id}`,
+      author: `E2E-AddCopyModalAuthor-${id}`,
+      guidedReadingLevel: 'C',
+      boxNumber: '3',
+      isbn: buildUniqueIsbn('977'),
+    });
+    await waitForBookVisibleViaApi(request, token, `title=${encodeURIComponent(created.title)}`);
+
+    await openBookList(page);
+    await searchBooks(page, 'Title', created.title);
+    await page.getByRole('button', { name: /^add copy$/i }).first().click();
+    await expect(page.getByLabel('Book Copy Barcode')).toBeVisible();
+    await expect(page.locator('form').locator('strong').filter({ hasText: created.title })).toBeVisible();
+  });
+
   test('search by Title', async ({ page, request }) => {
     const token = await requireAccessToken(page);
     const id = uniqueId();
@@ -141,9 +202,9 @@ test.describe('book list real API workflows', () => {
 
     await openBookList(page);
     await searchBooks(page, 'Title', created.title);
-    await page.getByRole('cell', { name: created.title }).first().click();
-    await page.locator('#formBookBarcode').fill(barcode);
-    await page.locator('#formBookBarcode').press('Enter');
+    await page.getByRole('button', { name: /^add copy$/i }).first().click();
+    await page.locator('#bookCopyBarCode').fill(barcode);
+    await page.locator('#bookCopyBarCode').press('Enter');
 
     await expect(page.locator('li', { hasText: barcode })).toBeVisible();
   });
@@ -163,7 +224,7 @@ test.describe('book list real API workflows', () => {
 
     await openBookList(page);
     await searchBooks(page, 'Title', created.title);
-    await page.getByRole('cell', { name: created.title }).first().click();
+    await page.getByRole('button', { name: /^add copy$/i }).first().click();
 
     page.once('dialog', dialog => dialog.accept());
     await page.locator('li', { hasText: barcode }).getByRole('button', { name: /delete/i }).click();
@@ -187,7 +248,7 @@ test.describe('book list real API workflows', () => {
 
     await openBookList(page);
     await searchBooks(page, 'Title', created.title);
-    await page.getByRole('cell', { name: created.title }).first().click();
+    await page.getByRole('button', { name: /^add copy$/i }).first().click();
 
     await expect(page.locator('li', { hasText: barcode }).getByRole('button', { name: /mark found/i })).toBeVisible();
   });
@@ -208,7 +269,7 @@ test.describe('book list real API workflows', () => {
 
     await openBookList(page);
     await searchBooks(page, 'Title', created.title);
-    await page.getByRole('cell', { name: created.title }).first().click();
+    await page.getByRole('button', { name: /^add copy$/i }).first().click();
 
     await expect(page.locator('li', { hasText: barcode }).getByRole('button', { name: /mark damaged/i })).toHaveCount(0);
   });
@@ -230,7 +291,7 @@ test.describe('book list real API workflows', () => {
 
     await openBookList(page);
     await searchBooks(page, 'Title', created.title);
-    await page.getByRole('cell', { name: created.title }).first().click();
+    await page.getByRole('button', { name: /^add copy$/i }).first().click();
 
     await expect(page.locator('li', { hasText: barcode }).getByRole('button', { name: /edit comments/i })).toBeVisible();
     await expect(page.getByText(`Comments: ${comment}`)).toBeVisible();
@@ -252,10 +313,9 @@ test.describe('book list real API workflows', () => {
 
     await openBookList(page);
     await searchBooks(page, 'Title', created.title);
-    await page.getByRole('cell', { name: created.title }).first().click();
-    await page.getByRole('button', { name: /^edit book$/i }).click();
-    await page.locator('#formEditTitle').fill(updatedTitle);
-    await page.locator('#formEditAuthor').fill(updatedAuthor);
+    await page.getByRole('button', { name: /^edit$/i }).first().click();
+    await page.locator('#editTitle').fill(updatedTitle);
+    await page.locator('#editAuthor').fill(updatedAuthor);
     await Promise.all([
       page.waitForResponse(response => {
         return response.url().includes(`/api/books/${created.id}`) && response.request().method() === 'PUT' && response.status() === 200;

@@ -1,37 +1,32 @@
 import { BookSearchParameters } from './../../services/Book-Search-Parameters';
-import { UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { DataTableParams } from './../../models/data-table-params';
 import { BookList } from './../../entities/book-list';
 import { ChangeDetectorRef, Component, NgZone, OnInit, ViewChild } from '@angular/core';
 import { BaggyBookService } from '../../services/baggy-book.service';
 import { Book } from '../../entities/book';
-import { DatatableComponent } from '@swimlane/ngx-datatable';
+import { DatatableComponent, NgxDatatableModule } from '@swimlane/ngx-datatable';
+import { AddBookModalComponent } from '../add-book-modal/add-book-modal.component';
+import { EditBookModalComponent } from '../edit-book-modal/edit-book-modal.component';
+
+import { CommonModule } from '@angular/common';
 
 @Component({
-    standalone: false,
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, NgxDatatableModule, AddBookModalComponent, EditBookModalComponent],
   selector: 'app-book-list',
   templateUrl: './book-list.component.html',
   styleUrls: ['./book-list.component.css']
 })
 export class BookListComponent implements OnInit {
   @ViewChild(DatatableComponent) table?: DatatableComponent;
+  @ViewChild(EditBookModalComponent) editBookModal?: EditBookModalComponent;
 
   bookList: BookList;
   lastSearchParams: DataTableParams;
   searchBookForm: UntypedFormGroup;
-  currentBookIsbn: string;
   loadingIndicator = false;
   selected = [];
-  columns = [
-    { prop: 'title', sortable: false},
-    { prop: 'author', sortable: false},
-    { prop: 'guidedReadingLevel', name: "Reading Level", sortable: false},
-    { prop: 'publisherText', name: "Publisher Text", sortable: false},
-    { prop: 'boxNumber', name:"Box", sortable: false},
-    { prop: 'isbn', name: "ISBN", sortable: false},
-    { prop: 'bookCopyCount', name:"Copies", sortable: false},
-    { prop: 'reservedCopies', name:"CheckedOut", sortable: false},
-  ];
 
   constructor(
     private baggyBookService: BaggyBookService,
@@ -142,12 +137,16 @@ export class BookListComponent implements OnInit {
     this.baggyBookService.exportBooks(this.getBookSearchParameters());
   }
 
-  rowClicked(rowEvent) {
-    this.currentBookIsbn = rowEvent.row.item.isbn;
+  onSelect({ selected }) {
+    this.selected = selected;
   }
 
-  onSelect({ selected }) {
-    this.currentBookIsbn = selected[0].isbn;
+  openEditBookModal(book: Book): void {
+    this.editBookModal?.open(book, 'edit');
+  }
+
+  openAddCopyModal(book: Book): void {
+    this.editBookModal?.open(book, 'add-copy');
   }
 
 }
