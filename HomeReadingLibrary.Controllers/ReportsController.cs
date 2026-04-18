@@ -46,8 +46,14 @@ namespace HomeReadingLibrary.Controllers.Controllers
                 new BsonDocument("$lookup", new BsonDocument
                 {
                     { "from", "currentreservations" },
-                    { "localField", "_id" },
-                    { "foreignField", "studentBarCode" },
+                    { "let", new BsonDocument("studentId", "$_id") },
+                    { "pipeline", new BsonArray
+                        {
+                            new BsonDocument("$match", new BsonDocument("$expr",
+                                new BsonDocument("$eq", new BsonArray { "$studentBarCode", "$$studentId" }))),
+                            new BsonDocument("$sort", new BsonDocument("checkedOutDate", 1))
+                        }
+                    },
                     { "as", "reservation" }
                 }),
                 new BsonDocument("$addFields", new BsonDocument
@@ -149,7 +155,7 @@ namespace HomeReadingLibrary.Controllers.Controllers
         {
             if (string.IsNullOrEmpty(s)) return "";
             if (s.Contains(",") || s.Contains("\""))
-                return $"\"{s.Replace("\"", "\"\"")}";
+                return $"\"{s.Replace("\"", "\"\"")}\"";
             return s;
         }
     }
