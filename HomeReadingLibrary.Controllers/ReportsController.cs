@@ -120,25 +120,102 @@ namespace HomeReadingLibrary.Controllers.Controllers
             return results;
         }
 
-        private static string BsonToString(BsonValue value)
+        [Authorize(AuthenticationSchemes = "Bearer", Policy = "AdminUser")]
+        [HttpGet("missingcheckins")]
+        public async Task<IActionResult> GetMissingCheckins()
         {
-            if (value == null || value.IsBsonNull) return null;
-            return value.IsString ? value.AsString : value.ToString();
+            var results = await RunMissingCheckinsReport();
+            return Ok(new { Data = results });
         }
 
-        private string GetReadingLevel(BsonDocument doc, string field)
+        private async Task<List<MissingCheckinReportItem>> RunMissingCheckinsReport()
         {
-            if (!doc.Contains(field) || !doc[field].IsBsonArray)
-                return null;
-            var arr = doc[field].AsBsonArray;
-            if (arr.Count == 0)
-                return null;
-            var first = arr[0] as BsonDocument;
-            if (first == null || !first.Contains("guidedReadingLevel"))
-                return null;
-            var val = first["guidedReadingLevel"];
-            return BsonToString(val);
+            var pipeline = new[]
+            {
+                // Only open (not checked in) checkouts
+                new BsonDocument("$match", new BsonDocument("checkedInDate", BsonNull.Value)),
+
+                // Find later check-ins by same student in currentreservations
+                new BsonDocument("$lookup", new BsonDocument
+                {
+                    { "from", "currentreservations" },
+                    { "let", new BsonDocument
+                        {
+                            { "studentId", "$studentBarCode" },
+                            { "checkoutDate", "$checkedOutDate" }
+                        }
+                    },
+                    { "pipeline", new BsonArray
+                        {
+                            new BsonDocument("$match", new BsonDocument("$expr",
+                                new BsonDocument("$and", new BsonArray
+                                {
+                                    new BsonDocument("$eq",  new BsonArray { "$studentBarCode", "$$studentId" }),
+                                    new BsonDocument("$gt",  new BsonArray { "$checkedOutDate", "$$checkoutDate" })
+                                }))),
+                            new BsonDocument("$limit", 1)
+                        }
+                    },
+                    { "as", "laterCheckins" }
+                }),
+
+                // Keep only checkouts where a later check-in exists
+                new BsonDocument("$match", new BsonDocument("laterCheckins.0",
+                    new BsonDocument("$exists", true))),
+
+                // Flatten embedded subdoc fields to top-level aliases
+                new BsonDocument("$project", new BsonDocument
+                {
+                    { "bookCopyBarCode", 1 },
+                    { "checkedOutDate", 1 },
+                    { "studentFirstName", "$student.firstName" },
+                    { "studentLastName",  "$student.lastName" },
+                    { "bookTitle",        "$bookCopy.title" },
+                    { "readingLevel",     "$bookCopy.guidedReadingLevel" },
+                    { "boxNumber",        "$bookCopy.boxNumber" },
+                    { "studentBarCode",   "$studentBarCode" },
+                    { "teacherName",      "$student.teacherName" },
+                    { "grade",            "$student.grade" }
+                }),
+
+                // Sort by student name then checkout date
+                new BsonDocument("$sort", new BsonDocument
+                {
+                    { "studentLastName",  1 },
+                    { "studentFirstName", 1 },
+                    { "checkedOutDate",   1 }
+                })
+            };
+
+            var collection = _mongoDatabase.GetCollection<BsonDocument>("bookscheckedout");
+            var docs = await collection.Aggregate<BsonDocument>(pipeline).ToListAsync();
+            var results = new List<MissingCheckinReportItem>();
+            foreach (var doc in docs)
+            {
+                results.Add(new MissingCheckinReportItem
+                {
+                    BookCopyBarCode  = BsonToString(doc.GetValue("bookCopyBarCode", BsonNull.Value)),
+                    CheckedOutDate   = doc.Contains("checkedOutDate") && doc["checkedOutDate"].IsValidDateTime
+                        ? doc["checkedOutDate"].ToUniversalTime()
+                        : DateTime.MinValue,
+                    StudentFirstName = BsonToString(doc.GetValue("studentFirstName", BsonNull.Value)),
+                    StudentLastName  = BsonToString(doc.GetValue("studentLastName",  BsonNull.Value)),
+                    BookTitle        = BsonToString(doc.GetValue("bookTitle",        BsonNull.Value)),
+                    ReadingLevel     = BsonToString(doc.GetValue("readingLevel",     BsonNull.Value)),
+                    BoxNumber        = BsonToString(doc.GetValue("boxNumber",        BsonNull.Value)),
+                    StudentBarCode   = BsonToString(doc.GetValue("studentBarCode",   BsonNull.Value)),
+                    TeacherName      = BsonToString(doc.GetValue("teacherName",      BsonNull.Value)),
+                    Grade            = BsonToString(doc.GetValue("grade",            BsonNull.Value))
+                });
+            }
+            return results;
         }
+
+        private static string BsonToString(BsonValue value)
+            => ReportsBsonHelper.BsonToString(value);
+
+        private string GetReadingLevel(BsonDocument doc, string field)
+            => ReportsBsonHelper.GetFirstArrayFieldString(doc, field, "guidedReadingLevel");
 
         private string GenerateCsv(List<StudentYearEndReportItem> items)
         {

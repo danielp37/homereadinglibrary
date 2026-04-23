@@ -47,3 +47,28 @@ Refactored app-add-book component to separate concerns:
   - Removed Publisher, Year, Notes fields; kept ISBN optional
 
 **Validation**: `ng build` succeeded with no TypeScript errors. All columns now render properly in datatable.
+
+## Day 4 — Possible Missing Check-ins report (frontend)
+
+**Feature**: New admin-only report page showing books still checked out where the student has since checked in other books (possible missed scan-in).
+
+**Changes**:
+- **`src/app/entities/missing-checkin-report-item.ts`**: New entity interface with fields: studentFirstName, studentLastName, bookTitle, bookCopyBarCode, readingLevel, boxNumber, checkedOutDate.
+- **`src/app/services/baggy-book.service.ts`**: Added `getMissingCheckinsReport()` — calls `GET /api/reports/missingcheckins`, uses `getAuthHeaders(false)`, maps `{ data: [...] }` response shape. Matches `getEndOfYearStudentReport()` pattern exactly.
+- **`src/app/components/missing-checkins-report/` (4 files)**: New component — button-triggered report (no auto-load), spinner while loading, table when data, "No data found" when empty. `standalone: false`, no CSV export.
+- **`src/app/app.module.ts`**: Added `MissingCheckinsReportComponent` to declarations.
+- **`src/app/modules/app-routing/app-routing.module.ts`**: Added `{ path: 'missingcheckins', component: MissingCheckinsReportComponent, canActivate: [AuthGuard] }` before wildcard.
+- **`src/app/components/navmenu/navmenu.component.html`**: Added "Possible Missing Check-ins" link under Reports dropdown, admin-only, after "Year End Student Progress".
+
+**Validation**: `ng build --configuration=production` succeeded. Only pre-existing CommonJS warning from angular-oauth2-oidc-jwks (unrelated).
+
+## Day 5 — Missing Check-ins Report: added StudentBarCode, TeacherName, Grade columns
+
+**Feature**: Extended the Missing Check-ins report UI with three new fields returned by the backend.
+
+**Changes**:
+- **`src/app/entities/missing-checkin-report-item.ts`**: Added `studentBarCode`, `teacherName`, `grade` fields to interface.
+- **`src/app/components/missing-checkins-report/missing-checkins-report.component.html`**: Added Teacher, Grade, Student Barcode columns; column order is now Teacher | Grade | Last Name | First Name | Student Barcode | Book Title | Barcode | Reading Level | Box Number | Checked Out.
+- **`src/app/components/missing-checkins-report/missing-checkins-report.component.spec.ts`**: Updated mock data objects with the three new fields; added test asserting Teacher, Grade, and Student Barcode headers render when data is present.
+
+**Validation**: `ng build` succeeded (exit 0). `ng test` runner fails to start due to a pre-existing `@types/node` TS2344/TS2386 incompatibility in `node_modules` — unrelated to this change.

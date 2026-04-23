@@ -14,6 +14,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { HomeComponent } from './../../components/home/home.component';
 import { ClassStatsComponent } from 'src/app/components/class-stats/class-stats.component';
 import { AdminReportsComponent } from 'src/app/components/admin-reports/admin-reports.component';
+import { MissingCheckinsReportComponent } from 'src/app/components/missing-checkins-report/missing-checkins-report.component';
 
 
 const routes: Routes = [
@@ -30,6 +31,7 @@ const routes: Routes = [
             { path: 'bookcheckouthistory', component: BookReservationHistoryComponent, canActivate: [AuthGuard]},
             { path: 'classstats', component: ClassStatsComponent, canActivate: [AuthGuard]},
             { path: 'adminreports', component: AdminReportsComponent, canActivate: [AuthGuard]},
+            { path: 'missingcheckins', component: MissingCheckinsReportComponent, canActivate: [AuthGuard]},
             { path: '**', redirectTo: 'home' }
         ];
 /*[

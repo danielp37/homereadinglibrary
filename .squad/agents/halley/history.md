@@ -39,3 +39,26 @@ Added comprehensive test coverage for new Administrative Reports feature.
 - Angular build completed successfully with no compilation errors
 - All imports resolved correctly
 - Follows project's existing test conventions per .github/instructions/testing-validation.instructions.md
+
+### 2026-04-18: Possible Missing Check-ins Report E2E Tests
+
+**Scope:**
+Added Playwright E2E tests for the new "Possible Missing Check-ins" report feature.
+
+**Files Created:**
+- `HomeReadingLibraryWeb\ClientApp\playwright\tests\auth\missing-checkins-report.spec.ts` — 6 E2E tests for the missing check-ins report
+
+**Playwright E2E Test Coverage:**
+- Navigation: admin sees "Possible Missing Check-ins" link in Reports dropdown (`span[ngbDropdownToggle]` selector needed — not button/link)
+- Page loads with heading "Possible Missing Check-ins" at `/missingcheckins`
+- Run Report button visible on page load
+- Report does not auto-run (no table or "No data found" on page load)
+- With mocked data (2 rows): table shows correct 7 column headers (Last Name, First Name, Book Title, Barcode, Reading Level, Box Number, Checked Out) and 2 `tbody tr` rows
+- Empty state: "No data found" visible, zero `tbody tr` rows
+- All tests skip for non-admin roles
+
+**Key Pattern Note:**
+- The "Reports" nav toggle is `<span ngbDropdownToggle>` — use `page.locator('span[ngbDropdownToggle]').filter({ hasText: /reports/i })` to click it, not `getByRole('button')` or `getByRole('link')`.
+
+**Verification:**
+- All 6 tests pass: `6 passed (1.3m)` with exit code 0
