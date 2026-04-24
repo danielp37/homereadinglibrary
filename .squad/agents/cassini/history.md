@@ -9,7 +9,7 @@ Assigned to implement UI components and integrate with backend APIs.
 - Discovered that duplicate service methods and imports can cause Angular build failures; always check for and remove duplicates after multiple edit passes.
 - The nav menu uses FontAwesome icons and requires explicit import and assignment for new icons.
 - The project uses non-standalone components and explicit module registration for new features.
-- **npm `overrides` block** in package.json can force patched transitive dependency versions without changing direct dependencies. Used to fix 13 Dependabot security alerts (vite 7.3.2, lodash 4.18.1, hono 4.12.14, @hono/node-server 1.19.14, follow-redirects 1.16.0). Verified via `npm ls --depth 4` and confirmed no build/test breakage.
+- **npm `overrides` block** in package.json can force patched transitive dependency versions without changing direct dependencies. Used to address 14 Dependabot security alerts total, with 13 resolved via overrides and 1 remaining (vite 7.3.2, lodash 4.18.1, hono 4.12.14, @hono/node-server 1.19.14, follow-redirects 1.16.0). Verified via `npm ls --depth 4` and confirmed no build/test breakage.
 
 - Implemented a reusable AddBookModalComponent and wired it to BookListComponent; tests added (unit + shallow integration).
 - Modal saves via BaggyBookService.addBook() which posts to /api/books; confirm backend supports this endpoint in integration.

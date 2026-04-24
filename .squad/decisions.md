@@ -22,15 +22,15 @@ Use npm `overrides` block in `HomeReadingLibraryWeb\ClientApp\package.json` to f
 ```
 
 **Rationale:**
-- GitHub Dependabot identified 14 open security alerts (3 HIGH, 10 MEDIUM, 1 MODERATE) in transitive devDependencies brought in by @angular/cli and @playwright/test
+- GitHub Dependabot identified 14 open security alerts (3 HIGH, 10 MEDIUM, 1 MODERATE) in transitive devDependencies brought in by @angular/cli and @playwright/test; this change resolves 13 of those alerts and leaves 1 unresolved
 - Direct version upgrades not feasible since these are transitive; npm overrides is the official npm v8.3+ mechanism for enforcing dependency versions
 - All overridden versions are patch/minor upgrades within the same major version (low risk of breaking changes)
 - Validation passed: build succeeded, all 21 backend tests passed, no new warnings
 
 **Consequences:**
-- ✅ Resolves 13 of 14 Dependabot alerts without application code changes
+- ✅ Resolves 13 of the 14 Dependabot alerts without application code changes
 - ✅ All overrides are transitive devDependencies only (zero production impact)
-- 🔄 uuid@8.3.2 buffer bounds check unresolved (no fix in 8.x line; monitoring for 9.x)
+- 🔄 1 alert remains: uuid@8.3.2 buffer bounds check unresolved (no fix in 8.x line; monitoring for 9.x)
 - Must periodically review overrides when upgrading Angular CLI or Playwright
 
 **Validation:**
