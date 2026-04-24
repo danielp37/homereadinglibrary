@@ -36,6 +36,7 @@ import { VolunteerLogonsComponent } from './components/volunteer-logons/voluntee
 import { BookCopyReservationsComponent } from './components/book-copy-reservations/book-copy-reservations.component';
 import { ClassStatsComponent } from './components/class-stats/class-stats.component';
 import { AdminReportsComponent } from './components/admin-reports/admin-reports.component';
+import { MissingCheckinsReportComponent } from './components/missing-checkins-report/missing-checkins-report.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 @NgModule({
@@ -59,7 +60,8 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
     VolunteerLogonsComponent,
     BookCopyReservationsComponent,
     ClassStatsComponent,
-    AdminReportsComponent
+    AdminReportsComponent,
+    MissingCheckinsReportComponent
   ],
   imports: [
     BrowserModule,

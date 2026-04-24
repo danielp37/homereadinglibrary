@@ -26,6 +26,7 @@ interface ClassWithVolunteersResult {
 }
 
 import { StudentYearEndReportItem } from '../entities/student-year-end-report-item';
+import { MissingCheckinReportItem } from '../entities/missing-checkin-report-item';
 
 @Injectable()
 export class BaggyBookService {
@@ -465,6 +466,19 @@ export class BaggyBookService {
       headers: this.getAuthHeaders(false),
       responseType: 'blob'
     });
+  }
+
+  getMissingCheckinsReport(): Observable<MissingCheckinReportItem[]> {
+    this.loaderService.display(true);
+    return this.http
+      .get<{ data: MissingCheckinReportItem[] }>('/api/reports/missingcheckins', { headers: this.getAuthHeaders(false) })
+      .pipe(
+        map(res => {
+          this.loaderService.display(false);
+          return res.data;
+        }),
+        catchError(err => this.handleObservableError<MissingCheckinReportItem[]>(err))
+      );
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
