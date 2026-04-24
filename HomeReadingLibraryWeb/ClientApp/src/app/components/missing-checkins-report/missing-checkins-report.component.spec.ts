@@ -219,7 +219,7 @@ describe('MissingCheckinsReportComponent', () => {
           const th = ths.find(el => el.textContent?.trim().startsWith(label));
           expect(th).withContext(`<th> for "${label}" should exist`).toBeTruthy();
           if (th) {
-            expect(th.style.cursor)
+            expect(window.getComputedStyle(th).cursor)
               .withContext(`<th> for "${label}" should have cursor: pointer`)
               .toBe('pointer');
           }

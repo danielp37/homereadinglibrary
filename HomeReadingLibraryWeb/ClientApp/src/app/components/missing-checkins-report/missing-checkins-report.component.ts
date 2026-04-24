@@ -2,17 +2,20 @@ import { Component } from '@angular/core';
 import { BaggyBookService } from '../../services/baggy-book.service';
 import { MissingCheckinReportItem } from '../../entities/missing-checkin-report-item';
 
+type SortColumn = 'teacherName' | 'studentLastName' | 'bookTitle' | 'readingLevel' | 'checkedOutDate';
+
 @Component({
   selector: 'app-missing-checkins-report',
   templateUrl: './missing-checkins-report.component.html',
   styleUrls: ['./missing-checkins-report.component.css'],
   standalone: false
 })
+
 export class MissingCheckinsReportComponent {
   rows: MissingCheckinReportItem[] = [];
   loading = false;
   hasRun = false;
-  sortColumn = '';
+  sortColumn: SortColumn | '' = '';
   sortDirection: 'asc' | 'desc' = 'asc';
 
   constructor(private baggyBookService: BaggyBookService) { }
@@ -24,6 +27,8 @@ export class MissingCheckinsReportComponent {
         this.rows = data;
         this.loading = false;
         this.hasRun = true;
+        this.sortColumn = '';
+        this.sortDirection = 'asc';
       },
       error: () => {
         this.loading = false;
@@ -32,7 +37,7 @@ export class MissingCheckinsReportComponent {
     });
   }
 
-  sort(column: string): void {
+  sort(column: SortColumn): void {
     if (this.sortColumn === column) {
       this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
     } else {
@@ -65,7 +70,7 @@ export class MissingCheckinsReportComponent {
     });
   }
 
-  getSortIndicator(column: string): string {
+  getSortIndicator(column: SortColumn): string {
     if (this.sortColumn !== column) return '';
     return this.sortDirection === 'asc' ? ' ▲' : ' ▼';
   }
