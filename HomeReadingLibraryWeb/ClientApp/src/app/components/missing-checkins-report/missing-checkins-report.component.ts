@@ -12,6 +12,8 @@ export class MissingCheckinsReportComponent {
   rows: MissingCheckinReportItem[] = [];
   loading = false;
   hasRun = false;
+  sortColumn = '';
+  sortDirection: 'asc' | 'desc' = 'asc';
 
   constructor(private baggyBookService: BaggyBookService) { }
 
@@ -28,5 +30,43 @@ export class MissingCheckinsReportComponent {
         this.hasRun = true;
       }
     });
+  }
+
+  sort(column: string): void {
+    if (this.sortColumn === column) {
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortColumn = column;
+      this.sortDirection = 'asc';
+    }
+
+    const dir = this.sortDirection === 'asc' ? 1 : -1;
+
+    this.rows.sort((a, b) => {
+      switch (column) {
+        case 'teacherName':
+          return dir * a.teacherName.toLowerCase().localeCompare(b.teacherName.toLowerCase());
+        case 'studentLastName':
+          return dir * a.studentLastName.toLowerCase().localeCompare(b.studentLastName.toLowerCase());
+        case 'bookTitle':
+          return dir * a.bookTitle.toLowerCase().localeCompare(b.bookTitle.toLowerCase());
+        case 'readingLevel': {
+          const lvlCmp = a.readingLevel.toLowerCase().localeCompare(b.readingLevel.toLowerCase());
+          if (lvlCmp !== 0) return dir * lvlCmp;
+          const aBox = parseInt(a.boxNumber, 10) || 0;
+          const bBox = parseInt(b.boxNumber, 10) || 0;
+          return dir * (aBox - bBox);
+        }
+        case 'checkedOutDate':
+          return dir * a.checkedOutDate.localeCompare(b.checkedOutDate);
+        default:
+          return 0;
+      }
+    });
+  }
+
+  getSortIndicator(column: string): string {
+    if (this.sortColumn !== column) return '';
+    return this.sortDirection === 'asc' ? ' ▲' : ' ▼';
   }
 }

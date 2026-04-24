@@ -62,3 +62,36 @@ Added Playwright E2E tests for the new "Possible Missing Check-ins" report featu
 
 **Verification:**
 - All 6 tests pass: `6 passed (1.3m)` with exit code 0
+
+### 2026-04-24: Column Sorting Tests for MissingCheckinsReportComponent (Completed)
+
+**Scope:**
+Added 13 unit tests for the column sorting feature being implemented by Cassini in `MissingCheckinsReportComponent`.
+
+**Files Modified:**
+- `HomeReadingLibraryWeb\ClientApp\src\app\components\missing-checkins-report\missing-checkins-report.component.spec.ts` — Added `describe('sorting', ...)` block with 13 tests
+
+**Test Cases Added (inside new `describe('sorting', ...)` block):**
+1. Initial state: `sortColumn === ''`, `sortDirection === 'asc'`
+2. `sort()` sets `sortColumn`
+3. First sort of a column defaults to `'asc'`
+4. Calling `sort()` twice on same column toggles direction to `'desc'`
+5. Sorting a different column resets direction to `'asc'`
+6. `teacherName` ascending: Mr. Jones before Ms. Smith
+7. `teacherName` descending: Ms. Smith before Mr. Jones
+8. `studentLastName` ascending: Doe before Williams
+9. `bookTitle` ascending: Green Eggs before The Cat
+10. `checkedOutDate` ascending: Jan before Feb ISO strings
+11. `readingLevel` ascending with numeric secondary sort on `boxNumber`: level 'B'/box 5 → 'B'/box 12 → 'C'
+12. `getSortIndicator()` returns `' ▲'` (active+asc), `' ▼'` (active+desc), `''` (inactive)
+13. Sortable `<th>` headers have `style.cursor === 'pointer'` after `runReport()`
+
+**Patterns Followed:**
+- Tests are written against the feature contract (TDD against Cassini's in-progress implementation)
+- Sort state tests call `component.sort()` directly; no async needed
+- Row-order tests set `component.rows = [...mockReportData]` directly to avoid async `runReport()` complexity
+- The `extraItem` (readingLevel 'B', boxNumber '5') defined at `describe` scope for test 11 reuse
+- Template/style test follows existing `setTimeout + done` async pattern
+- No new imports required beyond what the existing spec already imports
+
+**Status:** ✅ Complete — Cassini implemented all properties and methods per test contract; build verified clean.

@@ -77,6 +77,28 @@ Use npm `overrides` block in `HomeReadingLibraryWeb\ClientApp\package.json` to f
 
 ---
 
+### 2026-04-24: Column Sorting for Missing Check-ins Report
+
+**By:** Cassini (Frontend Dev)  
+**Date:** 2026-04-24  
+**Status:** Implemented
+
+**Decision:**
+Sort `rows` in-place using `Array.sort()` directly on the component's data array. No pipe, no external library.
+
+**Rationale:**
+- The dataset is small (report output), so in-place sort is simple and efficient with no meaningful performance downside.
+- Avoids introducing an Angular pipe or a new dependency just for sort, keeping the component self-contained and consistent with the existing pattern in this codebase.
+- Reading Level sort uses a two-key comparison (readingLevel string → boxNumber integer) to handle the case where two books share the same level but differ in box; `parseInt(..., 10) || 0` safely handles empty/non-numeric boxNumber values.
+- Sort direction is toggled per-column (asc on first click, desc on second), with a reset to asc whenever a different column is clicked — standard UX convention.
+
+**Consequences:**
+- ✅ No new imports or dependencies needed.
+- ✅ `ng build` passes with no TypeScript errors.
+- ⚠️ Sort state resets if `runReport()` is called again (rows replaced); this is acceptable since a fresh data load should start unsorted.
+
+---
+
 ## Governance
 
 - All meaningful changes require team consensus
