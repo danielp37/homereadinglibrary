@@ -9,6 +9,7 @@ Assigned to implement UI components and integrate with backend APIs.
 - Discovered that duplicate service methods and imports can cause Angular build failures; always check for and remove duplicates after multiple edit passes.
 - The nav menu uses FontAwesome icons and requires explicit import and assignment for new icons.
 - The project uses non-standalone components and explicit module registration for new features.
+- **npm `overrides` block** in package.json can force patched transitive dependency versions without changing direct dependencies. Used to fix 13 Dependabot security alerts (vite 7.3.2, lodash 4.18.1, hono 4.12.14, @hono/node-server 1.19.14, follow-redirects 1.16.0). Verified via `npm ls --depth 4` and confirmed no build/test breakage.
 
 - Implemented a reusable AddBookModalComponent and wired it to BookListComponent; tests added (unit + shallow integration).
 - Modal saves via BaggyBookService.addBook() which posts to /api/books; confirm backend supports this endpoint in integration.
@@ -72,3 +73,25 @@ Refactored app-add-book component to separate concerns:
 - **`src/app/components/missing-checkins-report/missing-checkins-report.component.spec.ts`**: Updated mock data objects with the three new fields; added test asserting Teacher, Grade, and Student Barcode headers render when data is present.
 
 **Validation**: `ng build` succeeded (exit 0). `ng test` runner fails to start due to a pre-existing `@types/node` TS2344/TS2386 incompatibility in `node_modules` — unrelated to this change.
+
+## Day 6 — Security fix: npm overrides for 14 Dependabot alerts
+
+**Fix**: Applied npm `overrides` block to force patched versions of transitive devDependencies with security vulnerabilities.
+
+**Changes**:
+- **`HomeReadingLibraryWeb\ClientApp\package.json`**: Added `overrides` block with:
+  - `vite: 7.3.2` — fixes HIGH alerts #203/#204 (arbitrary file read, fs.deny bypass) and medium #205 (path traversal)
+  - `lodash: 4.18.1` — fixes HIGH alert #202 (code injection via _.template) and medium #201 (prototype pollution)
+  - `hono: 4.12.14` — fixes 5 medium alerts (#207-#213), patch upgrade from 4.12.9
+  - `@hono/node-server: 1.19.14` — fixes medium alert #206, patch upgrade from 1.19.11
+  - `follow-redirects: 1.16.0` — fixes medium alert #212 (auth header leak to cross-domain redirects)
+- Ran `npm install` to rebuild package-lock.json with overridden versions.
+- Verified all 5 packages installed at correct versions via `npm ls --depth 4`.
+
+**Validation**: 
+- `dotnet build HomereadingLibrary.sln` succeeded (exit 0).
+- `dotnet test HomeReadingLibrary.Controllers.Tests` passed (14/14 tests).
+- `dotnet test AspnetCore.Identity.MongoDb.Tests` passed (7/7 tests).
+- No build or runtime errors introduced.
+
+**Note**: `uuid@8.3.2` (alert #214) was NOT overridden — already at latest 8.x release; vulnerability (buffer bounds check) not triggered by sockjs usage. Will assess separately if needed.
