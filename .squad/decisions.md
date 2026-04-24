@@ -39,6 +39,26 @@ Use npm `overrides` block in `HomeReadingLibraryWeb\ClientApp\package.json` to f
 
 ---
 
+### 2026-04-16: AddBookModal implementation approach
+
+**By:** Cassini (Frontend Dev)  
+**Date:** 2026-04-16
+
+**Decision:**
+- Implement a local reusable component `AddBookModalComponent` using existing ngx-bootstrap ModalModule (BsModalService).
+- Do not introduce a global modal service or new library; keep scope minimal and consistent with existing codebase patterns.
+
+**Rationale:**
+- Project already uses ngx-bootstrap ModalModule and several components rely on BsModalService, so reusing it keeps consistency.
+- The requested feature is small and localized; a shared modal service would add indirection without immediate benefit.
+- The component exposes an Output (bookAdded) so it can be reused by different pages.
+
+**Consequences:**
+- Future refactor may extract a shared modal utility if multiple widgets require consistent modal behaviors (focus management, modal stacking, etc.).
+- The backend API expectation is POST /api/books (BaggyBookService.addBook). Ensure backend provides this endpoint.
+
+---
+
 ### 2026-04-17: Project scaffolding and platform choices
 
 **By:** Copilot (Kepler)  
