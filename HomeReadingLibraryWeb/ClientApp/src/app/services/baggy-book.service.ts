@@ -468,6 +468,24 @@ export class BaggyBookService {
     });
   }
 
+  getAllBookCopyReservationsForNotices(
+    daysBack: number,
+    bookSearchParameters?: BookSearchParameters
+  ): Observable<BookCopyReservationWithData[]> {
+    const checkoutParams = this.bookCopyParamsToQueryString(
+      { limit: 10000, offset: 0 }, undefined, false, daysBack, false, bookSearchParameters
+    );
+    return this.http
+      .get<{ count: number; data: BookCopyReservationWithData[] }>(
+        `${this.bookCheckOutUrl}?${checkoutParams}`,
+        { headers: this.getAuthHeaders(false) }
+      )
+      .pipe(
+        map(res => res.data),
+        catchError(err => this.handleObservableError<BookCopyReservationWithData[]>(err))
+      );
+  }
+
   getMissingCheckinsReport(): Observable<MissingCheckinReportItem[]> {
     this.loaderService.display(true);
     return this.http

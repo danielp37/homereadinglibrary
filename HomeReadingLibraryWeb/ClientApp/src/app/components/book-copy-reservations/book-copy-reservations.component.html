@@ -12,7 +12,12 @@
           <label for="showOnlyMultiples">Show only students with multiple books checked out?</label>
           <br />
           <button type="submit" class="btn btn-primary">Submit</button>
-          <button class="btn btn-secondary" (click)="exportToTab()">Export To File</button>
+          <button type="button" class="btn btn-secondary" (click)="exportToTab()">Export To File</button>
+          <button type="button" class="btn btn-outline-secondary" (click)="openTemplateEditor()">Customize Notice Template</button>
+          <button type="button" class="btn btn-warning" (click)="generateNotices()" [disabled]="generatingNotices">
+            <span *ngIf="generatingNotices" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+            {{ generatingNotices ? 'Generating...' : 'Generate Late Notices' }}
+          </button>
           <a [href]="downloadLink" id="downloadReport"></a>
         </div>
       </div>
@@ -114,3 +119,62 @@
       </ngx-datatable>
   </div>
 </div>
+
+<!-- ─── Template Editor Modal ──────────────────────────────────────────────── -->
+<ng-template #templateEditorModal>
+  <div class="modal-header">
+    <h4 class="modal-title">Customize Notice Template</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="closeTemplateEditor()"></button>
+  </div>
+  <div class="modal-body">
+    <p class="text-muted small">
+      Use markdown to format the notice text. Available placeholders:
+      <code>{{'{{'}}studentName{{'}}'}}</code>,
+      <code>{{'{{'}}grade{{'}}'}}</code>,
+      <code>{{'{{'}}teacherName{{'}}'}}</code>,
+      <code>{{'{{'}}bookList{{'}}'}}</code> (auto-generates a list of books with checkout dates).
+    </p>
+    <div class="row">
+      <div class="col-md-6">
+        <label class="form-label fw-bold">Template (Markdown)</label>
+        <textarea
+          class="form-control font-monospace"
+          rows="15"
+          [(ngModel)]="editableTemplate"
+          (input)="updatePreview()"
+          aria-label="Notice template markdown">
+        </textarea>
+        <div class="mt-2">
+          <button type="button" class="btn btn-sm btn-outline-secondary" (click)="resetTemplate()">Reset to Default</button>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label fw-bold">Preview (sample data)</label>
+        <div class="notice-preview border rounded p-3 bg-light" [innerHTML]="previewHtml"></div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="saveTemplate()">Save Template</button>
+    <button type="button" class="btn btn-outline-dark" (click)="closeTemplateEditor()">Cancel</button>
+  </div>
+</ng-template>
+
+<!-- ─── Late Notices Print Overlay ────────────────────────────────────────── -->
+<div class="late-notices-print-overlay" *ngIf="showNotices">
+  <div class="late-notices-print-overlay-actions">
+    <button type="button" class="btn btn-primary me-2" (click)="printNotices()">
+      <i class="fa fa-print me-1"></i> Print Notices
+    </button>
+    <button type="button" class="btn btn-secondary me-3" (click)="closeNotices()">Close</button>
+    <span class="text-muted">
+      {{ noticePages.length > 0 ? (noticePages[noticePages.length - 1].length + (noticePages.length - 1) * 2) : 0 }} notice(s) generated
+    </span>
+  </div>
+  <div class="notice-page" *ngFor="let page of noticePages">
+    <div class="notice-box" *ngFor="let notice of page">
+      <div [innerHTML]="notice.html"></div>
+    </div>
+  </div>
+</div>
+
