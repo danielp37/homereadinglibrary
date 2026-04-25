@@ -85,7 +85,7 @@ test.describe('missing check-ins report — data and empty state', () => {
     await expect(page.getByRole('columnheader', { name: /last name/i })).toBeVisible();
     await expect(page.getByRole('columnheader', { name: /first name/i })).toBeVisible();
     await expect(page.getByRole('columnheader', { name: /book title/i })).toBeVisible();
-    await expect(page.getByRole('columnheader', { name: /barcode/i })).toBeVisible();
+    await expect(page.getByRole('columnheader', { name: /^barcode$/i })).toBeVisible();
     await expect(page.getByRole('columnheader', { name: /reading level/i })).toBeVisible();
     await expect(page.getByRole('columnheader', { name: /box number/i })).toBeVisible();
     await expect(page.getByRole('columnheader', { name: /checked out/i })).toBeVisible();

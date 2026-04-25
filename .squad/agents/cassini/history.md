@@ -95,3 +95,18 @@ Refactored app-add-book component to separate concerns:
 - No build or runtime errors introduced.
 
 **Note**: `uuid@8.3.2` (alert #214) was NOT overridden — already at latest 8.x release; vulnerability (buffer bounds check) not triggered by sockjs usage. Will assess separately if needed.
+
+## Day 7 — Column sorting for Missing Check-ins report
+
+**Feature**: Sortable column headers for Teacher, Last Name, Book Title, Reading Level, and Checked Out on the Possible Missing Check-ins report.
+
+**Changes**:
+- **`missing-checkins-report.component.ts`**: Added `sortColumn`, `sortDirection` properties; `sort(column)` method sorts `rows` in-place (toggles asc/desc on same column, resets to asc for new column); `getSortIndicator(column)` returns ▲/▼ or empty string. Reading Level sort is primary by readingLevel (case-insensitive), secondary by boxNumber parsed as integer (parseInt fallback 0).
+- **`missing-checkins-report.component.html`**: Added `(click)="sort(...)"` and `style="cursor:pointer"` to the five sortable `<th>` elements; non-sortable columns (Grade, First Name, Student Barcode, Barcode, Box Number) left unchanged.
+
+**Validation**: `ng build` succeeded (exit 0), no TypeScript errors.
+
+**Team Decision**: Column Sorting approach documented in `.squad/decisions.md` — in-place sort with no pipe or external dependency; read level uses two-key compare (level + box); sort state resets on fresh data load (acceptable UX).
+
+**Test Integration**: Halley added 13 comprehensive unit tests covering initial state, direction toggle, all 5 sortable columns, getSortIndicator return values, and cursor styling. Tests documented in orchestration log.
+
