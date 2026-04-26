@@ -170,7 +170,7 @@ describe('LateNoticeTemplateService', () => {
     it('should HTML-escape special characters in book title', () => {
       const data = {
         ...sampleData,
-        books: [{ title: '<b>Bad Title</b>', checkedOutDate: '01/01/2025' }],
+        books: [{ title: '<b>Bad Title</b>', bookBarCode: 'BC999', checkedOutDate: '01/01/2025' }],
       };
       const html = service.renderNoticeFromTemplate('{{bookList}}', data);
       expect(html).not.toContain('<b>Bad Title</b>');
