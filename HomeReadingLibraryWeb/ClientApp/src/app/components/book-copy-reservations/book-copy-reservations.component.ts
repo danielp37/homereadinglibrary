@@ -2,7 +2,7 @@ import { BookSearchParameters } from './../../services/Book-Search-Parameters';
 import { DataTableParams } from './../../models/data-table-params';
 import { BookCopyReservationWithData } from './../../entities/book-copy-reservation-with-data';
 import { BaggyBookService } from './../../services/baggy-book.service';
-import { LateNoticeTemplateService } from './../../services/late-notice-template.service';
+import { LateNoticeTemplateService, NoticeTemplate } from './../../services/late-notice-template.service';
 import { ChangeDetectorRef, Component, NgZone, OnInit, Renderer2, TemplateRef, ViewChild } from '@angular/core';
 import { DatatableComponent } from '@swimlane/ngx-datatable';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
@@ -37,9 +37,13 @@ export class BookCopyReservationsComponent implements OnInit {
   private appliedDaysBack = this.defaultDaysBack;
   private appliedSearchParams: BookSearchParameters = {};
 
-  // Template editor
+  // Template management
+  templates: NoticeTemplate[] = [];
+  selectedTemplateId = '';       // used by the generation dropdown
   templateEditorModalRef?: BsModalRef;
-  editableTemplate = '';
+  editorSelectedId = '';         // which template is open in the editor
+  editableName = '';
+  editableContent = '';
   previewHtml = '';
 
   // Notice generation
@@ -66,7 +70,15 @@ export class BookCopyReservationsComponent implements OnInit {
   ngOnInit() {
     if (!this.isInitialized) {
       this.isInitialized = true;
+      this.loadTemplates();
       this.refreshBookList(this.lastSearchParams);
+    }
+  }
+
+  private loadTemplates(): void {
+    this.templates = this.lateNoticeTemplateService.getTemplates();
+    if (!this.selectedTemplateId || !this.templates.find(t => t.id === this.selectedTemplateId)) {
+      this.selectedTemplateId = this.templates[0].id;
     }
   }
 
@@ -165,9 +177,17 @@ export class BookCopyReservationsComponent implements OnInit {
   // ─── Template Editor ─────────────────────────────────────────────────────────
 
   openTemplateEditor(): void {
-    this.editableTemplate = this.lateNoticeTemplateService.getTemplate();
-    this.updatePreview();
+    this.loadTemplates();
+    this.selectTemplateForEditing(this.selectedTemplateId || this.templates[0].id);
     this.templateEditorModalRef = this.modalService.show(this.templateEditorModal, { class: 'modal-lg modal-dialog-scrollable' });
+  }
+
+  selectTemplateForEditing(id: string): void {
+    const template = this.lateNoticeTemplateService.getTemplate(id);
+    this.editorSelectedId = template.id;
+    this.editableName = template.name;
+    this.editableContent = template.content;
+    this.updatePreview();
   }
 
   closeTemplateEditor(): void {
@@ -175,12 +195,38 @@ export class BookCopyReservationsComponent implements OnInit {
   }
 
   saveTemplate(): void {
-    this.lateNoticeTemplateService.setTemplate(this.editableTemplate);
-    this.closeTemplateEditor();
+    this.lateNoticeTemplateService.saveTemplate({
+      id: this.editorSelectedId,
+      name: this.editableName,
+      content: this.editableContent,
+    });
+    this.loadTemplates();
   }
 
-  resetTemplate(): void {
-    this.editableTemplate = this.lateNoticeTemplateService.DEFAULT_TEMPLATE;
+  addNewTemplate(): void {
+    const created = this.lateNoticeTemplateService.addTemplate(
+      'New Template',
+      this.lateNoticeTemplateService.DEFAULT_TEMPLATE_CONTENT
+    );
+    this.loadTemplates();
+    this.selectTemplateForEditing(created.id);
+  }
+
+  deleteSelectedTemplate(): void {
+    if (this.templates.length <= 1) return;
+    const deletedId = this.editorSelectedId;
+    this.lateNoticeTemplateService.deleteTemplate(deletedId);
+    this.loadTemplates();
+    // Select the first remaining template for editing
+    this.selectTemplateForEditing(this.templates[0].id);
+    // If the deleted template was the one selected for generation, update
+    if (this.selectedTemplateId === deletedId) {
+      this.selectedTemplateId = this.templates[0].id;
+    }
+  }
+
+  resetTemplateContent(): void {
+    this.editableContent = this.lateNoticeTemplateService.DEFAULT_TEMPLATE_CONTENT;
     this.updatePreview();
   }
 
@@ -194,19 +240,20 @@ export class BookCopyReservationsComponent implements OnInit {
         { title: 'Green Eggs and Ham', checkedOutDate: '01/05/2025' },
       ],
     };
-    this.previewHtml = this.lateNoticeTemplateService.renderNoticeFromTemplate(this.editableTemplate, sampleData);
+    this.previewHtml = this.lateNoticeTemplateService.renderNoticeFromTemplate(this.editableContent, sampleData);
   }
 
   // ─── Notice Generation ───────────────────────────────────────────────────────
 
   generateNotices(): void {
+    const template = this.lateNoticeTemplateService.getTemplate(this.selectedTemplateId);
     this.generatingNotices = true;
     this.baggyBookService.getAllBookCopyReservationsForNotices(
       this.appliedDaysBack, this.appliedSearchParams
     ).subscribe({
       next: (reservations) => {
         this.ngZone.run(() => {
-          this.buildNotices(reservations);
+          this.buildNotices(reservations, template.content);
           this.generatingNotices = false;
           this.showNotices = true;
           this.cdr.detectChanges();
@@ -232,7 +279,7 @@ export class BookCopyReservationsComponent implements OnInit {
     this.noticePages = [];
   }
 
-  private buildNotices(reservations: BookCopyReservationWithData[]): void {
+  private buildNotices(reservations: BookCopyReservationWithData[], templateContent: string): void {
     const byStudent = new Map<string, BookCopyReservationWithData[]>();
     for (const r of reservations) {
       const key = r.student.studentBarCode;
@@ -256,7 +303,7 @@ export class BookCopyReservationsComponent implements OnInit {
           checkedOutDate: this.formatCheckedOutDate(String(r.checkedOutDate)),
         }));
         return {
-          html: this.lateNoticeTemplateService.renderNotice({
+          html: this.lateNoticeTemplateService.renderNoticeFromTemplate(templateContent, {
             studentName: `${s.firstName} ${s.lastName}`,
             grade: String(s.grade),
             teacherName: s.teacherName,

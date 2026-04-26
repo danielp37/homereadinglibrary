@@ -8,20 +8,102 @@ describe('LateNoticeTemplateService', () => {
     service = new LateNoticeTemplateService();
   });
 
-  it('should return default template when none stored', () => {
-    expect(service.getTemplate()).toBe(service.DEFAULT_TEMPLATE);
+  // --- Storage & CRUD ---
+
+  it('should return a default template when nothing is stored', () => {
+    const templates = service.getTemplates();
+    expect(templates.length).toBe(1);
+    expect(templates[0].name).toBe('Default');
+    expect(templates[0].content).toBe(service.DEFAULT_TEMPLATE_CONTENT);
   });
 
-  it('should store and retrieve a custom template', () => {
-    service.setTemplate('Hello {{studentName}}');
-    expect(service.getTemplate()).toBe('Hello {{studentName}}');
+  it('getTemplate with unknown id should fall back to first template', () => {
+    const t = service.getTemplate('non-existent-id');
+    expect(t).toBeTruthy();
+    expect(t.id).toBe(service.getTemplates()[0].id);
   });
 
-  it('should reset to default template', () => {
-    service.setTemplate('Custom template');
-    service.resetTemplate();
-    expect(service.getTemplate()).toBe(service.DEFAULT_TEMPLATE);
+  it('should add a new template', () => {
+    const created = service.addTemplate('My Notice', 'Hello {{studentName}}');
+    const templates = service.getTemplates();
+    expect(templates.length).toBe(2);
+    expect(templates[1].id).toBe(created.id);
+    expect(templates[1].name).toBe('My Notice');
+    expect(templates[1].content).toBe('Hello {{studentName}}');
   });
+
+  it('addTemplate should default empty name to "Untitled"', () => {
+    const created = service.addTemplate('', 'content');
+    expect(created.name).toBe('Untitled');
+  });
+
+  it('should save (update) an existing template', () => {
+    const templates = service.getTemplates();
+    const original = templates[0];
+    service.saveTemplate({ ...original, name: 'Renamed', content: 'New content' });
+    const updated = service.getTemplate(original.id);
+    expect(updated.name).toBe('Renamed');
+    expect(updated.content).toBe('New content');
+    expect(service.getTemplates().length).toBe(1);
+  });
+
+  it('saveTemplate should trim and default empty name to "Untitled"', () => {
+    const original = service.getTemplates()[0];
+    service.saveTemplate({ ...original, name: '   ' });
+    expect(service.getTemplate(original.id).name).toBe('Untitled');
+  });
+
+  it('should delete a template when more than one exists', () => {
+    const created = service.addTemplate('Second', 'content');
+    service.deleteTemplate(created.id);
+    const templates = service.getTemplates();
+    expect(templates.length).toBe(1);
+    expect(templates.find(t => t.id === created.id)).toBeUndefined();
+  });
+
+  it('should not delete the last remaining template', () => {
+    const templates = service.getTemplates();
+    service.deleteTemplate(templates[0].id);
+    expect(service.getTemplates().length).toBe(1);
+  });
+
+  // --- Migration ---
+
+  it('should migrate legacy "late-notice-template" key on first load', () => {
+    localStorage.clear();
+    localStorage.setItem('late-notice-template', 'Legacy template content');
+    const freshService = new LateNoticeTemplateService();
+    const templates = freshService.getTemplates();
+    expect(templates.length).toBe(1);
+    expect(templates[0].content).toBe('Legacy template content');
+    expect(localStorage.getItem('late-notice-template')).toBeNull();
+  });
+
+  it('should prefer new storage key over legacy key', () => {
+    // service already populated new key in beforeEach
+    localStorage.setItem('late-notice-template', 'Old content');
+    const freshService = new LateNoticeTemplateService();
+    // new key already exists, legacy key should be ignored
+    expect(freshService.getTemplates()[0].content).not.toBe('Old content');
+  });
+
+  // --- Corrupt storage fallback ---
+
+  it('should fall back to default when stored JSON is malformed', () => {
+    localStorage.setItem('late-notice-templates', 'not-json!!');
+    const freshService = new LateNoticeTemplateService();
+    const templates = freshService.getTemplates();
+    expect(templates.length).toBe(1);
+    expect(templates[0].content).toBe(freshService.DEFAULT_TEMPLATE_CONTENT);
+  });
+
+  it('should fall back to default when templates array is empty', () => {
+    localStorage.setItem('late-notice-templates', JSON.stringify({ templates: [] }));
+    const freshService = new LateNoticeTemplateService();
+    expect(freshService.getTemplates().length).toBe(1);
+  });
+
+  // --- renderNoticeFromTemplate ---
 
   describe('renderNoticeFromTemplate', () => {
     const sampleData = {
@@ -91,28 +173,16 @@ describe('LateNoticeTemplateService', () => {
 
     it('should render a list for multiple books', () => {
       const html = service.renderNoticeFromTemplate('{{bookList}}', sampleData);
-      // marked renders "- item" as <li>
       expect(html).toContain('<li>');
     });
   });
 
-  describe('renderNotice', () => {
-    it('should use the stored template', () => {
-      service.setTemplate('Stored: {{studentName}}');
-      const html = service.renderNotice({
-        studentName: 'Alice',
-        grade: '2',
-        teacherName: 'Mr. Brown',
-        books: [],
-      });
-      expect(html).toContain('Alice');
-    });
-  });
+  // --- escapeHtml ---
 
   describe('escapeHtml', () => {
     it('should escape &', () => expect(service.escapeHtml('a & b')).toBe('a &amp; b'));
     it('should escape <', () => expect(service.escapeHtml('<tag>')).toBe('&lt;tag&gt;'));
     it('should escape "', () => expect(service.escapeHtml('"quote"')).toBe('&quot;quote&quot;'));
-    it('should escape \'', () => expect(service.escapeHtml("it's")).toBe('it&#039;s'));
+    it('should escape single quote', () => expect(service.escapeHtml("it's")).toBe('it&#039;s'));
   });
 });

@@ -13,8 +13,11 @@
           <br />
           <button type="submit" class="btn btn-primary">Submit</button>
           <button type="button" class="btn btn-secondary" (click)="exportToTab()">Export To File</button>
-          <button type="button" class="btn btn-outline-secondary" (click)="openTemplateEditor()">Customize Notice Template</button>
-          <button type="button" class="btn btn-warning" (click)="generateNotices()" [disabled]="generatingNotices">
+          <button type="button" class="btn btn-outline-secondary" (click)="openTemplateEditor()">Customize Notice Templates</button>
+          <select id="selectedTemplateId" name="selectedTemplateId" class="form-control d-inline-block w-auto ms-1" [(ngModel)]="selectedTemplateId" aria-label="Notice template">
+            <option *ngFor="let t of templates" [value]="t.id">{{t.name}}</option>
+          </select>
+          <button type="button" class="btn btn-warning ms-1" (click)="generateNotices()" [disabled]="generatingNotices">
             <span *ngIf="generatingNotices" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
             {{ generatingNotices ? 'Generating...' : 'Generate Late Notices' }}
           </button>
@@ -123,7 +126,7 @@
 <!-- ─── Template Editor Modal ──────────────────────────────────────────────── -->
 <ng-template #templateEditorModal>
   <div class="modal-header">
-    <h4 class="modal-title">Customize Notice Template</h4>
+    <h4 class="modal-title">Customize Notice Templates</h4>
     <button type="button" class="btn-close" aria-label="Close" (click)="closeTemplateEditor()"></button>
   </div>
   <div class="modal-body">
@@ -135,27 +138,51 @@
       <code>{{'{{'}}bookList{{'}}'}}</code> (auto-generates a list of books with checkout dates).
     </p>
     <div class="row">
-      <div class="col-md-6">
-        <label class="form-label fw-bold">Template (Markdown)</label>
-        <textarea
-          class="form-control font-monospace"
-          rows="15"
-          [(ngModel)]="editableTemplate"
-          (input)="updatePreview()"
-          aria-label="Notice template markdown">
-        </textarea>
-        <div class="mt-2">
-          <button type="button" class="btn btn-sm btn-outline-secondary" (click)="resetTemplate()">Reset to Default</button>
+      <!-- Left: template list -->
+      <div class="col-md-3">
+        <label class="form-label fw-bold">Templates</label>
+        <div class="list-group mb-2">
+          <button
+            *ngFor="let t of templates"
+            type="button"
+            class="list-group-item list-group-item-action"
+            [class.active]="t.id === editorSelectedId"
+            (click)="selectTemplateForEditing(t.id)">
+            {{t.name}}
+          </button>
         </div>
+        <button type="button" class="btn btn-sm btn-outline-primary w-100" (click)="addNewTemplate()">+ New Template</button>
       </div>
-      <div class="col-md-6">
-        <label class="form-label fw-bold">Preview (sample data)</label>
-        <div class="notice-preview border rounded p-3 bg-light" [innerHTML]="previewHtml"></div>
+      <!-- Right: editor + preview -->
+      <div class="col-md-9">
+        <div class="mb-2">
+          <label class="form-label fw-bold">Template Name</label>
+          <input type="text" class="form-control" [(ngModel)]="editableName" name="editableTemplateName" placeholder="Template name" />
+        </div>
+        <div class="row">
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Template (Markdown)</label>
+            <textarea
+              class="form-control font-monospace"
+              rows="15"
+              [(ngModel)]="editableContent"
+              name="editableTemplateContent"
+              (input)="updatePreview()"
+              aria-label="Notice template markdown">
+            </textarea>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Preview (sample data)</label>
+            <div class="notice-preview border rounded p-3 bg-light" [innerHTML]="previewHtml"></div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-primary" (click)="saveTemplate()">Save Template</button>
+    <button type="button" class="btn btn-danger me-auto" (click)="deleteSelectedTemplate()" [disabled]="templates.length <= 1">Delete Template</button>
+    <button type="button" class="btn btn-sm btn-outline-secondary" (click)="resetTemplateContent()">Reset to Default</button>
+    <button type="button" class="btn btn-primary" (click)="saveTemplate()">Save</button>
     <button type="button" class="btn btn-outline-dark" (click)="closeTemplateEditor()">Cancel</button>
   </div>
 </ng-template>
