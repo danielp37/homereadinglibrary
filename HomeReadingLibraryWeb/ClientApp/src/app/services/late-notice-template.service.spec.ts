@@ -112,8 +112,8 @@ describe('LateNoticeTemplateService', () => {
       grade: '3',
       teacherName: 'Ms. Smith',
       books: [
-        { title: 'The Cat in the Hat', checkedOutDate: '01/15/2025' },
-        { title: 'Green Eggs and Ham', checkedOutDate: '01/20/2025' },
+        { title: 'The Cat in the Hat', bookBarCode: 'BC001', checkedOutDate: '01/15/2025' },
+        { title: 'Green Eggs and Ham', bookBarCode: 'BC002', checkedOutDate: '01/20/2025' },
       ],
     };
 
@@ -141,6 +141,12 @@ describe('LateNoticeTemplateService', () => {
       const html = service.renderNoticeFromTemplate('{{bookList}}', sampleData);
       expect(html).toContain('The Cat in the Hat');
       expect(html).toContain('Green Eggs and Ham');
+    });
+
+    it('should include book bar codes in {{bookList}}', () => {
+      const html = service.renderNoticeFromTemplate('{{bookList}}', sampleData);
+      expect(html).toContain('BC001');
+      expect(html).toContain('BC002');
     });
 
     it('should include checked out dates in {{bookList}}', () => {

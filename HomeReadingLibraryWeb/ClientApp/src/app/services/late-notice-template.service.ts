@@ -6,7 +6,7 @@ export interface LateNoticeData {
   studentBarCode: string;
   grade: string;
   teacherName: string;
-  books: { title: string; checkedOutDate: string }[];
+  books: { title: string; bookBarCode: string; checkedOutDate: string }[];
 }
 
 export interface NoticeTemplate {
@@ -110,7 +110,7 @@ export class LateNoticeTemplateService {
 
   renderNoticeFromTemplate(template: string, data: LateNoticeData): string {
     const bookListMd = data.books
-      .map(b => `- ${this.escapeHtml(b.title)} (checked out: ${this.escapeHtml(b.checkedOutDate)})`)
+      .map(b => `- ${this.escapeHtml(b.title)} (Bar Code: ${this.escapeHtml(b.bookBarCode)}, checked out: ${this.escapeHtml(b.checkedOutDate)})`)
       .join('\n');
     const text = template
       .replace(/\{\{studentName\}\}/g, this.escapeHtml(data.studentName))

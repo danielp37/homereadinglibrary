@@ -237,8 +237,8 @@ export class BookCopyReservationsComponent implements OnInit {
       grade: '3',
       teacherName: 'Ms. Johnson',
       books: [
-        { title: 'The Cat in the Hat', checkedOutDate: '01/01/2025' },
-        { title: 'Green Eggs and Ham', checkedOutDate: '01/05/2025' },
+        { title: 'The Cat in the Hat', bookBarCode: 'BC001', checkedOutDate: '01/01/2025' },
+        { title: 'Green Eggs and Ham', bookBarCode: 'BC002', checkedOutDate: '01/05/2025' },
       ],
     };
     this.previewHtml = this.lateNoticeTemplateService.renderNoticeFromTemplate(this.editableContent, sampleData);
@@ -301,6 +301,7 @@ export class BookCopyReservationsComponent implements OnInit {
         const s = group[0].student;
         const books = group.map(r => ({
           title: r.bookCopy.title,
+          bookBarCode: r.bookCopy.bookCopyBarCode,
           checkedOutDate: this.formatCheckedOutDate(String(r.checkedOutDate)),
         }));
         return {
