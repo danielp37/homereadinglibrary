@@ -52,9 +52,10 @@
 
 .notice-box {
     flex: 1;
-    border: 1px dashed #6c757d;
+    border: none;
     padding: 1.5rem 2rem;
     overflow: hidden;
+    font-size: 1.5rem;
 }
 
 .notice-preview {
@@ -100,7 +101,7 @@
     }
 
     .notice-box {
-        border: 1px dashed #999;
+        border: none;
         padding: 1.5rem;
         overflow: hidden;
         box-sizing: border-box;

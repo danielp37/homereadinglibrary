@@ -6,7 +6,6 @@ import { LateNoticeTemplateService, NoticeTemplate } from './../../services/late
 import { ChangeDetectorRef, Component, NgZone, OnInit, Renderer2, TemplateRef, ViewChild } from '@angular/core';
 import { DatatableComponent } from '@swimlane/ngx-datatable';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
-import { take } from 'rxjs/operators';
 
 interface StudentNotice {
   html: string;
@@ -270,9 +269,7 @@ export class BookCopyReservationsComponent implements OnInit {
   }
 
   printNotices(): void {
-    this.ngZone.onStable.pipe(take(1)).subscribe(() => {
-      requestAnimationFrame(() => window.print());
-    });
+    this.ngZone.runOutsideAngular(() => setTimeout(() => window.print(), 0));
   }
 
   closeNotices(): void {
