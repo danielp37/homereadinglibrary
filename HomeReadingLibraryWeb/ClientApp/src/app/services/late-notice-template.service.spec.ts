@@ -108,6 +108,7 @@ describe('LateNoticeTemplateService', () => {
   describe('renderNoticeFromTemplate', () => {
     const sampleData = {
       studentName: 'Jane Doe',
+      studentBarCode: 'STU99887',
       grade: '3',
       teacherName: 'Ms. Smith',
       books: [
@@ -119,6 +120,11 @@ describe('LateNoticeTemplateService', () => {
     it('should substitute {{studentName}}', () => {
       const html = service.renderNoticeFromTemplate('Name: {{studentName}}', sampleData);
       expect(html).toContain('Jane Doe');
+    });
+
+    it('should substitute {{studentBarCode}}', () => {
+      const html = service.renderNoticeFromTemplate('Barcode: {{studentBarCode}}', sampleData);
+      expect(html).toContain('STU99887');
     });
 
     it('should substitute {{grade}}', () => {

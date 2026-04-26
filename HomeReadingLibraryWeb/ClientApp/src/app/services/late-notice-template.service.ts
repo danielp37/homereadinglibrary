@@ -3,6 +3,7 @@ import { marked } from 'marked';
 
 export interface LateNoticeData {
   studentName: string;
+  studentBarCode: string;
   grade: string;
   teacherName: string;
   books: { title: string; checkedOutDate: string }[];
@@ -113,6 +114,7 @@ export class LateNoticeTemplateService {
       .join('\n');
     const text = template
       .replace(/\{\{studentName\}\}/g, this.escapeHtml(data.studentName))
+      .replace(/\{\{studentBarCode\}\}/g, this.escapeHtml(data.studentBarCode))
       .replace(/\{\{grade\}\}/g, this.escapeHtml(data.grade))
       .replace(/\{\{teacherName\}\}/g, this.escapeHtml(data.teacherName))
       .replace(/\{\{bookList\}\}/g, bookListMd);

@@ -233,6 +233,7 @@ export class BookCopyReservationsComponent implements OnInit {
   updatePreview(): void {
     const sampleData = {
       studentName: 'John Smith',
+      studentBarCode: 'STU001234',
       grade: '3',
       teacherName: 'Ms. Johnson',
       books: [
@@ -305,6 +306,7 @@ export class BookCopyReservationsComponent implements OnInit {
         return {
           html: this.lateNoticeTemplateService.renderNoticeFromTemplate(templateContent, {
             studentName: `${s.firstName} ${s.lastName}`,
+            studentBarCode: s.studentBarCode,
             grade: String(s.grade),
             teacherName: s.teacherName,
             books,
