@@ -6,6 +6,7 @@ export interface LateNoticeData {
   studentBarCode: string;
   grade: string;
   teacherName: string;
+  currentDate: string;
   books: { title: string; bookBarCode: string; checkedOutDate: string }[];
 }
 
@@ -26,6 +27,7 @@ export class LateNoticeTemplateService {
 
   readonly DEFAULT_TEMPLATE_CONTENT =
     `**Home Reading Library Notice**\n\n` +
+    `{{currentDate}}\n\n` +
     `Dear Parent/Guardian of **{{studentName}}**,\n\n` +
     `Your child in Grade {{grade}} (Teacher: {{teacherName}}) has the following book(s) that are overdue. ` +
     `Please return them to school as soon as possible.\n\n` +
@@ -117,6 +119,7 @@ export class LateNoticeTemplateService {
       .replace(/\{\{studentBarCode\}\}/g, this.escapeHtml(data.studentBarCode))
       .replace(/\{\{grade\}\}/g, this.escapeHtml(data.grade))
       .replace(/\{\{teacherName\}\}/g, this.escapeHtml(data.teacherName))
+      .replace(/\{\{currentDate\}\}/g, this.escapeHtml(data.currentDate))
       .replace(/\{\{bookList\}\}/g, bookListMd);
     return marked.parse(text) as string;
   }
