@@ -235,6 +235,7 @@ export class BookCopyReservationsComponent implements OnInit {
       studentBarCode: 'STU001234',
       grade: '3',
       teacherName: 'Ms. Johnson',
+      currentDate: new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }),
       books: [
         { title: 'The Cat in the Hat', bookBarCode: 'BC001', checkedOutDate: '01/01/2025' },
         { title: 'Green Eggs and Ham', bookBarCode: 'BC002', checkedOutDate: '01/05/2025' },
@@ -307,6 +308,7 @@ export class BookCopyReservationsComponent implements OnInit {
             studentBarCode: s.studentBarCode,
             grade: String(s.grade),
             teacherName: s.teacherName,
+            currentDate: new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }),
             books,
           }),
         };
