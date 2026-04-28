@@ -111,6 +111,7 @@ describe('LateNoticeTemplateService', () => {
       studentBarCode: 'STU99887',
       grade: '3',
       teacherName: 'Ms. Smith',
+      currentDate: '04/27/2026',
       books: [
         { title: 'The Cat in the Hat', bookBarCode: 'BC001', checkedOutDate: '01/15/2025' },
         { title: 'Green Eggs and Ham', bookBarCode: 'BC002', checkedOutDate: '01/20/2025' },
@@ -135,6 +136,11 @@ describe('LateNoticeTemplateService', () => {
     it('should substitute {{teacherName}}', () => {
       const html = service.renderNoticeFromTemplate('Teacher: {{teacherName}}', sampleData);
       expect(html).toContain('Ms. Smith');
+    });
+
+    it('should substitute {{currentDate}}', () => {
+      const html = service.renderNoticeFromTemplate('Date: {{currentDate}}', sampleData);
+      expect(html).toContain('04/27/2026');
     });
 
     it('should include all book titles in {{bookList}}', () => {
