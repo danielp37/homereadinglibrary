@@ -235,7 +235,7 @@ export class BookCopyReservationsComponent implements OnInit {
       studentBarCode: 'STU001234',
       grade: '3',
       teacherName: 'Ms. Johnson',
-      currentDate: new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }),
+      currentDate: this.formatTodayDate(),
       books: [
         { title: 'The Cat in the Hat', bookBarCode: 'BC001', checkedOutDate: '01/01/2025' },
         { title: 'Green Eggs and Ham', bookBarCode: 'BC002', checkedOutDate: '01/05/2025' },
@@ -286,6 +286,7 @@ export class BookCopyReservationsComponent implements OnInit {
       byStudent.get(key)!.push(r);
     }
 
+    const todayDate = this.formatTodayDate();
     const notices: StudentNotice[] = Array.from(byStudent.values())
       .sort((a, b) => {
         const s1 = a[0].student, s2 = b[0].student;
@@ -308,13 +309,17 @@ export class BookCopyReservationsComponent implements OnInit {
             studentBarCode: s.studentBarCode,
             grade: String(s.grade),
             teacherName: s.teacherName,
-            currentDate: new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }),
+            currentDate: todayDate,
             books,
           }),
         };
       });
 
     this.noticePages = this.chunkArray(notices, 2);
+  }
+
+  private formatTodayDate(): string {
+    return new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
   }
 
   private formatCheckedOutDate(dateStr: string): string {
