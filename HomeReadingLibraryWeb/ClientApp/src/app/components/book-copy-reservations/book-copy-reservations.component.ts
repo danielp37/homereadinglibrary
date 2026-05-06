@@ -3,7 +3,7 @@ import { DataTableParams } from './../../models/data-table-params';
 import { BookCopyReservationWithData } from './../../entities/book-copy-reservation-with-data';
 import { BaggyBookService } from './../../services/baggy-book.service';
 import { LateNoticeTemplateService, NoticeTemplate } from './../../services/late-notice-template.service';
-import { ChangeDetectorRef, Component, NgZone, OnInit, Renderer2, TemplateRef, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, NgZone, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { DatatableComponent } from '@swimlane/ngx-datatable';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 
@@ -26,7 +26,6 @@ export class BookCopyReservationsComponent implements OnInit {
   lastSearchParams: DataTableParams;
   defaultDaysBack = 21;
   currentDaysBack = this.defaultDaysBack;
-  downloadLink: string;
   searchType = 'Title';
   searchText = '';
   showOnlyMultiples = false;
@@ -54,7 +53,6 @@ export class BookCopyReservationsComponent implements OnInit {
     private baggyBookService: BaggyBookService,
     private lateNoticeTemplateService: LateNoticeTemplateService,
     private modalService: BsModalService,
-    private renderer: Renderer2,
     private ngZone: NgZone,
     private cdr: ChangeDetectorRef
   ) {
@@ -99,14 +97,8 @@ export class BookCopyReservationsComponent implements OnInit {
     this.baggyBookService.downloadBookCopyReservations(undefined, this.lastSearchParams, this.currentDaysBack
       , this.getBookSearchParameters())
       .subscribe(b => {
-        this.downloadLink = b.downloadLink;
-        setTimeout(() => this.clickDownloadLink(), 0);
+        window.location.href = b.downloadLink;
       });
-  }
-
-  clickDownloadLink() {
-    const downloadReport = this.renderer.selectRootElement('#downloadReport');
-    downloadReport.click();
   }
 
   refreshBookList(params: DataTableParams) {

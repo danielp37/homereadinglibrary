@@ -217,6 +217,122 @@ namespace HomeReadingLibrary.Controllers.Controllers
         private string GetReadingLevel(BsonDocument doc, string field)
             => ReportsBsonHelper.GetFirstArrayFieldString(doc, field, "guidedReadingLevel");
 
+        [Authorize(AuthenticationSchemes = "Bearer", Policy = "AdminUser")]
+        [HttpGet("yearendcheckins")]
+        public async Task<IActionResult> GetYearEndCheckins()
+        {
+            var results = await RunYearEndCheckinsReport();
+            return Ok(new { Data = results });
+        }
+
+        [Authorize(AuthenticationSchemes = "Bearer", Policy = "AdminUser")]
+        [HttpGet("yearendcheckins/export")]
+        public async Task<IActionResult> ExportYearEndCheckins()
+        {
+            var results = await RunYearEndCheckinsReport();
+            var csv = GenerateCsv(results);
+            var bytes = Encoding.UTF8.GetBytes(csv);
+            return File(bytes, "text/csv", "year-end-checkins-report.csv");
+        }
+
+        private async Task<List<YearEndCheckinReportItem>> RunYearEndCheckinsReport()
+        {
+            var oneMonthAgo = new BsonDateTime(DateTime.UtcNow.AddDays(-30));
+
+            var pipeline = new[]
+            {
+                // Only records checked in within the last 30 days
+                new BsonDocument("$match", new BsonDocument("checkedInDate", new BsonDocument
+                {
+                    { "$ne", BsonNull.Value },
+                    { "$gte", oneMonthAgo }
+                })),
+
+                // Sort descending so $first in group gives the most recent date
+                new BsonDocument("$sort", new BsonDocument("checkedInDate", -1)),
+
+                // Group by student; capture most recent check-in date
+                new BsonDocument("$group", new BsonDocument
+                {
+                    { "_id", "$studentBarCode" },
+                    { "lastCheckedInDate", new BsonDocument("$first", "$checkedInDate") }
+                }),
+
+                // Join student info (students is a view over classes)
+                new BsonDocument("$lookup", new BsonDocument
+                {
+                    { "from", "students" },
+                    { "localField", "_id" },
+                    { "foreignField", "_id" },
+                    { "as", "studentInfo" }
+                }),
+
+                new BsonDocument("$unwind", new BsonDocument
+                {
+                    { "path", "$studentInfo" },
+                    { "preserveNullAndEmptyArrays", false }
+                }),
+
+                // Find any currently open checkouts for this student
+                new BsonDocument("$lookup", new BsonDocument
+                {
+                    { "from", "currentreservations" },
+                    { "let", new BsonDocument("studentId", "$_id") },
+                    { "pipeline", new BsonArray
+                        {
+                            new BsonDocument("$match", new BsonDocument("$expr",
+                                new BsonDocument("$and", new BsonArray
+                                {
+                                    new BsonDocument("$eq", new BsonArray { "$studentBarCode", "$$studentId" }),
+                                    new BsonDocument("$eq", new BsonArray { "$checkedInDate", BsonNull.Value })
+                                }))),
+                            new BsonDocument("$limit", 1)
+                        }
+                    },
+                    { "as", "openCheckouts" }
+                }),
+
+                // Keep only students with no open checkouts
+                new BsonDocument("$match", new BsonDocument("openCheckouts",
+                    new BsonDocument("$size", 0))),
+
+                new BsonDocument("$project", new BsonDocument
+                {
+                    { "teacherName", "$studentInfo.teacherName" },
+                    { "grade", "$studentInfo.grade" },
+                    { "firstName", "$studentInfo.firstName" },
+                    { "lastName", "$studentInfo.lastName" },
+                    { "lastCheckedInDate", 1 }
+                }),
+
+                new BsonDocument("$sort", new BsonDocument
+                {
+                    { "grade", 1 },
+                    { "teacherName", 1 },
+                    { "lastName", 1 },
+                    { "firstName", 1 }
+                })
+            };
+
+            var collection = _mongoDatabase.GetCollection<BsonDocument>("currentreservations");
+            var docs = await collection.Aggregate<BsonDocument>(pipeline).ToListAsync();
+            var results = new List<YearEndCheckinReportItem>();
+            foreach (var doc in docs)
+            {
+                results.Add(new YearEndCheckinReportItem
+                {
+                    TeacherName = BsonToString(doc.GetValue("teacherName", BsonNull.Value)),
+                    Grade       = BsonToString(doc.GetValue("grade", BsonNull.Value)),
+                    LastName    = BsonToString(doc.GetValue("lastName", BsonNull.Value)),
+                    FirstName   = BsonToString(doc.GetValue("firstName", BsonNull.Value)),
+                    LastCheckedInDate = doc.Contains("lastCheckedInDate") && doc["lastCheckedInDate"].IsValidDateTime
+                        ? doc["lastCheckedInDate"].ToUniversalTime()
+                        : DateTime.MinValue
+                });
+            }
+            return results;
+        }
+
         private string GenerateCsv(List<StudentYearEndReportItem> items)
         {
             var sb = new StringBuilder();
@@ -224,6 +340,17 @@ namespace HomeReadingLibrary.Controllers.Controllers
             foreach (var item in items)
             {
                 sb.AppendLine($"{Escape(item.TeacherName)},{Escape(item.Grade)},{Escape(item.LastName)},{Escape(item.FirstName)},{Escape(item.StartingReadingLevel)},{Escape(item.EndingReadingLevel)}");
+            }
+            return sb.ToString();
+        }
+
+        private string GenerateCsv(List<YearEndCheckinReportItem> items)
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("Teacher,Grade,Last Name,First Name,Last Checked In Date");
+            foreach (var item in items)
+            {
+                sb.AppendLine($"{Escape(item.TeacherName)},{Escape(item.Grade)},{Escape(item.LastName)},{Escape(item.FirstName)},{item.LastCheckedInDate:MM/dd/yyyy}");
             }
             return sb.ToString();
         }

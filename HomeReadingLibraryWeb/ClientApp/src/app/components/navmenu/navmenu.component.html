@@ -52,6 +52,10 @@
                                 (click)="isCollapsed = true">
                                 <fa-icon [icon]="fileAlt"></fa-icon> Possible Missing Check-ins
                             </a>
+                            <a [routerLink]="['/yearendcheckins']" [routerLinkActive]="['active']" *ngIf="isAdmin" class="dropdown-item"
+                                (click)="isCollapsed = true">
+                                <fa-icon [icon]="fileAlt"></fa-icon> Year End Check-ins
+                            </a>
                         </div>
 
                     </li>
