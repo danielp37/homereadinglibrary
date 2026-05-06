@@ -37,6 +37,7 @@ import { BookCopyReservationsComponent } from './components/book-copy-reservatio
 import { ClassStatsComponent } from './components/class-stats/class-stats.component';
 import { AdminReportsComponent } from './components/admin-reports/admin-reports.component';
 import { MissingCheckinsReportComponent } from './components/missing-checkins-report/missing-checkins-report.component';
+import { YearEndCheckinsReportComponent } from './components/year-end-checkins-report/year-end-checkins-report.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 @NgModule({
@@ -61,7 +62,8 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
     BookCopyReservationsComponent,
     ClassStatsComponent,
     AdminReportsComponent,
-    MissingCheckinsReportComponent
+    MissingCheckinsReportComponent,
+    YearEndCheckinsReportComponent
   ],
   imports: [
     BrowserModule,

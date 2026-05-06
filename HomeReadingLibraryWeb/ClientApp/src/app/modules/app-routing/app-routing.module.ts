@@ -15,6 +15,7 @@ import { HomeComponent } from './../../components/home/home.component';
 import { ClassStatsComponent } from 'src/app/components/class-stats/class-stats.component';
 import { AdminReportsComponent } from 'src/app/components/admin-reports/admin-reports.component';
 import { MissingCheckinsReportComponent } from 'src/app/components/missing-checkins-report/missing-checkins-report.component';
+import { YearEndCheckinsReportComponent } from 'src/app/components/year-end-checkins-report/year-end-checkins-report.component';
 
 
 const routes: Routes = [
@@ -32,6 +33,7 @@ const routes: Routes = [
             { path: 'classstats', component: ClassStatsComponent, canActivate: [AuthGuard]},
             { path: 'adminreports', component: AdminReportsComponent, canActivate: [AuthGuard]},
             { path: 'missingcheckins', component: MissingCheckinsReportComponent, canActivate: [AuthGuard]},
+            { path: 'yearendcheckins', component: YearEndCheckinsReportComponent, canActivate: [AuthGuard]},
             { path: '**', redirectTo: 'home' }
         ];
 /*[

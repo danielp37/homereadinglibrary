@@ -1,0 +1,40 @@
+<div class="container">
+  <h2>Year End Check-ins</h2>
+  <p class="text-muted mb-3">
+    Students who checked in books in the last 30 days and have no books currently checked out —
+    candidates for a year-end reward.
+  </p>
+  <div class="mb-3">
+    <button class="btn btn-primary me-2" (click)="runReport()" [disabled]="loading || exporting">
+      <span *ngIf="loading" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+      <span>{{ loading ? 'Loading...' : 'Run Report' }}</span>
+    </button>
+    <button class="btn btn-secondary" (click)="exportCSV()" [disabled]="loading || exporting">
+      <span *ngIf="exporting" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+      <span>{{ exporting ? 'Exporting...' : 'Export CSV' }}</span>
+    </button>
+  </div>
+  <div *ngIf="hasRun && !loading">
+    <p *ngIf="rows.length === 0" class="text-muted">No data found.</p>
+    <table class="table table-striped table-hover" *ngIf="rows.length > 0">
+      <thead>
+        <tr>
+          <th>Teacher</th>
+          <th>Grade</th>
+          <th>Last Name</th>
+          <th>First Name</th>
+          <th>Last Checked In</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of rows">
+          <td>{{ row.teacherName }}</td>
+          <td>{{ row.grade }}</td>
+          <td>{{ row.lastName }}</td>
+          <td>{{ row.firstName }}</td>
+          <td>{{ row.lastCheckedInDate | utcDate | date:'shortDate' }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

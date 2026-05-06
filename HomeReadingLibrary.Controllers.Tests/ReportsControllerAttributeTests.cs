@@ -11,11 +11,15 @@ namespace HomeReadingLibrary.Controllers.Tests
     {
         private readonly MethodInfo _getMissingCheckins;
         private readonly MethodInfo _getEndOfYearStudents;
+        private readonly MethodInfo _getYearEndCheckins;
+        private readonly MethodInfo _exportYearEndCheckins;
 
         public ReportsControllerAttributeTests()
         {
             _getMissingCheckins   = typeof(ReportsController).GetMethod("GetMissingCheckins");
             _getEndOfYearStudents = typeof(ReportsController).GetMethod("GetEndOfYearStudents");
+            _getYearEndCheckins   = typeof(ReportsController).GetMethod("GetYearEndCheckins");
+            _exportYearEndCheckins = typeof(ReportsController).GetMethod("ExportYearEndCheckins");
         }
 
         [Fact]
@@ -39,6 +43,40 @@ namespace HomeReadingLibrary.Controllers.Tests
         public void GetEndOfYearStudents_HasAuthorizeWithBearerAndAdminUser()
         {
             var attr = _getEndOfYearStudents.GetCustomAttribute<AuthorizeAttribute>();
+            Assert.NotNull(attr);
+            Assert.Equal("Bearer", attr.AuthenticationSchemes);
+            Assert.Equal("AdminUser", attr.Policy);
+        }
+
+        [Fact]
+        public void GetYearEndCheckins_HasHttpGetYearendcheckins()
+        {
+            var attr = _getYearEndCheckins.GetCustomAttribute<HttpGetAttribute>();
+            Assert.NotNull(attr);
+            Assert.Equal("yearendcheckins", attr.Template);
+        }
+
+        [Fact]
+        public void GetYearEndCheckins_HasAuthorizeWithBearerAndAdminUser()
+        {
+            var attr = _getYearEndCheckins.GetCustomAttribute<AuthorizeAttribute>();
+            Assert.NotNull(attr);
+            Assert.Equal("Bearer", attr.AuthenticationSchemes);
+            Assert.Equal("AdminUser", attr.Policy);
+        }
+
+        [Fact]
+        public void ExportYearEndCheckins_HasHttpGetYearendcheckinsExport()
+        {
+            var attr = _exportYearEndCheckins.GetCustomAttribute<HttpGetAttribute>();
+            Assert.NotNull(attr);
+            Assert.Equal("yearendcheckins/export", attr.Template);
+        }
+
+        [Fact]
+        public void ExportYearEndCheckins_HasAuthorizeWithBearerAndAdminUser()
+        {
+            var attr = _exportYearEndCheckins.GetCustomAttribute<AuthorizeAttribute>();
             Assert.NotNull(attr);
             Assert.Equal("Bearer", attr.AuthenticationSchemes);
             Assert.Equal("AdminUser", attr.Policy);

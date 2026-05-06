@@ -25,6 +25,7 @@ interface ClassWithVolunteersResult {
     data : ClassWithVolunteers[]
 }
 
+import { YearEndCheckinReportItem } from '../entities/year-end-checkin-report-item';
 import { StudentYearEndReportItem } from '../entities/student-year-end-report-item';
 import { MissingCheckinReportItem } from '../entities/missing-checkin-report-item';
 
@@ -497,6 +498,26 @@ export class BaggyBookService {
         }),
         catchError(err => this.handleObservableError<MissingCheckinReportItem[]>(err))
       );
+  }
+
+  getYearEndCheckinsReport(): Observable<YearEndCheckinReportItem[]> {
+    this.loaderService.display(true);
+    return this.http
+      .get<{ data: YearEndCheckinReportItem[] }>('/api/reports/yearendcheckins', { headers: this.getAuthHeaders(false) })
+      .pipe(
+        map(res => {
+          this.loaderService.display(false);
+          return res.data;
+        }),
+        catchError(err => this.handleObservableError<YearEndCheckinReportItem[]>(err))
+      );
+  }
+
+  exportYearEndCheckinsReport(): Observable<Blob> {
+    return this.http.get('/api/reports/yearendcheckins/export', {
+      headers: this.getAuthHeaders(false),
+      responseType: 'blob'
+    });
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
