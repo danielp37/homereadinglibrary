@@ -307,7 +307,7 @@ namespace HomeReadingLibrary.Controllers.Controllers
 
                 new BsonDocument("$sort", new BsonDocument
                 {
-                    { "lastCheckedInDate", -1 },
+                    { "grade", 1 },
                     { "teacherName", 1 },
                     { "lastName", 1 },
                     { "firstName", 1 }
