@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { CommonModule } from '@angular/common';
 import { MissingCheckinsReportComponent } from './missing-checkins-report.component';
 import { BaggyBookService } from '../../services/baggy-book.service';
+import { UtcDatePipe } from '../../pipes/utc-date.pipe';
 import { of, throwError } from 'rxjs';
 import { MissingCheckinReportItem } from '../../entities/missing-checkin-report-item';
 
@@ -43,7 +45,8 @@ describe('MissingCheckinsReportComponent', () => {
     mockBaggyBookService.getMissingCheckinsReport.and.returnValue(of(mockReportData));
 
     TestBed.configureTestingModule({
-      declarations: [ MissingCheckinsReportComponent ],
+      declarations: [ MissingCheckinsReportComponent, UtcDatePipe ],
+      imports: [ CommonModule ],
       providers: [ { provide: BaggyBookService, useValue: mockBaggyBookService } ]
     })
     .compileComponents();
@@ -92,18 +95,29 @@ describe('MissingCheckinsReportComponent', () => {
     }, 10);
   });
 
-  it('should render Teacher, Grade, and Student Barcode column headers when data is present', (done) => {
-    component.runReport();
+  describe('DOM rendering', () => {
+    let domFixture: ComponentFixture<MissingCheckinsReportComponent>;
+    let domComponent: MissingCheckinsReportComponent;
 
-    setTimeout(() => {
-      fixture.detectChanges();
-      const compiled: HTMLElement = fixture.nativeElement;
+    beforeEach(() => {
+      domFixture = TestBed.createComponent(MissingCheckinsReportComponent);
+      domComponent = domFixture.componentInstance;
+      // Set state directly — no prior detectChanges() so there is no stored
+      // "previous false" value for Angular's dev-mode checkNoChanges pass to
+      // compare against, which avoids NG0100.
+      domComponent.rows = [...mockReportData];
+      domComponent.hasRun = true;
+      domComponent.loading = false;
+    });
+
+    it('should render Teacher, Grade, and Student Barcode column headers when data is present', () => {
+      domFixture.detectChanges();
+      const compiled: HTMLElement = domFixture.nativeElement;
       const headers = Array.from(compiled.querySelectorAll('th')).map(th => th.textContent?.trim());
       expect(headers).toContain('Teacher');
       expect(headers).toContain('Grade');
       expect(headers).toContain('Student Barcode');
-      done();
-    }, 10);
+    });
   });
 
   describe('sorting', () => {
@@ -206,26 +220,28 @@ describe('MissingCheckinsReportComponent', () => {
       expect(component.getSortIndicator('bookTitle')).toBe('');
     });
 
-    it('should render sortable headers with cursor pointer style after runReport()', (done) => {
-      component.runReport();
+    it('should render sortable headers with cursor pointer style after runReport()', () => {
+      // Use a fresh fixture with no prior detectChanges() to avoid NG0100.
+      const domFixture = TestBed.createComponent(MissingCheckinsReportComponent);
+      const domComponent = domFixture.componentInstance;
+      domComponent.rows = [...mockReportData];
+      domComponent.hasRun = true;
+      domComponent.loading = false;
+      domFixture.detectChanges();
 
-      setTimeout(() => {
-        fixture.detectChanges();
-        const compiled: HTMLElement = fixture.nativeElement;
-        const ths = Array.from(compiled.querySelectorAll('th'));
-        const sortableLabels = ['Teacher', 'Last Name', 'Book Title', 'Reading Level', 'Checked Out'];
+      const compiled: HTMLElement = domFixture.nativeElement;
+      const ths = Array.from(compiled.querySelectorAll('th'));
+      const sortableLabels = ['Teacher', 'Last Name', 'Book Title', 'Reading Level', 'Checked Out'];
 
-        sortableLabels.forEach(label => {
-          const th = ths.find(el => el.textContent?.trim().startsWith(label));
-          expect(th).withContext(`<th> for "${label}" should exist`).toBeTruthy();
-          if (th) {
-            expect(window.getComputedStyle(th).cursor)
-              .withContext(`<th> for "${label}" should have cursor: pointer`)
-              .toBe('pointer');
-          }
-        });
-        done();
-      }, 10);
+      sortableLabels.forEach(label => {
+        const th = ths.find(el => el.textContent?.trim().startsWith(label));
+        expect(th).withContext(`<th> for "${label}" should exist`).toBeTruthy();
+        if (th) {
+          expect((th as HTMLElement).style.cursor)
+            .withContext(`<th> for "${label}" should have cursor: pointer`)
+            .toBe('pointer');
+        }
+      });
     });
   });
 });

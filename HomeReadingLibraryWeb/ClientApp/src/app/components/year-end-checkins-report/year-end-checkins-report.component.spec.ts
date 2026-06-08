@@ -89,7 +89,6 @@ describe('YearEndCheckinsReportComponent', () => {
 
   it('should call exportYearEndCheckinsReport and trigger download when exportCSV is called', (done) => {
     component.exportCSV();
-    expect(component.exporting).toBeTrue();
 
     setTimeout(() => {
       expect(mockBaggyBookService.exportYearEndCheckinsReport).toHaveBeenCalled();

@@ -6,6 +6,9 @@ describe('LateNoticeTemplateService', () => {
   beforeEach(() => {
     localStorage.clear();
     service = new LateNoticeTemplateService();
+    // Trigger initial store population so the new storage key is written to localStorage.
+    // Subsequent tests that set the legacy key will find the new key already present.
+    service.getTemplates();
   });
 
   // --- Storage & CRUD ---

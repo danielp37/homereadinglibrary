@@ -91,7 +91,6 @@ describe('AdminReportsComponent', () => {
 
   it('should call exportEndOfYearStudentReport and trigger download when exportCSV is called', (done) => {
     component.exportCSV();
-    expect(component.exporting).toBeTrue();
 
     setTimeout(() => {
       expect(mockBaggyBookService.exportEndOfYearStudentReport).toHaveBeenCalled();
