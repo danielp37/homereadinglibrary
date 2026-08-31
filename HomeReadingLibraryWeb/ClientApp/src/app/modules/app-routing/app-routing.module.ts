@@ -16,6 +16,7 @@ import { ClassStatsComponent } from 'src/app/components/class-stats/class-stats.
 import { AdminReportsComponent } from 'src/app/components/admin-reports/admin-reports.component';
 import { MissingCheckinsReportComponent } from 'src/app/components/missing-checkins-report/missing-checkins-report.component';
 import { YearEndCheckinsReportComponent } from 'src/app/components/year-end-checkins-report/year-end-checkins-report.component';
+import { DatabaseRefreshComponent } from 'src/app/components/database-refresh/database-refresh.component';
 
 
 const routes: Routes = [
@@ -34,6 +35,7 @@ const routes: Routes = [
             { path: 'adminreports', component: AdminReportsComponent, canActivate: [AuthGuard]},
             { path: 'missingcheckins', component: MissingCheckinsReportComponent, canActivate: [AuthGuard]},
             { path: 'yearendcheckins', component: YearEndCheckinsReportComponent, canActivate: [AuthGuard]},
+            { path: 'databaserefresh', component: DatabaseRefreshComponent, canActivate: [AuthGuard]},
             { path: '**', redirectTo: 'home' }
         ];
 /*[

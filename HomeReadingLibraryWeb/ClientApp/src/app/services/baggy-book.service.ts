@@ -487,6 +487,26 @@ export class BaggyBookService {
       );
   }
 
+  refreshDatabase(confirmationText: string): Observable<{ message: string; backupSuffix: string }> {
+    this.loaderService.display(true);
+    return this.http
+      .post<{ message: string; backupSuffix: string }>(
+        '/api/databaserefresh',
+        JSON.stringify({ confirmationText }),
+        { headers: this.getAuthHeaders(true) }
+      )
+      .pipe(
+        map(res => {
+          this.loaderService.display(false);
+          return res;
+        }),
+        catchError(err => {
+          this.loaderService.display(false);
+          return this.handleObservableError<{ message: string; backupSuffix: string }>(err);
+        })
+      );
+  }
+
   getMissingCheckinsReport(): Observable<MissingCheckinReportItem[]> {
     this.loaderService.display(true);
     return this.http

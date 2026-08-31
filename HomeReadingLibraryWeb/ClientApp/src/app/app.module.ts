@@ -38,6 +38,7 @@ import { ClassStatsComponent } from './components/class-stats/class-stats.compon
 import { AdminReportsComponent } from './components/admin-reports/admin-reports.component';
 import { MissingCheckinsReportComponent } from './components/missing-checkins-report/missing-checkins-report.component';
 import { YearEndCheckinsReportComponent } from './components/year-end-checkins-report/year-end-checkins-report.component';
+import { DatabaseRefreshComponent } from './components/database-refresh/database-refresh.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 @NgModule({
@@ -63,7 +64,8 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
     ClassStatsComponent,
     AdminReportsComponent,
     MissingCheckinsReportComponent,
-    YearEndCheckinsReportComponent
+    YearEndCheckinsReportComponent,
+    DatabaseRefreshComponent
   ],
   imports: [
     BrowserModule,
