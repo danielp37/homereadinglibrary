@@ -17,7 +17,7 @@ describe('CheckInBookComponent', () => {
       declarations: [ CheckInBookComponent ],
       imports: [ ReactiveFormsModule ],
       providers: [
-        { provide: BaggyBookService, useValue: jasmine.createSpyObj('BaggyBookService', ['checkInBook', 'getBookCopyByBarCode']) },
+        { provide: BaggyBookService, useValue: jasmine.createSpyObj('BaggyBookService', ['checkInBookCopy', 'getBookCopyByBarCode']) },
         { provide: Renderer2, useValue: mockRenderer2 }
       ],
       schemas: [ NO_ERRORS_SCHEMA ]

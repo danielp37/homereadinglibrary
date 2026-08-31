@@ -17,7 +17,7 @@ describe('AddStudentComponent', () => {
       declarations: [ AddStudentComponent ],
       imports: [ ReactiveFormsModule ],
       providers: [
-        { provide: BaggyBookService, useValue: jasmine.createSpyObj('BaggyBookService', ['addStudentToClass', 'addStudentByBarCode']) },
+        { provide: BaggyBookService, useValue: jasmine.createSpyObj('BaggyBookService', ['addStudent', 'addNewStudent']) },
         { provide: Renderer2, useValue: mockRenderer2 }
       ],
       schemas: [ NO_ERRORS_SCHEMA ]

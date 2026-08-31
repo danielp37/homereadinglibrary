@@ -11,7 +11,7 @@ describe('Service: Authguard', () => {
       imports: [ RouterTestingModule ],
       providers: [
         AuthGuard,
-        { provide: AuthService, useValue: jasmine.createSpyObj('AuthService', ['loggedIn', 'isAdmin']) }
+        { provide: AuthService, useValue: { loggedIn: jasmine.createSpy('loggedIn'), isAdmin: false } }
       ]
     });
   });
