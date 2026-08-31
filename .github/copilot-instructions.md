@@ -22,6 +22,12 @@
   2. Run full test suite.
 - If validation cannot be run, clearly state what was not run and why.
 
+ ## Angular Testing Conventions
+ - NO_ERRORS_SCHEMA does NOT suppress missing pipes (NG0302); declare all pipes explicitly
+ - Components with @Component providers: [] require TestBed.overrideComponent to inject mocks
+ - For NG0100 in DOM tests: create a fresh fixture with no prior detectChanges(), set state directly
+ - BaggyBookService mock for book-copy-reservations returns { reservations: [], count: 0 }
+
 ## MongoDB and Data Safety
 - Preserve existing MongoDB query and document-shape conventions.
 - Avoid accidental schema drift or implicit data shape changes.
