@@ -15,6 +15,10 @@ const successResponse = {
   backupSuffix: 'backup_20240830120000'
 };
 
+const mockHistory = [
+  { username: 'admin@school.org', refreshedAt: '2024-08-30T12:00:00Z', backupSuffix: 'backup_20240830120000' }
+];
+
 // ---------------------------------------------------------------------------
 // Page structure — no API interaction
 // ---------------------------------------------------------------------------
@@ -101,6 +105,13 @@ test.describe('database-refresh — page structure', () => {
     await expect(page.getByRole('button', { name: /refresh database/i })).toBeEnabled();
   });
 
+  test('previous refreshes section is visible on page load', async ({ page }) => {
+    test.skip(getExpectedRole() !== 'admin', 'Admin only');
+
+    await page.goto('/databaserefresh');
+    await expect(page.getByRole('heading', { name: /previous refreshes/i })).toBeVisible();
+  });
+
   test('non-admin role cannot access /databaserefresh and is redirected', async ({ page }) => {
     test.skip(getExpectedRole() === 'admin', 'Non-admin only');
 
@@ -123,6 +134,12 @@ test.describe('database-refresh — successful refresh', () => {
           contentType: 'application/json',
           body: JSON.stringify(successResponse)
         });
+      } else if (route.request().method() === 'GET') {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify([])
+        });
       } else {
         await route.continue();
       }
@@ -143,7 +160,6 @@ test.describe('database-refresh — successful refresh', () => {
 
   test('confirmation form is hidden after a successful refresh', async ({ page }) => {
     test.skip(getExpectedRole() !== 'admin', 'Admin only');
-    test.skip(getExpectedRole() !== 'admin', 'Admin only');
 
     await page.goto('/databaserefresh');
     await page.locator('#confirmInput').fill(todayString());
@@ -158,12 +174,16 @@ test.describe('database-refresh — successful refresh', () => {
 
     let capturedBody: string | null = null;
     await page.route('**/api/databaserefresh', async route => {
-      capturedBody = route.request().postData();
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify(successResponse)
-      });
+      if (route.request().method() === 'POST') {
+        capturedBody = route.request().postData();
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify(successResponse)
+        });
+      } else {
+        await route.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
+      }
     });
 
     await page.goto('/databaserefresh');
@@ -174,6 +194,30 @@ test.describe('database-refresh — successful refresh', () => {
     expect(capturedBody).toBeTruthy();
     const body = JSON.parse(capturedBody!);
     expect(body.confirmationText).toBe(todayString());
+  });
+
+  test('history table shows records after a successful refresh', async ({ page }) => {
+    test.skip(getExpectedRole() !== 'admin', 'Admin only');
+
+    let getCallCount = 0;
+    await page.route('**/api/databaserefresh', async route => {
+      if (route.request().method() === 'POST') {
+        await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(successResponse) });
+      } else {
+        getCallCount++;
+        // Return mock history on second GET (after refresh)
+        const history = getCallCount > 1 ? mockHistory : [];
+        await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(history) });
+      }
+    });
+
+    await page.goto('/databaserefresh');
+    await page.locator('#confirmInput').fill(todayString());
+    await page.getByRole('button', { name: /refresh database/i }).click();
+
+    await expect(page.locator('.alert-success')).toBeVisible();
+    await expect(page.locator('table')).toBeVisible();
+    await expect(page.locator('table')).toContainText('admin@school.org');
   });
 });
 
@@ -190,6 +234,12 @@ test.describe('database-refresh — API error handling', () => {
           status: 500,
           contentType: 'application/json',
           body: JSON.stringify({ error: 'Internal server error during refresh.' })
+        });
+      } else if (route.request().method() === 'GET') {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify([])
         });
       } else {
         await route.continue();

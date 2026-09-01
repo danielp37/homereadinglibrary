@@ -14,6 +14,7 @@
     <hr>
     <p class="mb-0">
       A backup of all affected collections will be saved to the database before the refresh runs.
+      The backup is a best-effort server-side copy and is not a guaranteed point-in-time snapshot.
     </p>
   </div>
 
@@ -51,5 +52,29 @@
         {{ loading ? 'Refreshing...' : 'Refresh Database' }}
       </button>
     </div>
+  </div>
+
+  <div class="mt-4">
+    <h5>Previous Refreshes</h5>
+    <div *ngIf="historyLoading" class="text-muted">Loading history...</div>
+    <div *ngIf="!historyLoading && refreshHistory.length === 0" class="text-muted">
+      No previous refreshes recorded.
+    </div>
+    <table *ngIf="!historyLoading && refreshHistory.length > 0" class="table table-sm table-bordered">
+      <thead class="table-secondary">
+        <tr>
+          <th>Date &amp; Time (UTC)</th>
+          <th>User</th>
+          <th>Backup Name</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let record of refreshHistory">
+          <td>{{ record.refreshedAt | date:'medium':'UTC' }}</td>
+          <td>{{ record.username }}</td>
+          <td><code>{{ record.backupSuffix }}</code></td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </div>

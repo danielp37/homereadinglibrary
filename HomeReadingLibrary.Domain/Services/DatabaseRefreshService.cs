@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -15,17 +16,18 @@ namespace HomeReadingLibrary.Domain.Services
       this.mongoDatabase = mongoDatabase;
     }
 
-    public async Task<string> BackupAndRefreshAsync()
+    public async Task<string> BackupAndRefreshAsync(string username)
     {
       var timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
       var suffix = $"_backup_{timestamp}";
+      var backupSuffix = $"backup_{timestamp}";
 
-      // Backup all affected collections before making any changes
-      await BackupCollectionAsync("currentreservations", suffix);
-      await BackupCollectionAsync("volunteerlogons", suffix);
-      await BackupCollectionAsync("volunteers", suffix);
-      await BackupCollectionAsync("classes", suffix);
-      await BackupCollectionAsync("books", suffix);
+      // Server-side collection copies via $out — no data loaded into app memory
+      await BackupCollectionAsync("currentreservations", $"currentreservations{suffix}");
+      await BackupCollectionAsync("volunteerlogons", $"volunteerlogons{suffix}");
+      await BackupCollectionAsync("volunteers", $"volunteers{suffix}");
+      await BackupCollectionAsync("classes", $"classes{suffix}");
+      await BackupCollectionAsync("books", $"books{suffix}");
 
       // Perform year-end refresh — mirrors mongodb/Refresh Database.js
       await mongoDatabase.GetCollection<BsonDocument>("currentreservations")
@@ -34,8 +36,9 @@ namespace HomeReadingLibrary.Domain.Services
       await mongoDatabase.GetCollection<BsonDocument>("volunteerlogons")
         .DeleteManyAsync(new BsonDocument());
 
+      // Ne("isAdmin", true) also removes volunteers with absent or null isAdmin field
       await mongoDatabase.GetCollection<BsonDocument>("volunteers")
-        .DeleteManyAsync(Builders<BsonDocument>.Filter.Eq("isAdmin", false));
+        .DeleteManyAsync(Builders<BsonDocument>.Filter.Ne("isAdmin", true));
 
       await mongoDatabase.GetCollection<BsonDocument>("classes")
         .DeleteManyAsync(new BsonDocument());
@@ -55,18 +58,44 @@ namespace HomeReadingLibrary.Domain.Services
       await booksCollection.DeleteManyAsync(
         new BsonDocument("bookCopies", new BsonDocument("$size", 0)));
 
-      return $"backup_{timestamp}";
+      // Write audit record — use a collection not cleared by the refresh itself
+      await mongoDatabase.GetCollection<BsonDocument>("maintenancelog")
+        .InsertOneAsync(new BsonDocument
+        {
+          { "username", username },
+          { "refreshedAt", DateTime.UtcNow },
+          { "backupSuffix", backupSuffix }
+        });
+
+      return backupSuffix;
     }
 
-    private async Task BackupCollectionAsync(string collectionName, string suffix)
+    public async Task<IEnumerable<DatabaseRefreshAuditRecord>> GetRefreshHistoryAsync()
+    {
+      var docs = await mongoDatabase.GetCollection<BsonDocument>("maintenancelog")
+        .Find(new BsonDocument())
+        .Sort(Builders<BsonDocument>.Sort.Descending("refreshedAt"))
+        .ToListAsync();
+
+      return docs.Select(d => new DatabaseRefreshAuditRecord
+      {
+        Username = d.GetValue("username", "unknown").AsString,
+        RefreshedAt = d["refreshedAt"].AsBsonDateTime.ToUniversalTime(),
+        BackupSuffix = d.GetValue("backupSuffix", "").AsString
+      });
+    }
+
+    /// <summary>
+    /// Copies <paramref name="collectionName"/> to <paramref name="backupName"/> using
+    /// MongoDB's $out aggregation stage — entirely server-side, no app memory allocation.
+    /// </summary>
+    private async Task BackupCollectionAsync(string collectionName, string backupName)
     {
       var source = mongoDatabase.GetCollection<BsonDocument>(collectionName);
-      var documents = await source.Find(new BsonDocument()).ToListAsync();
-      if (documents.Any())
-      {
-        var backup = mongoDatabase.GetCollection<BsonDocument>($"{collectionName}{suffix}");
-        await backup.InsertManyAsync(documents);
-      }
+      var pipeline = PipelineDefinition<BsonDocument, BsonDocument>.Create(
+        new[] { new BsonDocument("$out", backupName) }
+      );
+      await source.AggregateToCollectionAsync(pipeline);
     }
   }
 }

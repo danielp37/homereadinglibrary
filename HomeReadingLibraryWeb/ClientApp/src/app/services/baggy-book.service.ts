@@ -25,6 +25,12 @@ interface ClassWithVolunteersResult {
     data : ClassWithVolunteers[]
 }
 
+export interface DatabaseRefreshAuditRecord {
+  username: string;
+  refreshedAt: string;
+  backupSuffix: string;
+}
+
 import { YearEndCheckinReportItem } from '../entities/year-end-checkin-report-item';
 import { StudentYearEndReportItem } from '../entities/student-year-end-report-item';
 import { MissingCheckinReportItem } from '../entities/missing-checkin-report-item';
@@ -503,6 +509,22 @@ export class BaggyBookService {
         catchError(err => {
           this.loaderService.display(false);
           return this.handleObservableError<{ message: string; backupSuffix: string }>(err);
+        })
+      );
+  }
+
+  getRefreshHistory(): Observable<DatabaseRefreshAuditRecord[]> {
+    this.loaderService.display(true);
+    return this.http
+      .get<DatabaseRefreshAuditRecord[]>('/api/databaserefresh', { headers: this.getAuthHeaders(false) })
+      .pipe(
+        map(res => {
+          this.loaderService.display(false);
+          return res;
+        }),
+        catchError(err => {
+          this.loaderService.display(false);
+          return this.handleObservableError<DatabaseRefreshAuditRecord[]>(err);
         })
       );
   }

@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { BaggyBookService } from '../../services/baggy-book.service';
+import { Component, OnInit } from '@angular/core';
+import { BaggyBookService, DatabaseRefreshAuditRecord } from '../../services/baggy-book.service';
 
 @Component({
   selector: 'app-database-refresh',
@@ -7,11 +7,14 @@ import { BaggyBookService } from '../../services/baggy-book.service';
   styleUrls: ['./database-refresh.component.css'],
   standalone: false
 })
-export class DatabaseRefreshComponent {
+export class DatabaseRefreshComponent implements OnInit {
   confirmationText = '';
   loading = false;
   successMessage: string | null = null;
   errorMessage: string | null = null;
+
+  refreshHistory: DatabaseRefreshAuditRecord[] = [];
+  historyLoading = false;
 
   readonly today: string;
 
@@ -21,6 +24,10 @@ export class DatabaseRefreshComponent {
     const dd = String(now.getDate()).padStart(2, '0');
     const yyyy = now.getFullYear();
     this.today = `${mm}/${dd}/${yyyy}`;
+  }
+
+  ngOnInit(): void {
+    this.loadHistory();
   }
 
   get confirmationMatches(): boolean {
@@ -41,10 +48,24 @@ export class DatabaseRefreshComponent {
         this.loading = false;
         this.successMessage = `Database refreshed successfully. A backup was created (${result.backupSuffix}).`;
         this.confirmationText = '';
+        this.loadHistory();
       },
       error: (err: Error) => {
         this.loading = false;
         this.errorMessage = `Refresh failed: ${err.message || 'An unexpected error occurred.'}`;
+      }
+    });
+  }
+
+  private loadHistory(): void {
+    this.historyLoading = true;
+    this.baggyBookService.getRefreshHistory().subscribe({
+      next: (history) => {
+        this.refreshHistory = history;
+        this.historyLoading = false;
+      },
+      error: () => {
+        this.historyLoading = false;
       }
     });
   }

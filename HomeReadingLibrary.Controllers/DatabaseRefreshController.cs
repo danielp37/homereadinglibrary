@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using HomeReadingLibrary.Domain.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -16,6 +18,13 @@ namespace HomeReadingLibrary.Controllers.Controllers
       this.databaseRefreshService = databaseRefreshService;
     }
 
+    [HttpGet]
+    public async Task<IActionResult> GetRefreshHistory()
+    {
+      var history = await databaseRefreshService.GetRefreshHistoryAsync();
+      return Ok(history);
+    }
+
     [HttpPost]
     public async Task<IActionResult> RefreshDatabase([FromBody] DatabaseRefreshRequest request)
     {
@@ -24,7 +33,11 @@ namespace HomeReadingLibrary.Controllers.Controllers
         return BadRequest(new { error = "A non-empty confirmation text is required." });
       }
 
-      var backupSuffix = await databaseRefreshService.BackupAndRefreshAsync();
+      var username = User.Identity?.Name
+        ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+        ?? "unknown";
+
+      var backupSuffix = await databaseRefreshService.BackupAndRefreshAsync(username);
       return Ok(new { message = "Database refreshed successfully.", backupSuffix });
     }
 

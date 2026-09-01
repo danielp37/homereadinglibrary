@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { DatabaseRefreshComponent } from './database-refresh.component';
-import { BaggyBookService } from '../../services/baggy-book.service';
+import { BaggyBookService, DatabaseRefreshAuditRecord } from '../../services/baggy-book.service';
 import { of, throwError } from 'rxjs';
 
 describe('DatabaseRefreshComponent', () => {
@@ -10,10 +10,14 @@ describe('DatabaseRefreshComponent', () => {
   let mockBaggyBookService: jasmine.SpyObj<BaggyBookService>;
 
   const successResponse = { message: 'Database refreshed successfully.', backupSuffix: 'backup_20240830120000' };
+  const mockHistory: DatabaseRefreshAuditRecord[] = [
+    { username: 'admin@school.org', refreshedAt: '2024-08-30T12:00:00Z', backupSuffix: 'backup_20240830120000' }
+  ];
 
   beforeEach(waitForAsync(() => {
-    mockBaggyBookService = jasmine.createSpyObj('BaggyBookService', ['refreshDatabase']);
+    mockBaggyBookService = jasmine.createSpyObj('BaggyBookService', ['refreshDatabase', 'getRefreshHistory']);
     mockBaggyBookService.refreshDatabase.and.returnValue(of(successResponse));
+    mockBaggyBookService.getRefreshHistory.and.returnValue(of([]));
 
     TestBed.configureTestingModule({
       declarations: [DatabaseRefreshComponent],
@@ -32,6 +36,10 @@ describe('DatabaseRefreshComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  it('should call getRefreshHistory on init', () => {
+    expect(mockBaggyBookService.getRefreshHistory).toHaveBeenCalled();
+  });
+
   it('should set today in MM/dd/yyyy format', () => {
     const now = new Date();
     const mm = String(now.getMonth() + 1).padStart(2, '0');
@@ -45,6 +53,11 @@ describe('DatabaseRefreshComponent', () => {
     expect(component.successMessage).toBeNull();
     expect(component.errorMessage).toBeNull();
     expect(component.loading).toBeFalse();
+  });
+
+  it('should initialize with empty refreshHistory', () => {
+    expect(component.refreshHistory).toEqual([]);
+    expect(component.historyLoading).toBeFalse();
   });
 
   it('confirmationMatches should be false when text is empty', () => {
@@ -96,6 +109,17 @@ describe('DatabaseRefreshComponent', () => {
     }, 10);
   });
 
+  it('should reload history after a successful refresh', (done) => {
+    mockBaggyBookService.getRefreshHistory.calls.reset();
+    component.confirmationText = component.today;
+    component.executeRefresh();
+
+    setTimeout(() => {
+      expect(mockBaggyBookService.getRefreshHistory).toHaveBeenCalled();
+      done();
+    }, 10);
+  });
+
   it('should set errorMessage and leave confirmationText unchanged on error', (done) => {
     mockBaggyBookService.refreshDatabase.and.returnValue(
       throwError(() => new Error('Network failure'))
@@ -116,6 +140,17 @@ describe('DatabaseRefreshComponent', () => {
     component.loading = true;
     component.executeRefresh();
     expect(mockBaggyBookService.refreshDatabase).not.toHaveBeenCalled();
+  });
+
+  it('should populate refreshHistory when getRefreshHistory returns records', (done) => {
+    mockBaggyBookService.getRefreshHistory.and.returnValue(of(mockHistory));
+    const newFixture = TestBed.createComponent(DatabaseRefreshComponent);
+    newFixture.detectChanges();
+
+    setTimeout(() => {
+      expect(newFixture.componentInstance.refreshHistory).toEqual(mockHistory);
+      done();
+    }, 10);
   });
 
   describe('DOM rendering', () => {
@@ -146,6 +181,24 @@ describe('DatabaseRefreshComponent', () => {
       domFixture.detectChanges();
       const btn: HTMLButtonElement = domFixture.nativeElement.querySelector('button.btn-danger');
       expect(btn?.disabled).toBeTrue();
+    });
+
+    it('should show "No previous refreshes" when history is empty', () => {
+      const domFixture = TestBed.createComponent(DatabaseRefreshComponent);
+      domFixture.componentInstance.refreshHistory = [];
+      domFixture.detectChanges();
+      const el: HTMLElement = domFixture.nativeElement;
+      expect(el.textContent).toContain('No previous refreshes recorded');
+    });
+
+    it('should show history table when refreshHistory has records', () => {
+      mockBaggyBookService.getRefreshHistory.and.returnValue(of(mockHistory));
+      const domFixture = TestBed.createComponent(DatabaseRefreshComponent);
+      domFixture.detectChanges();
+      const el: HTMLElement = domFixture.nativeElement;
+      expect(el.querySelector('table')).toBeTruthy();
+      expect(el.textContent).toContain('admin@school.org');
+      expect(el.textContent).toContain('backup_20240830120000');
     });
   });
 });
