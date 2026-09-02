@@ -110,3 +110,11 @@ Refactored app-add-book component to separate concerns:
 
 **Test Integration**: Halley added 13 comprehensive unit tests covering initial state, direction toggle, all 5 sortable columns, getSortIndicator return values, and cursor styling. Tests documented in orchestration log.
 
+
+## Day 8 — Student and volunteer upload pages
+Built separate Angular admin pages for student and volunteer Excel uploads.
+- Added `student-upload` and `volunteer-upload` components with file upload, result summaries, and `Download Template` links.
+- Wired routes `uploadstudents` and `uploadvolunteers`, registered the components in `app.module.ts`, added Admin-nav links, and extended `BaggyBookService` for the template download endpoints.
+- Kept the upload result handling aligned with the backend's camelCase JSON DTO properties.
+
+**Validation**: `npm test` passed (119/119), `npm run build` passed, and backend `dotnet test` passed (52/52).

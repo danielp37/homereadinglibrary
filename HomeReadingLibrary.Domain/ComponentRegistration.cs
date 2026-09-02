@@ -14,6 +14,7 @@ namespace HomeReadingLibrary.Domain
       services.AddTransient<IBookCopyReservationService, BookCopyReservationService>();
       services.AddTransient<IBookService, BookService>();
       services.AddTransient<IVolunteerService, VolunteerService>();
+      services.AddTransient<IDatabaseRefreshService, DatabaseRefreshService>();
     }
   }
 }

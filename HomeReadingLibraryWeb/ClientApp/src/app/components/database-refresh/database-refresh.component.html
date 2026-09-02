@@ -1,0 +1,80 @@
+<div class="container">
+  <h2>Year-End Database Refresh</h2>
+
+  <div class="alert alert-danger" role="alert">
+    <h4 class="alert-heading">⚠️ Destructive Operation — This Cannot Be Undone</h4>
+    <p>Performing a database refresh will permanently delete the following data for the current school year:</p>
+    <ul>
+      <li>All current book reservations</li>
+      <li>All volunteer logon history</li>
+      <li>All non-admin volunteer accounts</li>
+      <li>All classes and their student rosters</li>
+      <li>All lost and damaged book copies (and any books with no remaining copies)</li>
+    </ul>
+    <hr>
+    <p class="mb-0">
+      A backup of all affected collections will be saved to the database before the refresh runs.
+      The backup is a best-effort server-side copy and is not a guaranteed point-in-time snapshot.
+    </p>
+  </div>
+
+  <div *ngIf="successMessage" class="alert alert-success" role="alert">
+    {{ successMessage }}
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-warning" role="alert">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="!successMessage" class="card border-danger">
+    <div class="card-body">
+      <h5 class="card-title">Confirm Refresh</h5>
+      <p class="card-text">
+        To confirm you understand this is a destructive, year-end operation, type today's date
+        (<strong>{{ today }}</strong>) in the field below.
+      </p>
+      <div class="mb-3">
+        <label for="confirmInput" class="form-label">Today's date ({{ today }})</label>
+        <input
+          id="confirmInput"
+          type="text"
+          class="form-control"
+          [(ngModel)]="confirmationText"
+          placeholder="{{ today }}"
+          [disabled]="loading"
+          autocomplete="off">
+      </div>
+      <button
+        class="btn btn-danger"
+        (click)="executeRefresh()"
+        [disabled]="!confirmationMatches || loading">
+        <span *ngIf="loading" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+        {{ loading ? 'Refreshing...' : 'Refresh Database' }}
+      </button>
+    </div>
+  </div>
+
+  <div class="mt-4">
+    <h5>Previous Refreshes</h5>
+    <div *ngIf="historyLoading" class="text-muted">Loading history...</div>
+    <div *ngIf="!historyLoading && refreshHistory.length === 0" class="text-muted">
+      No previous refreshes recorded.
+    </div>
+    <table *ngIf="!historyLoading && refreshHistory.length > 0" class="table table-sm table-bordered">
+      <thead class="table-secondary">
+        <tr>
+          <th>Date &amp; Time (UTC)</th>
+          <th>User</th>
+          <th>Backup Name</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let record of refreshHistory">
+          <td>{{ record.refreshedAt | date:'medium':'UTC' }}</td>
+          <td>{{ record.username }}</td>
+          <td><code>{{ record.backupSuffix }}</code></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

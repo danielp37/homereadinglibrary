@@ -1,0 +1,65 @@
+<div class="container">
+  <h2>Student Upload</h2>
+  <p class="text-muted">Upload an Excel spreadsheet with the header row: Teacher Name, LastName, FirstName.</p>
+
+  <div *ngIf="errorMessage" class="alert alert-warning" role="alert">
+    {{ errorMessage }}
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <div class="mb-3">
+        <label for="studentUploadFile" class="form-label">Excel file</label>
+        <input
+          id="studentUploadFile"
+          type="file"
+          class="form-control"
+          accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+          (change)="onFileSelected($event)">
+      </div>
+
+      <div class="mb-3" *ngIf="selectedFile">
+        <strong>Selected file:</strong> {{ selectedFile.name }}
+      </div>
+
+      <button type="button" class="btn btn-primary me-2" (click)="upload()" [disabled]="!selectedFile || uploading">
+        {{ uploading ? 'Uploading...' : 'Upload' }}
+      </button>
+      <button type="button" class="btn btn-outline-secondary" (click)="downloadTemplate()" [disabled]="downloadingTemplate">
+        {{ downloadingTemplate ? 'Downloading...' : 'Download Template' }}
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="uploadResult" class="card mt-4">
+    <div class="card-body">
+      <h5 class="card-title">Upload Results</h5>
+      <ul class="list-group mb-3">
+        <li class="list-group-item">Imported: {{ uploadResult.importedCount }}</li>
+        <li class="list-group-item">Skipped: {{ uploadResult.skippedCount }}</li>
+        <li class="list-group-item">Errors: {{ uploadResult.errorCount }}</li>
+      </ul>
+
+      <div *ngIf="uploadResult.imported.length > 0" class="mb-3">
+        <h6>Imported Rows</h6>
+        <ul class="list-group">
+          <li *ngFor="let item of uploadResult.imported" class="list-group-item">{{ item }}</li>
+        </ul>
+      </div>
+
+      <div *ngIf="uploadResult.skipped.length > 0" class="mb-3">
+        <h6>Skipped Rows</h6>
+        <ul class="list-group">
+          <li *ngFor="let item of uploadResult.skipped" class="list-group-item">{{ item }}</li>
+        </ul>
+      </div>
+
+      <div *ngIf="uploadResult.errors.length > 0">
+        <h6>Errors</h6>
+        <ul class="list-group">
+          <li *ngFor="let item of uploadResult.errors" class="list-group-item">{{ item }}</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

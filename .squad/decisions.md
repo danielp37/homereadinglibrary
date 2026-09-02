@@ -99,6 +99,21 @@ Sort `rows` in-place using `Array.sort()` directly on the component's data array
 
 ---
 
+
+### 2026-09-01: Excel upload template download endpoints
+
+#### Upload template routes mirror upload header constants
+**By:** Voyager
+**What:** Added `GET /api/upload/students/template` and `GET /api/upload/volunteers/template` to generate `.xlsx` files from `UploadController.StudentHeaders` and `UploadController.VolunteerHeaders`, using filenames `students-template.xlsx` and `volunteers-template.xlsx`.
+**Why:** The Angular upload pages need stable backend template-download endpoints, and sourcing headers from the existing constants avoids drift between template files and upload parsing.
+
+### 2026-09-01: Dedicated Angular Excel upload pages
+
+#### Upload page route and DTO conventions
+**By:** Cassini
+**What:** Added separate admin-only Angular pages for student and volunteer Excel uploads using routes `uploadstudents` and `uploadvolunteers`, and consumed the backend upload response using camelCase properties (`imported`, `skipped`, `errors`, and corresponding count fields).
+**Why:** Existing Angular routes in this app follow flat lowercase path names without nested segments, so the new pages match that convention. ASP.NET Core is configured with the default JSON naming policy, which serializes the `UploadResults` DTO to camelCase for Angular.
+
 ## Governance
 
 - All meaningful changes require team consensus
