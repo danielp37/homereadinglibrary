@@ -31,6 +31,15 @@ export interface DatabaseRefreshAuditRecord {
   backupSuffix: string;
 }
 
+export interface UploadResult {
+  imported: string[];
+  skipped: string[];
+  errors: string[];
+  importedCount: number;
+  skippedCount: number;
+  errorCount: number;
+}
+
 import { YearEndCheckinReportItem } from '../entities/year-end-checkin-report-item';
 import { StudentYearEndReportItem } from '../entities/student-year-end-report-item';
 import { MissingCheckinReportItem } from '../entities/missing-checkin-report-item';
@@ -557,6 +566,52 @@ export class BaggyBookService {
 
   exportYearEndCheckinsReport(): Observable<Blob> {
     return this.http.get('/api/reports/yearendcheckins/export', {
+      headers: this.getAuthHeaders(false),
+      responseType: 'blob'
+    });
+  }
+
+  uploadStudentSpreadsheet(file: File): Observable<UploadResult> {
+    this.loaderService.display(true);
+    const formData = new FormData();
+    formData.append('file', file, file.name);
+
+    return this.http
+      .post<UploadResult>('/api/upload/students', formData, { headers: this.getAuthHeaders(false) })
+      .pipe(
+        map(res => {
+          this.loaderService.display(false);
+          return res;
+        }),
+        catchError(err => this.handleObservableError<UploadResult>(err))
+      );
+  }
+
+  downloadStudentUploadTemplate(): Observable<Blob> {
+    return this.http.get('/api/upload/students/template', {
+      headers: this.getAuthHeaders(false),
+      responseType: 'blob'
+    });
+  }
+
+  uploadVolunteerSpreadsheet(file: File): Observable<UploadResult> {
+    this.loaderService.display(true);
+    const formData = new FormData();
+    formData.append('file', file, file.name);
+
+    return this.http
+      .post<UploadResult>('/api/upload/volunteers', formData, { headers: this.getAuthHeaders(false) })
+      .pipe(
+        map(res => {
+          this.loaderService.display(false);
+          return res;
+        }),
+        catchError(err => this.handleObservableError<UploadResult>(err))
+      );
+  }
+
+  downloadVolunteerUploadTemplate(): Observable<Blob> {
+    return this.http.get('/api/upload/volunteers/template', {
       headers: this.getAuthHeaders(false),
       responseType: 'blob'
     });

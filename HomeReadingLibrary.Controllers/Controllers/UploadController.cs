@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -33,6 +34,24 @@ namespace HomeReadingLibrary.Controllers.Controllers
     {
       classCollection = mongoDatabase.GetCollection<Class>("classes");
       this.userManager = userManager;
+    }
+
+    /// <summary>
+    /// Download the Excel template for student uploads.
+    /// </summary>
+    [HttpGet("students/template")]
+    public IActionResult DownloadStudentTemplate()
+    {
+      return CreateTemplateFile(StudentHeaders, "students-template.xlsx");
+    }
+
+    /// <summary>
+    /// Download the Excel template for volunteer uploads.
+    /// </summary>
+    [HttpGet("volunteers/template")]
+    public IActionResult DownloadVolunteerTemplate()
+    {
+      return CreateTemplateFile(VolunteerHeaders, "volunteers-template.xlsx");
     }
 
     /// <summary>
@@ -312,6 +331,27 @@ namespace HomeReadingLibrary.Controllers.Controllers
         return false;
       }
       return Enum.TryParse(value, ignoreCase: true, out dayOfWeek);
+    }
+
+    private IActionResult CreateTemplateFile(string[] headers, string fileName)
+    {
+      using var workbook = new XLWorkbook();
+      var worksheet = workbook.Worksheets.Add("Template");
+
+      for (int i = 0; i < headers.Length; i++)
+      {
+        worksheet.Cell(1, i + 1).Value = headers[i];
+      }
+
+      worksheet.Row(1).Style.Font.Bold = true;
+
+      using var stream = new MemoryStream();
+      workbook.SaveAs(stream);
+
+      return File(
+        stream.ToArray(),
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        fileName);
     }
 
     /// <summary>

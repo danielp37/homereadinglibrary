@@ -76,6 +76,12 @@
                             <a [routerLink]="['/signup']" [routerLinkActive]="['active']" class="dropdown-item" (click)="isCollapsed = true">
                                 <fa-icon [icon]="users"></fa-icon> Signup Volunteer
                             </a>
+                            <a [routerLink]="['/uploadstudents']" [routerLinkActive]="['active']" class="dropdown-item" (click)="isCollapsed = true">
+                                <fa-icon [icon]="fileAlt"></fa-icon> Upload Students
+                            </a>
+                            <a [routerLink]="['/uploadvolunteers']" [routerLinkActive]="['active']" class="dropdown-item" (click)="isCollapsed = true">
+                                <fa-icon [icon]="fileAlt"></fa-icon> Upload Volunteers
+                            </a>
                             <div class="dropdown-divider"></div>
                             <a [routerLink]="['/databaserefresh']" [routerLinkActive]="['active']" class="dropdown-item" (click)="isCollapsed = true">
                                 <fa-icon [icon]="fileAlt"></fa-icon> Year-End Database Refresh
@@ -92,4 +98,3 @@
             </div>
         </div>
     </div>
-

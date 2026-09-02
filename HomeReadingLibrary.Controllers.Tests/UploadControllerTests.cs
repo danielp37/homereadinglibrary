@@ -4,10 +4,13 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using ClosedXML.Excel;
+using FakeItEasy;
 using HomeReadingLibrary.Controllers.Controllers;
+using HomeReadingLibrary.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Driver;
 using Xunit;
 
 namespace HomeReadingLibrary.Controllers.Tests
@@ -47,6 +50,72 @@ namespace HomeReadingLibrary.Controllers.Tests
             var attr = method.GetCustomAttribute<HttpPostAttribute>();
             Assert.NotNull(attr);
             Assert.Equal("volunteers", attr.Template);
+        }
+
+        [Fact]
+        public void DownloadStudentTemplate_HasHttpGetStudentsTemplate()
+        {
+            var method = typeof(UploadController).GetMethod("DownloadStudentTemplate");
+            var attr = method.GetCustomAttribute<HttpGetAttribute>();
+            Assert.NotNull(attr);
+            Assert.Equal("students/template", attr.Template);
+        }
+
+        [Fact]
+        public void DownloadVolunteerTemplate_HasHttpGetVolunteersTemplate()
+        {
+            var method = typeof(UploadController).GetMethod("DownloadVolunteerTemplate");
+            var attr = method.GetCustomAttribute<HttpGetAttribute>();
+            Assert.NotNull(attr);
+            Assert.Equal("volunteers/template", attr.Template);
+        }
+    }
+
+    public class UploadControllerTemplateTests
+    {
+        [Fact]
+        public void DownloadStudentTemplate_ReturnsWorkbookWithExpectedHeaders()
+        {
+            var controller = CreateController();
+
+            var result = Assert.IsType<FileContentResult>(controller.DownloadStudentTemplate());
+
+            Assert.Equal("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", result.ContentType);
+            Assert.Equal("students-template.xlsx", result.FileDownloadName);
+            Assert.Equal(UploadController.StudentHeaders, ReadFirstRow(result.FileContents));
+        }
+
+        [Fact]
+        public void DownloadVolunteerTemplate_ReturnsWorkbookWithExpectedHeaders()
+        {
+            var controller = CreateController();
+
+            var result = Assert.IsType<FileContentResult>(controller.DownloadVolunteerTemplate());
+
+            Assert.Equal("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", result.ContentType);
+            Assert.Equal("volunteers-template.xlsx", result.FileDownloadName);
+            Assert.Equal(UploadController.VolunteerHeaders, ReadFirstRow(result.FileContents));
+        }
+
+        private static string[] ReadFirstRow(byte[] fileContents)
+        {
+            using var stream = new MemoryStream(fileContents);
+            using var workbook = new XLWorkbook(stream);
+            var worksheet = workbook.Worksheets.First();
+
+            return Enumerable.Range(1, worksheet.LastColumnUsed().ColumnNumber())
+                .Select(column => worksheet.Cell(1, column).GetValue<string>())
+                .ToArray();
+        }
+
+        private static UploadController CreateController()
+        {
+            var mongoDatabase = A.Fake<IMongoDatabase>();
+            var classCollection = A.Fake<IMongoCollection<Class>>();
+
+            A.CallTo(() => mongoDatabase.GetCollection<Class>("classes", null)).Returns(classCollection);
+
+            return new UploadController(mongoDatabase, null);
         }
     }
 

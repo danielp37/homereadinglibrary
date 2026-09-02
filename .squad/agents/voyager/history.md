@@ -60,3 +60,11 @@ Notes: Backend endpoints should be RESTful and testable; preserve MongoDB conven
 
 **Validation:** Build succeeded (0 warnings, 0 errors). All 21 tests pass (14 controller + 7 identity).
 
+
+## Day 2 — Excel upload template endpoints
+Added download-template support for the Excel import flow.
+- `UploadController` now exposes `GET /api/upload/students/template` and `GET /api/upload/volunteers/template`.
+- The generated `.xlsx` files derive their columns from the existing `StudentHeaders` and `VolunteerHeaders` constants to keep parsing and templates aligned.
+- Added controller tests covering both template endpoints and content-disposition filenames.
+
+**Validation**: `dotnet test -c Release` passed (52/52).
