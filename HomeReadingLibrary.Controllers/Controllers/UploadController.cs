@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using AspnetCore.Identity.MongoDb.Entities;
 using ClosedXML.Excel;
@@ -18,7 +19,12 @@ namespace HomeReadingLibrary.Controllers.Controllers
   public class UploadController : Controller
   {
     private const int BarCodeLength = 9;
+    private const int MaxRowsPerUpload = 1000;
     private static readonly Random rand = new Random();
+
+    // Expected header columns for each upload type.
+    public static readonly string[] StudentHeaders    = { "Teacher Name", "LastName", "FirstName" };
+    public static readonly string[] VolunteerHeaders  = { "LastName", "FirstName", "Phone", "Email", "Teacher", "DayOfWeek" };
 
     private readonly IMongoCollection<Class> classCollection;
     private readonly UserManager<Volunteer> userManager;
@@ -39,9 +45,12 @@ namespace HomeReadingLibrary.Controllers.Controllers
       if (file == null || file.Length == 0)
         return BadRequest("No file provided.");
 
-      var rows = ParseWorksheet(file, expectedColumns: 3);
+      var rows = ParseWorksheet(file, expectedColumns: 3, expectedHeaders: StudentHeaders);
       if (rows == null)
-        return BadRequest("Could not read the file. Ensure it is a valid .xlsx spreadsheet with columns: Teacher Name, LastName, FirstName.");
+        return BadRequest($"Could not read the file. Ensure it is a valid .xlsx spreadsheet with columns: {string.Join(", ", StudentHeaders)}.");
+
+      if (rows.Count > MaxRowsPerUpload)
+        return BadRequest($"File contains {rows.Count} rows which exceeds the limit of {MaxRowsPerUpload}.");
 
       var results = new UploadResults();
 
@@ -62,10 +71,10 @@ namespace HomeReadingLibrary.Controllers.Controllers
 
         if (!classCache.TryGetValue(teacherName, out var @class))
         {
-          var filter = Builders<Class>.Filter.Regex(
+          var classFilter = Builders<Class>.Filter.Regex(
             c => c.TeacherName,
-            new MongoDB.Bson.BsonRegularExpression($"^{System.Text.RegularExpressions.Regex.Escape(teacherName)}$", "i"));
-          @class = await classCollection.Find(filter).FirstOrDefaultAsync();
+            new MongoDB.Bson.BsonRegularExpression($"^{Regex.Escape(teacherName)}$", "i"));
+          @class = await classCollection.Find(classFilter).FirstOrDefaultAsync();
           classCache[teacherName] = @class;
         }
 
@@ -75,36 +84,46 @@ namespace HomeReadingLibrary.Controllers.Controllers
           continue;
         }
 
-        var alreadyExists = @class.Students.Any(s =>
-          string.Equals(s.FirstName, firstName, StringComparison.OrdinalIgnoreCase) &&
-          string.Equals(s.LastName, lastName, StringComparison.OrdinalIgnoreCase));
-
-        if (alreadyExists)
+        var barCode = await GenerateUniqueBarCode();
+        if (barCode == null)
         {
-          results.Skipped.Add($"{lastName}, {firstName} already in {teacherName}'s class.");
+          results.Errors.Add($"Could not generate a unique barcode for {lastName}, {firstName} after multiple attempts. Try again.");
           continue;
         }
 
-        var barCode = await GenerateUniqueBarCode();
         var student = new Student
         {
-          BarCode      = barCode,
-          FirstName    = firstName,
-          LastName     = lastName,
-          CreatedDate  = DateTime.Now
+          BarCode     = barCode,
+          FirstName   = firstName,
+          LastName    = lastName,
+          CreatedDate = DateTime.Now
         };
+
+        // Atomic filter: class must exist AND must not already contain a student with this name.
+        // This makes the duplicate check and insert a single MongoDB operation, preventing race conditions.
+        var atomicFilter = Builders<Class>.Filter.Eq(c => c.ClassId, @class.ClassId) &
+            !Builders<Class>.Filter.ElemMatch(c => c.Students,
+                Builders<Student>.Filter.Regex(s => s.FirstName, new MongoDB.Bson.BsonRegularExpression($"^{Regex.Escape(firstName)}$", "i")) &
+                Builders<Student>.Filter.Regex(s => s.LastName,  new MongoDB.Bson.BsonRegularExpression($"^{Regex.Escape(lastName)}$",  "i")));
 
         var update = Builders<Class>.Update
           .AddToSet(c => c.Students, student)
           .CurrentDate(c => c.ModifiedDate);
 
-        await classCollection.FindOneAndUpdateAsync(
-          Builders<Class>.Filter.Eq(c => c.ClassId, @class.ClassId),
-          update);
+        var updated = await classCollection.FindOneAndUpdateAsync(
+          atomicFilter,
+          update,
+          new FindOneAndUpdateOptions<Class> { ReturnDocument = ReturnDocument.After });
 
-        // Keep the local cache consistent so duplicate-check works within the same upload.
-        @class.Students.Add(student);
-        results.Imported.Add($"{lastName}, {firstName} → {teacherName} (barcode: {barCode})");
+        if (updated == null)
+        {
+          // Filter didn't match: either the class was removed, or the student already exists.
+          results.Skipped.Add($"{lastName}, {firstName} already in {teacherName}'s class.");
+        }
+        else
+        {
+          results.Imported.Add($"{lastName}, {firstName} → {teacherName} (barcode: {barCode})");
+        }
       }
 
       return Ok(results);
@@ -121,9 +140,12 @@ namespace HomeReadingLibrary.Controllers.Controllers
       if (file == null || file.Length == 0)
         return BadRequest("No file provided.");
 
-      var rows = ParseWorksheet(file, expectedColumns: 6);
+      var rows = ParseWorksheet(file, expectedColumns: 6, expectedHeaders: VolunteerHeaders);
       if (rows == null)
-        return BadRequest("Could not read the file. Ensure it is a valid .xlsx spreadsheet with columns: LastName, FirstName, Phone, Email, Teacher, DayOfWeek.");
+        return BadRequest($"Could not read the file. Ensure it is a valid .xlsx spreadsheet with columns: {string.Join(", ", VolunteerHeaders)}.");
+
+      if (rows.Count > MaxRowsPerUpload)
+        return BadRequest($"File contains {rows.Count} rows which exceeds the limit of {MaxRowsPerUpload}.");
 
       var results = new UploadResults();
 
@@ -149,11 +171,13 @@ namespace HomeReadingLibrary.Controllers.Controllers
           continue;
         }
 
-        // Resolve class assignments for each row in the group.
+        // Resolve and deduplicate class assignments across all rows for this volunteer.
         var volunteerForClasses = new List<AspnetCore.Identity.MongoDb.Entities.VolunteerForClass>();
+        var seenAssignments = new HashSet<(string ClassId, DayOfWeek Day)>();
+
         foreach (var row in group)
         {
-          var teacherName = row[4].Trim();
+          var teacherName  = row[4].Trim();
           var dayOfWeekRaw = row[5].Trim();
 
           if (string.IsNullOrWhiteSpace(teacherName) || string.IsNullOrWhiteSpace(dayOfWeekRaw))
@@ -170,16 +194,23 @@ namespace HomeReadingLibrary.Controllers.Controllers
 
           if (!classCache.TryGetValue(teacherName, out var @class))
           {
-            var filter = Builders<Class>.Filter.Regex(
+            var classFilter = Builders<Class>.Filter.Regex(
               c => c.TeacherName,
-              new MongoDB.Bson.BsonRegularExpression($"^{System.Text.RegularExpressions.Regex.Escape(teacherName)}$", "i"));
-            @class = await classCollection.Find(filter).FirstOrDefaultAsync();
+              new MongoDB.Bson.BsonRegularExpression($"^{Regex.Escape(teacherName)}$", "i"));
+            @class = await classCollection.Find(classFilter).FirstOrDefaultAsync();
             classCache[teacherName] = @class;
           }
 
           if (@class == null)
           {
             results.Errors.Add($"Class not found for teacher '{teacherName}' (volunteer: {lastName}, {firstName}).");
+            continue;
+          }
+
+          var assignmentKey = (@class.ClassId, dayOfWeek);
+          if (!seenAssignments.Add(assignmentKey))
+          {
+            results.Skipped.Add($"Duplicate assignment skipped for {lastName}, {firstName}: {teacherName} / {dayOfWeek}.");
             continue;
           }
 
@@ -190,20 +221,19 @@ namespace HomeReadingLibrary.Controllers.Controllers
           });
         }
 
-        // Check if volunteer already exists by email (email = UserName).
-        var existing = await userManager.FindByNameAsync(email);
-        if (existing != null)
+        // Skip volunteer if they have no valid assignments.
+        if (volunteerForClasses.Count == 0)
         {
-          results.Skipped.Add($"{lastName}, {firstName} ({email}) already exists.");
+          results.Skipped.Add($"{lastName}, {firstName} ({email}) skipped: no valid class assignments.");
           continue;
         }
 
         var volunteer = new Volunteer
         {
-          FirstName          = firstName,
-          LastName           = lastName,
-          UserName           = email,
-          Phone              = phone,
+          FirstName           = firstName,
+          LastName            = lastName,
+          UserName            = email,
+          Phone               = phone,
           VolunteerForClasses = volunteerForClasses
         };
 
@@ -211,6 +241,11 @@ namespace HomeReadingLibrary.Controllers.Controllers
         if (result.Succeeded)
         {
           results.Imported.Add($"{lastName}, {firstName} ({email}) with {volunteerForClasses.Count} class assignment(s).");
+        }
+        else if (result.Errors.Any(e => e.Code == "DuplicateUserName"))
+        {
+          // Handles the race condition where two uploads create the same volunteer concurrently.
+          results.Skipped.Add($"{lastName}, {firstName} ({email}) already exists.");
         }
         else
         {
@@ -224,16 +259,29 @@ namespace HomeReadingLibrary.Controllers.Controllers
     // --- Helpers ---
 
     /// <summary>
-    /// Opens an Excel file and returns all non-header rows as string arrays.
-    /// Returns null if the file cannot be parsed.
+    /// Opens an Excel file, validates the header row against <paramref name="expectedHeaders"/> (if provided),
+    /// and returns all subsequent rows as string arrays. Returns null if the file cannot be parsed
+    /// or headers do not match.
     /// </summary>
-    public static List<string[]> ParseWorksheet(IFormFile file, int expectedColumns)
+    public static List<string[]> ParseWorksheet(IFormFile file, int expectedColumns, string[] expectedHeaders = null)
     {
       try
       {
         using var stream = file.OpenReadStream();
         using var workbook = new XLWorkbook(stream);
         var sheet = workbook.Worksheets.First();
+
+        // Validate header row when expected headers are provided.
+        if (expectedHeaders != null)
+        {
+          var headerRow = sheet.Row(1);
+          for (int i = 0; i < expectedHeaders.Length; i++)
+          {
+            var cell = headerRow.Cell(i + 1).GetValue<string>()?.Trim() ?? string.Empty;
+            if (!string.Equals(cell, expectedHeaders[i], StringComparison.OrdinalIgnoreCase))
+              return null;
+          }
+        }
 
         var rows = new List<string[]>();
         var lastRow = sheet.LastRowUsed()?.RowNumber() ?? 0;
@@ -266,22 +314,24 @@ namespace HomeReadingLibrary.Controllers.Controllers
       return Enum.TryParse(value, ignoreCase: true, out dayOfWeek);
     }
 
+    /// <summary>
+    /// Generates a unique barcode. Returns null if a unique code cannot be found after retries.
+    /// </summary>
     private async Task<string> GenerateUniqueBarCode()
     {
-      string barCode;
-      var attempts = 0;
-      do
+      for (int attempt = 0; attempt < 10; attempt++)
       {
-        barCode = DateTime.Today.Year.ToString() +
-                  string.Concat(Enumerable.Range(1, BarCodeLength).Select(_ =>
-                  {
-                    lock (rand) { return rand.Next(9).ToString(); }
-                  }));
-        attempts++;
-      }
-      while (await DoesBarCodeExist(barCode) && attempts < 10);
+        var barCode = DateTime.Today.Year.ToString() +
+                      string.Concat(Enumerable.Range(1, BarCodeLength).Select(_ =>
+                      {
+                        lock (rand) { return rand.Next(10).ToString(); }
+                      }));
 
-      return barCode;
+        if (!await DoesBarCodeExist(barCode))
+          return barCode;
+      }
+
+      return null;
     }
 
     private async Task<bool> DoesBarCodeExist(string barCode)

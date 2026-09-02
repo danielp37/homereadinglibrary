@@ -26,9 +26,17 @@ namespace AspnetCore.Identity.MongoDb.Stores
         throw new ArgumentNullException(nameof(user));
 
       cancellationToken.ThrowIfCancellationRequested();
-      await _volunteerCollection.InsertOneAsync(user, cancellationToken: cancellationToken).ConfigureAwait(false);
-
-      return IdentityResult.Success;
+      try
+      {
+        await _volunteerCollection.InsertOneAsync(user, cancellationToken: cancellationToken).ConfigureAwait(false);
+        return IdentityResult.Success;
+      }
+      catch (MongoWriteException ex) when (ex.WriteError?.Code == 11000)
+      {
+        // Duplicate key — normalizedUserName unique index violation.
+        var errorDescriber = new IdentityErrorDescriber();
+        return IdentityResult.Failed(errorDescriber.DuplicateUserName(user.UserName));
+      }
     }
 
     public async Task<Volunteer> FindByIdAsync(string userId, CancellationToken cancellationToken)

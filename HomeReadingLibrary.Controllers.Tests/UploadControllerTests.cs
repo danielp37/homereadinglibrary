@@ -52,7 +52,7 @@ namespace HomeReadingLibrary.Controllers.Tests
 
     public class UploadControllerParseWorksheetTests
     {
-        private static IFormFile BuildFormFile(Action<IXLWorksheet> populate)
+        internal static IFormFile BuildFormFile(Action<IXLWorksheet> populate)
         {
             using var workbook = new XLWorkbook();
             var sheet = workbook.Worksheets.Add("Sheet1");
@@ -136,6 +136,94 @@ namespace HomeReadingLibrary.Controllers.Tests
 
             Assert.NotNull(rows);
             Assert.Empty(rows);
+        }
+
+        [Fact]
+        public void ParseWorksheet_ValidHeadersPass()
+        {
+            var file = BuildFormFile(sheet =>
+            {
+                sheet.Cell(1, 1).Value = "Teacher Name";
+                sheet.Cell(1, 2).Value = "LastName";
+                sheet.Cell(1, 3).Value = "FirstName";
+                sheet.Cell(2, 1).Value = "Mrs. Smith";
+                sheet.Cell(2, 2).Value = "Jones";
+                sheet.Cell(2, 3).Value = "Alice";
+            });
+
+            var rows = UploadController.ParseWorksheet(file, expectedColumns: 3,
+                expectedHeaders: new[] { "Teacher Name", "LastName", "FirstName" });
+
+            Assert.NotNull(rows);
+            Assert.Single(rows);
+        }
+
+        [Fact]
+        public void ParseWorksheet_HeaderCaseInsensitiveMatch()
+        {
+            var file = BuildFormFile(sheet =>
+            {
+                sheet.Cell(1, 1).Value = "teacher name";  // lowercase
+                sheet.Cell(1, 2).Value = "LASTNAME";
+                sheet.Cell(1, 3).Value = "FirstName";
+                sheet.Cell(2, 1).Value = "Mrs. Smith";
+                sheet.Cell(2, 2).Value = "Jones";
+                sheet.Cell(2, 3).Value = "Alice";
+            });
+
+            var rows = UploadController.ParseWorksheet(file, expectedColumns: 3,
+                expectedHeaders: new[] { "Teacher Name", "LastName", "FirstName" });
+
+            Assert.NotNull(rows);
+        }
+
+        [Fact]
+        public void ParseWorksheet_WrongHeaderReturnsNull()
+        {
+            var file = BuildFormFile(sheet =>
+            {
+                sheet.Cell(1, 1).Value = "Student";    // wrong
+                sheet.Cell(1, 2).Value = "LastName";
+                sheet.Cell(1, 3).Value = "FirstName";
+                sheet.Cell(2, 1).Value = "Mrs. Smith";
+                sheet.Cell(2, 2).Value = "Jones";
+                sheet.Cell(2, 3).Value = "Alice";
+            });
+
+            var rows = UploadController.ParseWorksheet(file, expectedColumns: 3,
+                expectedHeaders: new[] { "Teacher Name", "LastName", "FirstName" });
+
+            Assert.Null(rows);
+        }
+
+        [Fact]
+        public void ParseWorksheet_MissingHeaderColumnReturnsNull()
+        {
+            var file = BuildFormFile(sheet =>
+            {
+                // Only 2 columns in header, but 3 expected
+                sheet.Cell(1, 1).Value = "Teacher Name";
+                sheet.Cell(1, 2).Value = "LastName";
+                sheet.Cell(2, 1).Value = "Mrs. Smith";
+                sheet.Cell(2, 2).Value = "Jones";
+            });
+
+            var rows = UploadController.ParseWorksheet(file, expectedColumns: 3,
+                expectedHeaders: new[] { "Teacher Name", "LastName", "FirstName" });
+
+            Assert.Null(rows);
+        }
+
+        [Fact]
+        public void ParseWorksheet_StudentHeadersConstantHasExpectedColumns()
+        {
+            Assert.Equal(new[] { "Teacher Name", "LastName", "FirstName" }, UploadController.StudentHeaders);
+        }
+
+        [Fact]
+        public void ParseWorksheet_VolunteerHeadersConstantHasExpectedColumns()
+        {
+            Assert.Equal(new[] { "LastName", "FirstName", "Phone", "Email", "Teacher", "DayOfWeek" }, UploadController.VolunteerHeaders);
         }
     }
 
