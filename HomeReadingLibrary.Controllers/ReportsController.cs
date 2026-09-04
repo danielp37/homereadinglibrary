@@ -251,6 +251,47 @@ namespace HomeReadingLibrary.Controllers.Controllers
                 .ToList();
         }
 
+        [Authorize(AuthenticationSchemes = "Bearer", Policy = "AdminUser")]
+        [HttpGet("booktitlesperlevel")]
+        public async Task<IActionResult> GetBookTitlesPerLevel()
+        {
+            var results = await RunBookTitlesPerLevelReport();
+            return Ok(new { Data = results });
+        }
+
+        [Authorize(AuthenticationSchemes = "Bearer", Policy = "AdminUser")]
+        [HttpGet("booktitlesperlevel/export")]
+        public async Task<IActionResult> ExportBookTitlesPerLevel()
+        {
+            var results = await RunBookTitlesPerLevelReport();
+            var csv = GenerateCsv(results);
+            var bytes = Encoding.UTF8.GetBytes(csv);
+            return File(bytes, "text/csv", "book-titles-per-level-report.csv");
+        }
+
+        private async Task<List<BookTitleLevelReportItem>> RunBookTitlesPerLevelReport()
+        {
+            var collection = _mongoDatabase.GetCollection<Book>("books");
+            var books = await collection.Find(FilterDefinition<Book>.Empty).ToListAsync();
+
+            return books
+                .GroupBy(b => new
+                {
+                    GuidedReadingLevel = b.GuidedReadingLevel ?? string.Empty,
+                    BoxNumber = b.BoxNumber ?? string.Empty
+                })
+                .Select(group => new BookTitleLevelReportItem
+                {
+                    GuidedReadingLevel = group.Key.GuidedReadingLevel,
+                    BoxNumber = group.Key.BoxNumber,
+                    BookTitleCount = group.Select(book => book.Title ?? string.Empty).Distinct().Count(),
+                    BookCopyCount = group.Sum(book => book.BookCopies?.Count ?? 0)
+                })
+                .OrderBy(item => item.GuidedReadingLevel)
+                .ThenBy(item => item.BoxNumber)
+                .ToList();
+        }
+
         private static string BsonToString(BsonValue value)
             => ReportsBsonHelper.BsonToString(value);
 
@@ -402,6 +443,17 @@ namespace HomeReadingLibrary.Controllers.Controllers
             foreach (var item in items)
             {
                 sb.AppendLine($"{Escape(item.Title)},{Escape(item.Author)},{Escape(item.PublisherText)},{Escape(item.GuidedReadingLevel)},{Escape(item.Isbn)},{Escape(item.BoxNumber)},{item.BookCopyCount}");
+            }
+            return sb.ToString();
+        }
+
+        private string GenerateCsv(List<BookTitleLevelReportItem> items)
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("Reading Level,Box Number,Book Title Count,Book Copy Count");
+            foreach (var item in items)
+            {
+                sb.AppendLine($"{Escape(item.GuidedReadingLevel)},{Escape(item.BoxNumber)},{item.BookTitleCount},{item.BookCopyCount}");
             }
             return sb.ToString();
         }

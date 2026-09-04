@@ -17,6 +17,7 @@ import { AdminReportsComponent } from 'src/app/components/admin-reports/admin-re
 import { MissingCheckinsReportComponent } from 'src/app/components/missing-checkins-report/missing-checkins-report.component';
 import { YearEndCheckinsReportComponent } from 'src/app/components/year-end-checkins-report/year-end-checkins-report.component';
 import { BookCopyCountReportComponent } from 'src/app/components/book-copy-count-report/book-copy-count-report.component';
+import { BookTitleLevelReportComponent } from 'src/app/components/book-title-level-report/book-title-level-report.component';
 import { DatabaseRefreshComponent } from 'src/app/components/database-refresh/database-refresh.component';
 import { StudentUploadComponent } from 'src/app/components/student-upload/student-upload.component';
 import { VolunteerUploadComponent } from 'src/app/components/volunteer-upload/volunteer-upload.component';
@@ -39,6 +40,7 @@ const routes: Routes = [
             { path: 'missingcheckins', component: MissingCheckinsReportComponent, canActivate: [AuthGuard]},
             { path: 'yearendcheckins', component: YearEndCheckinsReportComponent, canActivate: [AuthGuard]},
             { path: 'bookcopycounts', component: BookCopyCountReportComponent, canActivate: [AuthGuard]},
+            { path: 'booktitlesperlevel', component: BookTitleLevelReportComponent, canActivate: [AuthGuard]},
             { path: 'uploadstudents', component: StudentUploadComponent, canActivate: [AuthGuard]},
             { path: 'uploadvolunteers', component: VolunteerUploadComponent, canActivate: [AuthGuard]},
             { path: 'databaserefresh', component: DatabaseRefreshComponent, canActivate: [AuthGuard]},

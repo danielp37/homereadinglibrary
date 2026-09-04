@@ -15,6 +15,8 @@ namespace HomeReadingLibrary.Controllers.Tests
         private readonly MethodInfo _exportYearEndCheckins;
         private readonly MethodInfo _getBookCopyCounts;
         private readonly MethodInfo _exportBookCopyCounts;
+        private readonly MethodInfo _getBookTitlesPerLevel;
+        private readonly MethodInfo _exportBookTitlesPerLevel;
 
         public ReportsControllerAttributeTests()
         {
@@ -24,6 +26,8 @@ namespace HomeReadingLibrary.Controllers.Tests
             _exportYearEndCheckins = typeof(ReportsController).GetMethod("ExportYearEndCheckins");
             _getBookCopyCounts     = typeof(ReportsController).GetMethod("GetBookCopyCounts");
             _exportBookCopyCounts  = typeof(ReportsController).GetMethod("ExportBookCopyCounts");
+            _getBookTitlesPerLevel = typeof(ReportsController).GetMethod("GetBookTitlesPerLevel");
+            _exportBookTitlesPerLevel = typeof(ReportsController).GetMethod("ExportBookTitlesPerLevel");
         }
 
         [Fact]
@@ -115,6 +119,40 @@ namespace HomeReadingLibrary.Controllers.Tests
         public void ExportBookCopyCounts_HasAuthorizeWithBearerAndAdminUser()
         {
             var attr = _exportBookCopyCounts.GetCustomAttribute<AuthorizeAttribute>();
+            Assert.NotNull(attr);
+            Assert.Equal("Bearer", attr.AuthenticationSchemes);
+            Assert.Equal("AdminUser", attr.Policy);
+        }
+
+        [Fact]
+        public void GetBookTitlesPerLevel_HasHttpGetBooktitlesperlevel()
+        {
+            var attr = _getBookTitlesPerLevel.GetCustomAttribute<HttpGetAttribute>();
+            Assert.NotNull(attr);
+            Assert.Equal("booktitlesperlevel", attr.Template);
+        }
+
+        [Fact]
+        public void GetBookTitlesPerLevel_HasAuthorizeWithBearerAndAdminUser()
+        {
+            var attr = _getBookTitlesPerLevel.GetCustomAttribute<AuthorizeAttribute>();
+            Assert.NotNull(attr);
+            Assert.Equal("Bearer", attr.AuthenticationSchemes);
+            Assert.Equal("AdminUser", attr.Policy);
+        }
+
+        [Fact]
+        public void ExportBookTitlesPerLevel_HasHttpGetBooktitlesperlevelExport()
+        {
+            var attr = _exportBookTitlesPerLevel.GetCustomAttribute<HttpGetAttribute>();
+            Assert.NotNull(attr);
+            Assert.Equal("booktitlesperlevel/export", attr.Template);
+        }
+
+        [Fact]
+        public void ExportBookTitlesPerLevel_HasAuthorizeWithBearerAndAdminUser()
+        {
+            var attr = _exportBookTitlesPerLevel.GetCustomAttribute<AuthorizeAttribute>();
             Assert.NotNull(attr);
             Assert.Equal("Bearer", attr.AuthenticationSchemes);
             Assert.Equal("AdminUser", attr.Policy);
