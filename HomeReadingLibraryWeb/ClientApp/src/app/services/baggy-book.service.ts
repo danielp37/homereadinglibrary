@@ -44,6 +44,7 @@ import { YearEndCheckinReportItem } from '../entities/year-end-checkin-report-it
 import { StudentYearEndReportItem } from '../entities/student-year-end-report-item';
 import { MissingCheckinReportItem } from '../entities/missing-checkin-report-item';
 import { BookCopyCountReportItem } from '../entities/book-copy-count-report-item';
+import { BookTitleLevelReportItem } from '../entities/book-title-level-report-item';
 
 @Injectable()
 export class BaggyBookService {
@@ -590,6 +591,29 @@ export class BaggyBookService {
 
   exportBookCopyCountsReport(): Observable<Blob> {
     return this.http.get('/api/reports/bookcopycounts/export', {
+      headers: this.getAuthHeaders(false),
+      responseType: 'blob'
+    });
+  }
+
+  getBookTitlesPerLevelReport(): Observable<BookTitleLevelReportItem[]> {
+    this.loaderService.display(true);
+    return this.http
+      .get<{ data: BookTitleLevelReportItem[] }>('/api/reports/booktitlesperlevel', { headers: this.getAuthHeaders(false) })
+      .pipe(
+        map(res => {
+          this.loaderService.display(false);
+          return res.data;
+        }),
+        catchError(err => {
+          this.loaderService.display(false);
+          return this.handleObservableError<BookTitleLevelReportItem[]>(err);
+        })
+      );
+  }
+
+  exportBookTitlesPerLevelReport(): Observable<Blob> {
+    return this.http.get('/api/reports/booktitlesperlevel/export', {
       headers: this.getAuthHeaders(false),
       responseType: 'blob'
     });

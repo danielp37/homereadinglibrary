@@ -1,0 +1,30 @@
+<div class="container">
+  <h2>Book Titles per Level</h2>
+  <p class="text-muted mb-3">Book title and copy counts grouped by reading level and box.</p>
+  <div class="mb-3">
+    <button class="btn btn-primary me-2" (click)="runReport()" [disabled]="loading || exporting">
+      <span *ngIf="loading" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+      <span>{{ loading ? 'Loading...' : 'Run Report' }}</span>
+    </button>
+    <button class="btn btn-secondary" (click)="exportCSV()" [disabled]="loading || exporting">
+      <span *ngIf="exporting" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+      <span>{{ exporting ? 'Exporting...' : 'Export CSV' }}</span>
+    </button>
+  </div>
+  <div *ngIf="hasRun && !loading">
+    <p *ngIf="rows.length === 0" class="text-muted">No data found.</p>
+    <table class="table table-striped table-hover" *ngIf="rows.length > 0">
+      <thead>
+        <tr><th>Reading Level</th><th>Box Number</th><th>Book Title Count</th><th>Book Copy Count</th></tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of rows">
+          <td>{{ row.guidedReadingLevel }}</td>
+          <td>{{ row.boxNumber }}</td>
+          <td>{{ row.bookTitleCount }}</td>
+          <td>{{ row.bookCopyCount }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
