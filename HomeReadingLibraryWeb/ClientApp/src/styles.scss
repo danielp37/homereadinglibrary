@@ -108,3 +108,117 @@
     }
 }
 
+// ─── Student Barcode Labels (Avery 5161: 2 cols x 10 rows, 4in x 1in labels) ──
+.barcode-print-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: white;
+    z-index: 9999;
+    overflow-y: auto;
+}
+
+.barcode-print-overlay-actions {
+    position: sticky;
+    top: 0;
+    background: white;
+    border-bottom: 1px solid #dee2e6;
+    padding: 0.75rem 1rem;
+    z-index: 10000;
+}
+
+.barcode-sheet {
+    width: 8.5in;
+    margin: 0 auto 0.5in;
+    padding: 0.5in 0.156in;
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: repeat(2, 4in);
+    grid-template-rows: repeat(10, 1in);
+    column-gap: 0.188in;
+    row-gap: 0;
+    justify-content: center;
+}
+
+.barcode-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    box-sizing: border-box;
+    padding: 0.05in 0.1in;
+    overflow: hidden;
+}
+
+.barcode-label-name-row {
+    position: relative;
+    width: 100%;
+    font-size: 9pt;
+    font-weight: bold;
+    line-height: 1.15;
+    white-space: nowrap;
+    overflow: hidden;
+    text-align: center;
+}
+
+.barcode-label-teacher {
+    position: absolute;
+    left: 0;
+    top: 0;
+    max-width: 45%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: left;
+}
+
+.barcode-label-student {
+    display: inline-block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.barcode-label svg {
+    width: 90%;
+    height: 0.38in;
+}
+
+.barcode-label-text {
+    font-size: 8pt;
+    letter-spacing: 1px;
+}
+
+@media print {
+    .barcode-print-overlay,
+    .barcode-print-overlay * {
+        visibility: visible;
+    }
+
+    .barcode-print-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: auto;
+        overflow: visible;
+    }
+
+    .barcode-print-overlay-actions {
+        display: none !important;
+    }
+
+    .barcode-sheet {
+        margin: 0;
+        page-break-after: always;
+        break-after: page;
+    }
+
+    .barcode-sheet:last-child {
+        page-break-after: auto;
+        break-after: auto;
+    }
+}
+

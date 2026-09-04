@@ -90,6 +90,9 @@
                             <a [routerLink]="['/uploadvolunteers']" [routerLinkActive]="['active']" class="dropdown-item" (click)="isCollapsed = true">
                                 <fa-icon [icon]="fileAlt"></fa-icon> Upload Volunteers
                             </a>
+                            <a [routerLink]="['/printbarcodes']" [routerLinkActive]="['active']" class="dropdown-item" (click)="isCollapsed = true">
+                                <fa-icon [icon]="listUl"></fa-icon> Print Barcodes
+                            </a>
                             <div class="dropdown-divider"></div>
                             <a [routerLink]="['/databaserefresh']" [routerLinkActive]="['active']" class="dropdown-item" (click)="isCollapsed = true">
                                 <fa-icon [icon]="fileAlt"></fa-icon> Year-End Database Refresh

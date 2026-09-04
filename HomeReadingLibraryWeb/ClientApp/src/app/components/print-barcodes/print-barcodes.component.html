@@ -1,0 +1,111 @@
+<div class="container">
+  <h2>Print Student Barcodes</h2>
+  <p class="text-muted">
+    Prints Avery 5161 labels (2 columns x 10 rows). Select the students you want to print, or
+    print everyone. Use the sheet picker to start printing on a specific label if you're reusing
+    a partially-used sheet.
+  </p>
+
+  <div class="form-row align-items-end mb-3">
+    <div class="col-auto">
+      <label for="selectedClassId">Teacher</label>
+      <select id="selectedClassId" name="selectedClassId" class="form-control"
+        [(ngModel)]="selectedClassId" (change)="applyFilter()">
+        <option value="">(All Teachers)</option>
+        <option *ngFor="let cls of (classes | sortClass)" [ngValue]="cls.classId">
+          {{cls.teacherName}} Grade: {{cls.grade}}
+        </option>
+      </select>
+    </div>
+    <div class="col-auto">
+      <label for="searchText">Search (name or barcode)</label>
+      <input id="searchText" name="searchText" class="form-control" [(ngModel)]="searchText" (input)="applyFilter()" />
+    </div>
+    <div class="col-auto">
+      <button type="button" class="btn btn-outline-secondary" (click)="selectAllFiltered()">Select All Shown</button>
+      <button type="button" class="btn btn-outline-secondary" (click)="clearSelection()">Clear Selection</button>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-8">
+      <table class="table table-sm table-hover">
+        <thead>
+          <tr>
+            <th></th>
+            <th>Teacher</th>
+            <th>Student</th>
+            <th>Bar Code</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let student of filteredStudents">
+            <td>
+              <input type="checkbox" [attr.aria-label]="'Select ' + student.firstName + ' ' + student.lastName"
+                [checked]="isSelected(student.barCode)"
+                (change)="toggleStudent(student.barCode, $any($event.target).checked)" />
+            </td>
+            <td>{{student.teacherName}} (Grade {{student.grade}})</td>
+            <td>{{student.firstName}} {{student.lastName}}</td>
+            <td>{{student.barCode}}</td>
+          </tr>
+          <tr *ngIf="filteredStudents.length === 0">
+            <td colspan="4" class="text-muted">No students match the current filter.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="col-md-4">
+      <label class="form-label fw-bold">Sheet Start Position</label>
+      <p class="text-muted small">
+        Click the label on the sheet where printing should begin. Earlier positions are left
+        blank so you can reuse a partially-used Avery 5161 sheet.
+      </p>
+      <div class="barcode-position-grid">
+        <button
+          type="button"
+          *ngFor="let position of labelSlotIndexes"
+          class="barcode-position-cell"
+          [class.active]="position === startPosition"
+          (click)="setStartPosition(position)">
+          {{position}}
+        </button>
+      </div>
+
+      <div class="mt-3">
+        <p>{{selectedCount}} student(s) selected.</p>
+        <button type="button" class="btn btn-primary me-2" [disabled]="selectedCount === 0" (click)="printSelected()">
+          Print Selected
+        </button>
+        <button type="button" class="btn btn-outline-primary" [disabled]="allStudents.length === 0" (click)="printAll()">
+          Print Everyone
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Barcode Print Overlay ──────────────────────────────────────────────── -->
+<div class="barcode-print-overlay" *ngIf="showPrintOverlay">
+  <div class="barcode-print-overlay-actions">
+    <button type="button" class="btn btn-primary me-2" (click)="printLabels()">
+      <i class="fa fa-print me-1"></i> Print Labels
+    </button>
+    <button type="button" class="btn btn-secondary me-3" (click)="closePrintOverlay()">Close</button>
+    <span class="text-muted">{{labelPages.length}} sheet(s) generated</span>
+  </div>
+
+  <div class="barcode-sheet" *ngFor="let page of labelPages">
+    <div class="barcode-label" *ngFor="let label of page">
+      <ng-container *ngIf="!label.blank">
+        <div class="barcode-label-name-row">
+          <span class="barcode-label-teacher">{{label.teacherName}}</span>
+          <span class="barcode-label-student">{{label.studentName}}</span>
+        </div>
+        <svg [appBarcode]="label.barCode"></svg>
+        <div class="barcode-label-text">{{label.barCode}}</div>
+      </ng-container>
+    </div>
+  </div>
+</div>
