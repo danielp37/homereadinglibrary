@@ -56,6 +56,10 @@
                                 (click)="isCollapsed = true">
                                 <fa-icon [icon]="fileAlt"></fa-icon> Year End Check-ins
                                 </a>
+                            <a [routerLink]="['/bookcopycounts']" [routerLinkActive]="['active']" *ngIf="isAdmin" class="dropdown-item"
+                                (click)="isCollapsed = true">
+                                <fa-icon [icon]="fileAlt"></fa-icon> Book Copy Counts
+                                </a>
                         </div>
 
                     </li>

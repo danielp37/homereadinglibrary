@@ -211,6 +211,46 @@ namespace HomeReadingLibrary.Controllers.Controllers
             return results;
         }
 
+        [Authorize(AuthenticationSchemes = "Bearer", Policy = "AdminUser")]
+        [HttpGet("bookcopycounts")]
+        public async Task<IActionResult> GetBookCopyCounts()
+        {
+            var results = await RunBookCopyCountsReport();
+            return Ok(new { Data = results });
+        }
+
+        [Authorize(AuthenticationSchemes = "Bearer", Policy = "AdminUser")]
+        [HttpGet("bookcopycounts/export")]
+        public async Task<IActionResult> ExportBookCopyCounts()
+        {
+            var results = await RunBookCopyCountsReport();
+            var csv = GenerateCsv(results);
+            var bytes = Encoding.UTF8.GetBytes(csv);
+            return File(bytes, "text/csv", "book-copy-counts-report.csv");
+        }
+
+        private async Task<List<BookCopyCountReportItem>> RunBookCopyCountsReport()
+        {
+            var collection = _mongoDatabase.GetCollection<Book>("books");
+            var books = await collection.Find(FilterDefinition<Book>.Empty).ToListAsync();
+
+            return books
+                .Select(b => new BookCopyCountReportItem
+                {
+                    BookId = b.Id,
+                    Title = b.Title,
+                    Author = b.Author,
+                    PublisherText = b.PublisherText,
+                    GuidedReadingLevel = b.GuidedReadingLevel,
+                    Isbn = b.Isbn,
+                    BoxNumber = b.BoxNumber,
+                    BookCopyCount = b.BookCopies?.Count ?? 0
+                })
+                .OrderByDescending(r => r.BookCopyCount)
+                .ThenBy(r => r.Title)
+                .ToList();
+        }
+
         private static string BsonToString(BsonValue value)
             => ReportsBsonHelper.BsonToString(value);
 
@@ -351,6 +391,17 @@ namespace HomeReadingLibrary.Controllers.Controllers
             foreach (var item in items)
             {
                 sb.AppendLine($"{Escape(item.TeacherName)},{Escape(item.Grade)},{Escape(item.LastName)},{Escape(item.FirstName)},{item.LastCheckedInDate:MM/dd/yyyy}");
+            }
+            return sb.ToString();
+        }
+
+        private string GenerateCsv(List<BookCopyCountReportItem> items)
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("Title,Author,Publisher,Reading Level,ISBN,Box Number,Book Copy Count");
+            foreach (var item in items)
+            {
+                sb.AppendLine($"{Escape(item.Title)},{Escape(item.Author)},{Escape(item.PublisherText)},{Escape(item.GuidedReadingLevel)},{Escape(item.Isbn)},{Escape(item.BoxNumber)},{item.BookCopyCount}");
             }
             return sb.ToString();
         }

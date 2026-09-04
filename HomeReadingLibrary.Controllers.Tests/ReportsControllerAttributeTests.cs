@@ -13,6 +13,8 @@ namespace HomeReadingLibrary.Controllers.Tests
         private readonly MethodInfo _getEndOfYearStudents;
         private readonly MethodInfo _getYearEndCheckins;
         private readonly MethodInfo _exportYearEndCheckins;
+        private readonly MethodInfo _getBookCopyCounts;
+        private readonly MethodInfo _exportBookCopyCounts;
 
         public ReportsControllerAttributeTests()
         {
@@ -20,6 +22,8 @@ namespace HomeReadingLibrary.Controllers.Tests
             _getEndOfYearStudents = typeof(ReportsController).GetMethod("GetEndOfYearStudents");
             _getYearEndCheckins   = typeof(ReportsController).GetMethod("GetYearEndCheckins");
             _exportYearEndCheckins = typeof(ReportsController).GetMethod("ExportYearEndCheckins");
+            _getBookCopyCounts     = typeof(ReportsController).GetMethod("GetBookCopyCounts");
+            _exportBookCopyCounts  = typeof(ReportsController).GetMethod("ExportBookCopyCounts");
         }
 
         [Fact]
@@ -77,6 +81,40 @@ namespace HomeReadingLibrary.Controllers.Tests
         public void ExportYearEndCheckins_HasAuthorizeWithBearerAndAdminUser()
         {
             var attr = _exportYearEndCheckins.GetCustomAttribute<AuthorizeAttribute>();
+            Assert.NotNull(attr);
+            Assert.Equal("Bearer", attr.AuthenticationSchemes);
+            Assert.Equal("AdminUser", attr.Policy);
+        }
+
+        [Fact]
+        public void GetBookCopyCounts_HasHttpGetBookcopycounts()
+        {
+            var attr = _getBookCopyCounts.GetCustomAttribute<HttpGetAttribute>();
+            Assert.NotNull(attr);
+            Assert.Equal("bookcopycounts", attr.Template);
+        }
+
+        [Fact]
+        public void GetBookCopyCounts_HasAuthorizeWithBearerAndAdminUser()
+        {
+            var attr = _getBookCopyCounts.GetCustomAttribute<AuthorizeAttribute>();
+            Assert.NotNull(attr);
+            Assert.Equal("Bearer", attr.AuthenticationSchemes);
+            Assert.Equal("AdminUser", attr.Policy);
+        }
+
+        [Fact]
+        public void ExportBookCopyCounts_HasHttpGetBookcopycountsExport()
+        {
+            var attr = _exportBookCopyCounts.GetCustomAttribute<HttpGetAttribute>();
+            Assert.NotNull(attr);
+            Assert.Equal("bookcopycounts/export", attr.Template);
+        }
+
+        [Fact]
+        public void ExportBookCopyCounts_HasAuthorizeWithBearerAndAdminUser()
+        {
+            var attr = _exportBookCopyCounts.GetCustomAttribute<AuthorizeAttribute>();
             Assert.NotNull(attr);
             Assert.Equal("Bearer", attr.AuthenticationSchemes);
             Assert.Equal("AdminUser", attr.Policy);

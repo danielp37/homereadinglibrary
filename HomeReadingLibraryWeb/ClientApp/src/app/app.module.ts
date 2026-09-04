@@ -38,6 +38,7 @@ import { ClassStatsComponent } from './components/class-stats/class-stats.compon
 import { AdminReportsComponent } from './components/admin-reports/admin-reports.component';
 import { MissingCheckinsReportComponent } from './components/missing-checkins-report/missing-checkins-report.component';
 import { YearEndCheckinsReportComponent } from './components/year-end-checkins-report/year-end-checkins-report.component';
+import { BookCopyCountReportComponent } from './components/book-copy-count-report/book-copy-count-report.component';
 import { DatabaseRefreshComponent } from './components/database-refresh/database-refresh.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { StudentUploadComponent } from './components/student-upload/student-upload.component';
@@ -67,6 +68,7 @@ import { VolunteerUploadComponent } from './components/volunteer-upload/voluntee
     AdminReportsComponent,
     MissingCheckinsReportComponent,
     YearEndCheckinsReportComponent,
+    BookCopyCountReportComponent,
     DatabaseRefreshComponent,
     StudentUploadComponent,
     VolunteerUploadComponent
