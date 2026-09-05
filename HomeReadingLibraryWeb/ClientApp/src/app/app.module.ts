@@ -44,6 +44,8 @@ import { DatabaseRefreshComponent } from './components/database-refresh/database
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { StudentUploadComponent } from './components/student-upload/student-upload.component';
 import { VolunteerUploadComponent } from './components/volunteer-upload/volunteer-upload.component';
+import { PrintBarcodesComponent } from './components/print-barcodes/print-barcodes.component';
+import { BarcodeDirective } from './directives/barcode.directive';
 
 @NgModule({
   declarations: [
@@ -73,7 +75,9 @@ import { VolunteerUploadComponent } from './components/volunteer-upload/voluntee
     BookTitleLevelReportComponent,
     DatabaseRefreshComponent,
     StudentUploadComponent,
-    VolunteerUploadComponent
+    VolunteerUploadComponent,
+    PrintBarcodesComponent,
+    BarcodeDirective
   ],
   imports: [
     BrowserModule,

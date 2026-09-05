@@ -21,6 +21,7 @@ import { BookTitleLevelReportComponent } from 'src/app/components/book-title-lev
 import { DatabaseRefreshComponent } from 'src/app/components/database-refresh/database-refresh.component';
 import { StudentUploadComponent } from 'src/app/components/student-upload/student-upload.component';
 import { VolunteerUploadComponent } from 'src/app/components/volunteer-upload/volunteer-upload.component';
+import { PrintBarcodesComponent } from 'src/app/components/print-barcodes/print-barcodes.component';
 
 
 const routes: Routes = [
@@ -43,6 +44,7 @@ const routes: Routes = [
             { path: 'booktitlesperlevel', component: BookTitleLevelReportComponent, canActivate: [AuthGuard]},
             { path: 'uploadstudents', component: StudentUploadComponent, canActivate: [AuthGuard]},
             { path: 'uploadvolunteers', component: VolunteerUploadComponent, canActivate: [AuthGuard]},
+            { path: 'printbarcodes', component: PrintBarcodesComponent, canActivate: [AuthGuard]},
             { path: 'databaserefresh', component: DatabaseRefreshComponent, canActivate: [AuthGuard]},
             { path: '**', redirectTo: 'home' }
         ];
