@@ -220,5 +220,10 @@
         page-break-after: auto;
         break-after: auto;
     }
+
+    @page {
+        size: Letter;
+        margin: 0;
+    }
 }
 

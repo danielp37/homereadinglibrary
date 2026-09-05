@@ -4,6 +4,8 @@
  * no dedicated backend endpoint is required.
  */
 export interface StudentForBarcode {
+  /** Unique key for this row, independent of barCode (which is not guaranteed unique across records). */
+  key: string;
   classId: string;
   teacherName: string;
   grade: number;

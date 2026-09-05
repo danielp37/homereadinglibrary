@@ -42,8 +42,8 @@
           <tr *ngFor="let student of filteredStudents">
             <td>
               <input type="checkbox" [attr.aria-label]="'Select ' + student.firstName + ' ' + student.lastName"
-                [checked]="isSelected(student.barCode)"
-                (change)="toggleStudent(student.barCode, $any($event.target).checked)" />
+                [checked]="isSelected(student.key)"
+                (change)="toggleStudent(student.key, $any($event.target).checked)" />
             </td>
             <td>{{student.teacherName}} (Grade {{student.grade}})</td>
             <td>{{student.firstName}} {{student.lastName}}</td>

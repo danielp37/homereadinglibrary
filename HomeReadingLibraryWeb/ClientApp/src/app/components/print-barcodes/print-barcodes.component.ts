@@ -26,7 +26,7 @@ export class PrintBarcodesComponent implements OnInit {
   selectedClassId = '';
   searchText = '';
 
-  selectedBarCodes = new Set<string>();
+  selectedKeys = new Set<string>();
 
   // 1-based position on the Avery 5161 sheet (1-20) where printing should start.
   startPosition = 1;
@@ -54,7 +54,9 @@ export class PrintBarcodesComponent implements OnInit {
 
   flattenStudents(classes: Class[]): StudentForBarcode[] {
     const flattened: StudentForBarcode[] = (classes || []).flatMap(cls =>
-      (cls.students || []).map(student => ({
+      (cls.students || []).map((student, index) => ({
+        // classId + index guarantees uniqueness even if barCode is duplicated across records.
+        key: `${cls.classId}::${index}`,
         classId: cls.classId,
         teacherName: cls.teacherName,
         grade: cls.grade,
@@ -86,28 +88,28 @@ export class PrintBarcodesComponent implements OnInit {
     });
   }
 
-  isSelected(barCode: string): boolean {
-    return this.selectedBarCodes.has(barCode);
+  isSelected(key: string): boolean {
+    return this.selectedKeys.has(key);
   }
 
-  toggleStudent(barCode: string, checked: boolean): void {
+  toggleStudent(key: string, checked: boolean): void {
     if (checked) {
-      this.selectedBarCodes.add(barCode);
+      this.selectedKeys.add(key);
     } else {
-      this.selectedBarCodes.delete(barCode);
+      this.selectedKeys.delete(key);
     }
   }
 
   selectAllFiltered(): void {
-    this.filteredStudents.forEach(s => this.selectedBarCodes.add(s.barCode));
+    this.filteredStudents.forEach(s => this.selectedKeys.add(s.key));
   }
 
   clearSelection(): void {
-    this.selectedBarCodes.clear();
+    this.selectedKeys.clear();
   }
 
   get selectedCount(): number {
-    return this.selectedBarCodes.size;
+    return this.selectedKeys.size;
   }
 
   setStartPosition(position: number): void {
@@ -115,7 +117,7 @@ export class PrintBarcodesComponent implements OnInit {
   }
 
   get selectedStudents(): StudentForBarcode[] {
-    return this.allStudents.filter(s => this.selectedBarCodes.has(s.barCode));
+    return this.allStudents.filter(s => this.selectedKeys.has(s.key));
   }
 
   generateLabels(students: StudentForBarcode[]): void {
