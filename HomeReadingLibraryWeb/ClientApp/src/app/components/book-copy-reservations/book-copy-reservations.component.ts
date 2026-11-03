@@ -273,7 +273,7 @@ export class BookCopyReservationsComponent implements OnInit {
   private buildNotices(reservations: BookCopyReservationWithData[], templateContent: string): void {
     const byStudent = new Map<string, BookCopyReservationWithData[]>();
     for (const r of reservations) {
-      const key = r.student.studentBarCode;
+      const key = r.student?.studentBarCode ?? r.studentBarCode ?? '';
       if (!byStudent.has(key)) byStudent.set(key, []);
       byStudent.get(key)!.push(r);
     }
@@ -281,7 +281,7 @@ export class BookCopyReservationsComponent implements OnInit {
     const todayDate = this.formatTodayDate();
     const notices: StudentNotice[] = Array.from(byStudent.values())
       .sort((a, b) => {
-        const s1 = a[0].student, s2 = b[0].student;
+        const s1 = this.studentForNotice(a[0]), s2 = this.studentForNotice(b[0]);
         const teacherCmp = s1.teacherName.localeCompare(s2.teacherName);
         if (teacherCmp !== 0) return teacherCmp;
         const lastCmp = s1.lastName.localeCompare(s2.lastName);
@@ -289,7 +289,7 @@ export class BookCopyReservationsComponent implements OnInit {
         return s1.firstName.localeCompare(s2.firstName);
       })
       .map(group => {
-        const s = group[0].student;
+        const s = this.studentForNotice(group[0]);
         const books = group.map(r => ({
           title: r.bookCopy.title,
           bookBarCode: r.bookCopy.bookCopyBarCode,
@@ -308,6 +308,17 @@ export class BookCopyReservationsComponent implements OnInit {
       });
 
     this.noticePages = this.chunkArray(notices, 2);
+  }
+
+  private studentForNotice(reservation: BookCopyReservationWithData) {
+    return reservation.student ?? {
+      studentBarCode: reservation.studentBarCode ?? '',
+      teacherName: '',
+      grade: '' as unknown as number,
+      firstName: '(Removed student)',
+      lastName: '',
+      teacherId: ''
+    };
   }
 
   private formatTodayDate(): string {

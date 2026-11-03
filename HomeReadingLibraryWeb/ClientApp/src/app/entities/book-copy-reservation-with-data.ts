@@ -3,7 +3,8 @@ import { BookCopyWithBook } from './book-copy-with-book';
 export interface BookCopyReservationWithData {
     id: string;
     bookCopy: BookCopyWithBook;
-    student: StudentWithTeacher;
+    student?: StudentWithTeacher | null;
+    studentBarCode?: string;
     checkedOutDate: Date;
     checkedOutBy: string;
     checkedInDate?: Date;
