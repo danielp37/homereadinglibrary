@@ -120,7 +120,8 @@ describe('PrintBarcodesComponent', () => {
       grade: 2,
       firstName: `Student${i}`,
       lastName: 'Test',
-      barCode: `BC${i}`
+      barCode: `BC${i}`,
+      key: `key${i}`
     }));
 
     component.setStartPosition(1);

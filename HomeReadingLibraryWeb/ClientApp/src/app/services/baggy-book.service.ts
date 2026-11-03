@@ -122,6 +122,42 @@ export class BaggyBookService {
       );
   }
 
+  updateStudent(classId: string, barCode: string, firstName: string, lastName: string): Observable<Class> {
+    return this.http
+      .put<{ data: Class }>(`${this.classesUrl}/${classId}/students/${encodeURIComponent(barCode)}`, JSON.stringify({firstName: firstName, lastName: lastName}), {headers: this.getAuthHeaders(true)})
+      .pipe(
+        map(res => res.data),
+        catchError(err => this.handleObservableError<Class>(err))
+      );
+  }
+
+  removeStudent(classId: string, barCode: string): Observable<Class> {
+    return this.http
+      .delete<{ data: Class }>(`${this.classesUrl}/${classId}/students/${encodeURIComponent(barCode)}`, {headers: this.getAuthHeaders(false)})
+      .pipe(
+        map(res => res.data),
+        catchError(err => this.handleObservableError<Class>(err))
+      );
+  }
+
+  updateClass(classId: string, teacherName: string, grade: number): Observable<Class> {
+    return this.http
+      .put<{ data: Class }>(`${this.classesUrl}/${classId}`, JSON.stringify({teacherName: teacherName, grade: grade}), {headers: this.getAuthHeaders(true)})
+      .pipe(
+        map(res => res.data),
+        catchError(err => this.handleObservableError<Class>(err))
+      );
+  }
+
+  deleteClass(classId: string): Observable<string> {
+    return this.http
+      .delete<{ data: string }>(`${this.classesUrl}/${classId}`, {headers: this.getAuthHeaders(false)})
+      .pipe(
+        map(res => res.data),
+        catchError(err => this.handleObservableError<string>(err))
+      );
+  }
+
   getStudents(classId: string): Observable<Student[]> {
     return this.http
       .get<{ data: Student[] }>(`${this.classesUrl}/${classId}/students`, {headers: this.getAuthHeaders(false)})

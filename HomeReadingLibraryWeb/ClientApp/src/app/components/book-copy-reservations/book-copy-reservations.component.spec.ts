@@ -36,4 +36,18 @@ describe('BookCopyReservationsComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('builds notices for reservations whose student was removed', () => {
+    const reservations = [{
+      id: 'r1',
+      student: null,
+      studentBarCode: 'S9',
+      bookCopy: { title: 'Book', bookCopyBarCode: 'B1' },
+      checkedOutDate: new Date('2026-01-05T00:00:00Z')
+    }] as never;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    expect(() => (component as any).buildNotices(reservations, 'x')).not.toThrow();
+    expect(component.noticePages.length).toBe(1);
+  });
 });

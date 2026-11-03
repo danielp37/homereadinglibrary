@@ -106,7 +106,7 @@
               <span (click)="sort()">Teacher</span>
           </ng-template>
           <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
-              {{row.student.teacherName}} Grade: {{row.student.grade}}
+              {{row.student?.teacherName}} Grade: {{row.student?.grade}}
           </ng-template>
         </ngx-datatable-column>
         <ngx-datatable-column prop="student.lastName, student.firstName">
@@ -114,8 +114,8 @@
               <span (click)="sort()">Student</span>
           </ng-template>
           <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
-              {{row.student.firstName}} {{row.student.lastName}}<br>
-              {{row.student.studentBarCode}}
+              {{row.student ? row.student.firstName + ' ' + row.student.lastName : '(Removed student)'}}<br>
+              {{row.student?.studentBarCode ?? row.studentBarCode}}
           </ng-template>
         </ngx-datatable-column>
       </ngx-datatable>

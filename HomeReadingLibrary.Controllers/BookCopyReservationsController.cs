@@ -123,7 +123,7 @@ namespace HomeReadingLibrary.Controllers.Controllers
           .Union(checkedOutBooks.Select(cob =>
           $"{cob.BookCopy.BookCopyBarCode}\t{cob.CheckedOutDate.ToString("d")}\t{cob.CheckedInDate?.ToString("d")}\t{cob.BookCopy.Title}\t" +
           $"{cob.BookCopy.Author}\t{cob.BookCopy.GuidedReadingLevel}{cob.BookCopy.BoxNumber}\t{cob.BookCopy.Author}\t" +
-          $"{cob.Student.TeacherName}\t{cob.Student.Grade}\t{cob.Student.FirstName}\t{cob.Student.LastName}"));
+          $"{cob.Student?.TeacherName}\t{cob.Student?.Grade}\t{cob.Student?.FirstName}\t{cob.Student?.LastName}"));
       byte[] file = null;
       using (var stream = new MemoryStream())
       {
