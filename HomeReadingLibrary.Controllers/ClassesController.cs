@@ -128,6 +128,92 @@ namespace HomeReadingLibrary.Controllers.Controllers
     }
 
 
+    [Authorize(AuthenticationSchemes = "Bearer", Policy = "AdminUser")]
+    [HttpPut("{classId}/students/{barCode}")]
+    public async Task<IActionResult> UpdateStudent(string classId, string barCode, [FromBody]UpdateStudentBody body)
+    {
+      if (body == null || !ModelState.IsValid)
+      {
+        return BadRequest(ModelState);
+      }
+
+      var filter = Builders<Class>.Filter.Eq(c => c.ClassId, classId)
+                 & Builders<Class>.Filter.ElemMatch(c => c.Students, s => s.BarCode == barCode);
+      var update = Builders<Class>.Update
+          .Set(c => c.Students.FirstMatchingElement().FirstName, body.FirstName)
+          .Set(c => c.Students.FirstMatchingElement().LastName, body.LastName)
+          .Set(c => c.Students.FirstMatchingElement().ModifiedDate, DateTime.Now)
+          .CurrentDate(c => c.ModifiedDate);
+      var result = await classCollection.UpdateOneAsync(filter, update);
+      if (result.MatchedCount == 0)
+      {
+        return NotFound();
+      }
+
+      return Ok(new { Data = await GetClassById(classId) });
+    }
+
+    // Reservation history is intentionally left untouched: reservations reference students only by
+    // barcode and the history/checked-out views keep rows whose student no longer exists.
+    [Authorize(AuthenticationSchemes = "Bearer", Policy = "AdminUser")]
+    [HttpDelete("{classId}/students/{barCode}")]
+    public async Task<IActionResult> DeleteStudent(string classId, string barCode)
+    {
+      var filter = Builders<Class>.Filter.Eq(c => c.ClassId, classId)
+                 & Builders<Class>.Filter.ElemMatch(c => c.Students, s => s.BarCode == barCode);
+      var update = Builders<Class>.Update
+          .PullFilter(c => c.Students, s => s.BarCode == barCode)
+          .CurrentDate(c => c.ModifiedDate);
+      var result = await classCollection.UpdateOneAsync(filter, update);
+      if (result.MatchedCount == 0)
+      {
+        return NotFound();
+      }
+
+      return Ok(new { Data = await GetClassById(classId) });
+    }
+
+    [Authorize(AuthenticationSchemes = "Bearer", Policy = "AdminUser")]
+    [HttpPut("{classId}")]
+    public async Task<IActionResult> UpdateClass(string classId, [FromBody]UpdateClassBody body)
+    {
+      if (body == null || !ModelState.IsValid)
+      {
+        return BadRequest(ModelState);
+      }
+
+      var filter = Builders<Class>.Filter.Eq(c => c.ClassId, classId);
+      var update = Builders<Class>.Update
+          .Set(c => c.TeacherName, body.TeacherName)
+          .Set(c => c.Grade, body.Grade)
+          .CurrentDate(c => c.ModifiedDate);
+      var result = await classCollection.UpdateOneAsync(filter, update);
+      if (result.MatchedCount == 0)
+      {
+        return NotFound();
+      }
+
+      return Ok(new { Data = await GetClassById(classId) });
+    }
+
+    [Authorize(AuthenticationSchemes = "Bearer", Policy = "AdminUser")]
+    [HttpDelete("{classId}")]
+    public async Task<IActionResult> DeleteClass(string classId)
+    {
+      var result = await classCollection.DeleteOneAsync(Builders<Class>.Filter.Eq(c => c.ClassId, classId));
+      if (result.DeletedCount == 0)
+      {
+        return NotFound();
+      }
+
+      return Ok(new { Data = classId });
+    }
+
+    private async Task<Class> GetClassById(string classId)
+    {
+      return await classCollection.Find(Builders<Class>.Filter.Eq(c => c.ClassId, classId)).FirstOrDefaultAsync();
+    }
+
     [Authorize(AuthenticationSchemes = "Bearer", Policy = "VolunteerUser")]
     [HttpGet("/api/students/{studentBarCode}")]
     public async Task<IActionResult> GetStudentByBarCode(string studentBarCode)
@@ -203,6 +289,21 @@ namespace HomeReadingLibrary.Controllers.Controllers
     {
       public string FirstName { get; set; }
       public string LastName { get; set; }
+    }
+
+    public class UpdateStudentBody
+    {
+      [Required]
+      public string FirstName { get; set; }
+      [Required]
+      public string LastName { get; set; }
+    }
+
+    public class UpdateClassBody
+    {
+      [Required]
+      public string TeacherName { get; set; }
+      public byte Grade { get; set; }
     }
 
     public class NewStudentBody

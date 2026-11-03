@@ -28,6 +28,82 @@
       </div>
   </ng-template>
 
+  <ng-template #editStudentContent>
+    <div class="modal-header">
+      <h4 class="modal-title pull-left">Edit Student</h4>
+      <button type="button" class="btn-close pull-right" aria-label="Close" (click)="modalRef.hide()"></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label for="editFirstName">First Name</label>
+        <input id="editFirstName" data-testid="edit-first-name" class="form-control" [(ngModel)]="editFirstName" />
+      </div>
+      <div class="form-group">
+        <label for="editLastName">Last Name</label>
+        <input id="editLastName" data-testid="edit-last-name" class="form-control" [(ngModel)]="editLastName" />
+      </div>
+      <div *ngIf="errorMessage" class="text-danger">{{errorMessage}}</div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline-dark" data-testid="cancel-edit-student" (click)="modalRef.hide()">Cancel</button>
+      <button type="button" class="btn btn-primary save-student-button" data-testid="save-student" (click)="saveStudent()">Save</button>
+    </div>
+  </ng-template>
+
+  <ng-template #removeStudentContent>
+    <div class="modal-header">
+      <h4 class="modal-title pull-left">Remove Student</h4>
+      <button type="button" class="btn-close pull-right" aria-label="Close" (click)="modalRef.hide()"></button>
+    </div>
+    <div class="modal-body">
+      <p>Remove {{studentToRemove?.firstName}} {{studentToRemove?.lastName}} from this class?</p>
+      <p class="text-warning">This student may have book checkout history, which may be affected.</p>
+      <div *ngIf="errorMessage" class="text-danger">{{errorMessage}}</div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline-dark" data-testid="cancel-remove-student" (click)="modalRef.hide()">Cancel</button>
+      <button type="button" class="btn btn-danger confirm-remove-student-button" data-testid="confirm-remove-student" [attr.data-testid]="'remove-student-' + row.barCode" (click)="removeStudent()">Remove</button>
+    </div>
+  </ng-template>
+
+  <ng-template #editClassContent>
+    <div class="modal-header">
+      <h4 class="modal-title pull-left">Edit Teacher/Grade</h4>
+      <button type="button" class="btn-close pull-right" aria-label="Close" (click)="modalRef.hide()"></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label for="editTeacherName">Teacher Name</label>
+        <input id="editTeacherName" data-testid="edit-teacher-name" class="form-control" [(ngModel)]="editTeacherName" />
+      </div>
+      <div class="form-group">
+        <label for="editGrade">Grade</label>
+        <input id="editGrade" data-testid="edit-grade" type="number" class="form-control" [(ngModel)]="editGrade" />
+      </div>
+      <div *ngIf="errorMessage" class="text-danger">{{errorMessage}}</div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline-dark" data-testid="cancel-edit-class" (click)="modalRef.hide()">Cancel</button>
+      <button type="button" class="btn btn-primary save-class-button" data-testid="save-class" (click)="saveClass()">Save</button>
+    </div>
+  </ng-template>
+
+  <ng-template #deleteClassContent>
+    <div class="modal-header">
+      <h4 class="modal-title pull-left">Delete Class</h4>
+      <button type="button" class="btn-close pull-right" aria-label="Close" (click)="modalRef.hide()"></button>
+    </div>
+    <div class="modal-body">
+      <p>Delete the class for {{currentClass?.teacherName}} (Grade {{currentClass?.grade}}) and all of its students?</p>
+      <p class="text-warning">Students may have book checkout history. This cannot be undone.</p>
+      <div *ngIf="errorMessage" class="text-danger">{{errorMessage}}</div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline-dark" data-testid="cancel-delete-class" (click)="modalRef.hide()">Cancel</button>
+      <button type="button" class="btn btn-danger confirm-delete-class-button" data-testid="confirm-delete-class" (click)="deleteClass()">Delete</button>
+    </div>
+  </ng-template>
+
   <div *ngIf="classes" class="form-group">
     <label for="formClass">Teacher:</label>
     <select class="form-control" id="formClass" [(ngModel)]="selectedClassId"
@@ -47,14 +123,27 @@
 
       <button type="button" class="btn btn-primary" (click)="addMultipleStudents(addMultipleStudentsContent)">Add Multiple Students</button>
 
+      <div *ngIf="isAdmin" class="admin-class-actions">
+        <button type="button" class="btn btn-outline-primary" id="editClassButton" data-testid="edit-class-button" (click)="openEditClass(editClassContent)">Edit Teacher/Grade</button>
+        <button type="button" class="btn btn-outline-danger" id="deleteClassButton" data-testid="delete-class-button" (click)="confirmDeleteClass(deleteClassContent)">Delete Class</button>
+      </div>
+
       <ngx-datatable
         class="bootstrap"
         [rows]="currentClass.students"
-        [columns]="columns"
-        [loadingIndicator]="loadingIndicator"
         [footerHeight]="50"
         [rowHeight]="'auto'">
+        <ngx-datatable-column prop="firstName" name="First Name"></ngx-datatable-column>
+        <ngx-datatable-column prop="lastName" name="Last Name"></ngx-datatable-column>
+        <ngx-datatable-column prop="barCode" name="Bar Code"></ngx-datatable-column>
+        <ngx-datatable-column *ngIf="isAdmin" name="Actions" [sortable]="false" [width]="200">
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            <button type="button" class="btn btn-sm btn-outline-primary edit-student-button" [attr.data-testid]="'edit-student-' + row.barCode" (click)="openEditStudent(row, editStudentContent)">Edit</button>
+            <button type="button" class="btn btn-sm btn-outline-danger remove-student-button" [attr.data-testid]="'remove-student-' + row.barCode" (click)="confirmRemoveStudent(row, removeStudentContent)">Remove</button>
+          </ng-template>
+        </ngx-datatable-column>
       </ngx-datatable>
+
 
     </div>
   </div>
