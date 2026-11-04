@@ -118,12 +118,20 @@ namespace AspnetCore.Identity.MongoDb.Stores
 
       cancellationToken.ThrowIfCancellationRequested();
 
-      var filter = Builders<Volunteer>.Filter.Eq(v => v.Id, user.Id);
-      var result = await _volunteerCollection.ReplaceOneAsync(filter, user, cancellationToken: cancellationToken);
+      try
+      {
+        var filter = Builders<Volunteer>.Filter.Eq(v => v.Id, user.Id);
+        var result = await _volunteerCollection.ReplaceOneAsync(filter, user, cancellationToken: cancellationToken);
 
-      return result.IsAcknowledged && result.MatchedCount == 1 ?
-                   IdentityResult.Success :
-                   IdentityResult.Failed();
+        return result.IsAcknowledged && result.MatchedCount == 1 ?
+                     IdentityResult.Success :
+                     IdentityResult.Failed();
+      }
+      catch (MongoWriteException ex) when (ex.WriteError?.Code == 11000)
+      {
+        var errorDescriber = new IdentityErrorDescriber();
+        return IdentityResult.Failed(errorDescriber.DuplicateUserName(user.UserName));
+      }
     }
 
     private IMongoCollection<Volunteer> GetVolunteerCollection()

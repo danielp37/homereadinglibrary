@@ -110,6 +110,8 @@ namespace HomeReadingLibrary.Controllers.Controllers
       var newAdmin = new Volunteer
       {
         UserName = model.Name.Trim(),
+        FirstName = model.Name.Trim(),
+        LastName = string.Empty,
         IsAdmin = true
       };
       var result = await userManager.CreateAsync(newAdmin, model.Password);
@@ -134,22 +136,17 @@ namespace HomeReadingLibrary.Controllers.Controllers
         return NotFound();
       }
 
-      var nameResult = await userManager.SetUserNameAsync(admin, model.Name.Trim());
-      if (!nameResult.Succeeded)
-      {
-        return BadRequest(nameResult);
-      }
+      var name = model.Name.Trim();
+      admin.UserName = name;
+      admin.NormalizedUserName = userManager.NormalizeName(name);
+      admin.FirstName = name;
+      admin.LastName = string.Empty;
+      admin.PasswordHash = userManager.PasswordHasher.HashPassword(admin, model.Password);
 
-      var removePasswordResult = await userManager.RemovePasswordAsync(admin);
-      if (!removePasswordResult.Succeeded)
-      {
-        return BadRequest(removePasswordResult);
-      }
-
-      var passwordResult = await userManager.AddPasswordAsync(admin, model.Password);
-      return passwordResult.Succeeded
+      var result = await userManager.UpdateAsync(admin);
+      return result.Succeeded
         ? Ok(new { Data = AdminUser.FromVolunteer(admin) })
-        : BadRequest(passwordResult);
+        : BadRequest(result);
     }
 
     [Authorize(AuthenticationSchemes = "Bearer", Policy = "AdminUser")]
