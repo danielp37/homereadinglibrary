@@ -64,10 +64,11 @@
 }
 
 @media print {
-    body {
+    // Only blank out the rest of the page when a print overlay is showing; other pages print normally.
+    body:has(.late-notices-print-overlay),
+    body:has(.barcode-print-overlay) {
         visibility: hidden;
     }
-
     .late-notices-print-overlay,
     .late-notices-print-overlay * {
         visibility: visible;
@@ -216,12 +217,18 @@
         break-after: page;
     }
 
+    // The overlay is absolutely positioned, so the named page must be set on an in-flow ancestor.
+    body:has(.barcode-print-overlay) {
+        page: barcode-labels;
+    }
+
     .barcode-sheet:last-child {
         page-break-after: auto;
         break-after: auto;
     }
 
-    @page {
+    // Named page so the zero-margin Letter layout only applies to label sheets, not every printed page.
+    @page barcode-labels {
         size: Letter;
         margin: 0;
     }
