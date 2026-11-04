@@ -86,35 +86,86 @@ namespace HomeReadingLibrary.Controllers.Controllers
       return BadRequest(ModelState);
     }
 
-    [AllowAnonymous]
-    [HttpPost("admin")]
-    public async Task<IActionResult> RegisterAdmin([FromBody]RegisterVolunteerModel model)
+    [Authorize(AuthenticationSchemes = "Bearer", Policy = "AdminUser")]
+    [HttpGet("admins")]
+    public async Task<IActionResult> GetAdmins()
     {
-      if (ModelState.IsValid)
+      var admins = await mongodb.GetCollection<Volunteer>("volunteers")
+        .Find(Builders<Volunteer>.Filter.Eq(v => v.IsAdmin, true))
+        .SortBy(v => v.UserName)
+        .ToListAsync();
+
+      return Ok(new { Data = admins.Select(AdminUser.FromVolunteer) });
+    }
+
+    [Authorize(AuthenticationSchemes = "Bearer", Policy = "AdminUser")]
+    [HttpPost("admins")]
+    public async Task<IActionResult> RegisterAdmin([FromBody]AdminUserBody model)
+    {
+      if (model == null || !ModelState.IsValid)
       {
-        var newVolunteer = new Volunteer
-        {
-          FirstName = model.FirstName,
-          LastName = model.LastName,
-          UserName = model.Email,
-          Phone = model.Phone,
-          IsAdmin = true
-        };
-        var result = await userManager.CreateAsync(newVolunteer);
-
-        if (result.Succeeded)
-        {
-          await userManager.AddPasswordAsync(newVolunteer, model.Password);
-
-          return Ok(newVolunteer);
-        }
-        else
-        {
-          return BadRequest(result);
-        }
+        return BadRequest(ModelState);
       }
 
-      return BadRequest(ModelState);
+      var newAdmin = new Volunteer
+      {
+        UserName = model.Name.Trim(),
+        IsAdmin = true
+      };
+      var result = await userManager.CreateAsync(newAdmin, model.Password);
+
+      return result.Succeeded
+        ? Ok(new { Data = AdminUser.FromVolunteer(newAdmin) })
+        : BadRequest(result);
+    }
+
+    [Authorize(AuthenticationSchemes = "Bearer", Policy = "AdminUser")]
+    [HttpPut("admins/{adminId}")]
+    public async Task<IActionResult> UpdateAdmin(string adminId, [FromBody]AdminUserBody model)
+    {
+      if (model == null || !ModelState.IsValid)
+      {
+        return BadRequest(ModelState);
+      }
+
+      var admin = await userManager.FindByIdAsync(adminId);
+      if (admin == null || !admin.IsAdmin)
+      {
+        return NotFound();
+      }
+
+      var nameResult = await userManager.SetUserNameAsync(admin, model.Name.Trim());
+      if (!nameResult.Succeeded)
+      {
+        return BadRequest(nameResult);
+      }
+
+      var removePasswordResult = await userManager.RemovePasswordAsync(admin);
+      if (!removePasswordResult.Succeeded)
+      {
+        return BadRequest(removePasswordResult);
+      }
+
+      var passwordResult = await userManager.AddPasswordAsync(admin, model.Password);
+      return passwordResult.Succeeded
+        ? Ok(new { Data = AdminUser.FromVolunteer(admin) })
+        : BadRequest(passwordResult);
+    }
+
+    [Authorize(AuthenticationSchemes = "Bearer", Policy = "AdminUser")]
+    [HttpDelete("admins/{adminId}")]
+    public async Task<IActionResult> DeleteAdmin(string adminId)
+    {
+      var admin = await userManager.FindByIdAsync(adminId);
+      if (admin == null || !admin.IsAdmin)
+      {
+        return NotFound();
+      }
+
+      var result = await userManager.DeleteAsync(admin);
+      return result.Succeeded
+        ? Ok(new { Data = adminId })
+        : BadRequest(result);
     }
 
     [AllowAnonymous]
@@ -241,6 +292,30 @@ namespace HomeReadingLibrary.Controllers.Controllers
       public string Phone { get; set; }
       public string Password { get; set; }
       public List<RegisterVolunteerForClass> VolunteerForClasses { get; set; } = new List<RegisterVolunteerForClass>();
+    }
+
+    public class AdminUserBody
+    {
+      [Required]
+      public string Name { get; set; }
+
+      [Required]
+      public string Password { get; set; }
+    }
+
+    public class AdminUser
+    {
+      public string Id { get; set; }
+      public string Name { get; set; }
+
+      public static AdminUser FromVolunteer(Volunteer volunteer)
+      {
+        return new AdminUser
+        {
+          Id = volunteer.Id,
+          Name = volunteer.UserName
+        };
+      }
     }
 
     public class RegisterVolunteerForClass

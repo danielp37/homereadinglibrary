@@ -1,0 +1,51 @@
+<div class="container">
+  <h2>Admin Users</h2>
+
+  <form (ngSubmit)="addAdmin()" class="mb-4">
+    <h3>Add Admin User</h3>
+    <div class="form-group">
+      <label for="newAdminName">Name</label>
+      <input id="newAdminName" data-testid="new-admin-name" class="form-control" [(ngModel)]="newName" name="newName" />
+    </div>
+    <div class="form-group">
+      <label for="newAdminPassword">Password</label>
+      <input id="newAdminPassword" data-testid="new-admin-password" class="form-control" type="password" [(ngModel)]="newPassword" name="newPassword" />
+    </div>
+    <button type="submit" data-testid="add-admin" class="btn btn-primary">Add Admin User</button>
+  </form>
+
+  <div *ngIf="editingAdmin" class="mb-4">
+    <h3>Edit Admin User</h3>
+    <div class="form-group">
+      <label for="editAdminName">Name</label>
+      <input id="editAdminName" data-testid="edit-admin-name" class="form-control" [(ngModel)]="editName" />
+    </div>
+    <div class="form-group">
+      <label for="editAdminPassword">Password</label>
+      <input id="editAdminPassword" data-testid="edit-admin-password" class="form-control" type="password" [(ngModel)]="editPassword" />
+    </div>
+    <button type="button" data-testid="save-admin" class="btn btn-primary me-2" (click)="saveAdmin()">Save</button>
+    <button type="button" class="btn btn-outline-dark" (click)="cancelEdit()">Cancel</button>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger" role="alert">{{ errorMessage }}</div>
+
+  <p *ngIf="admins.length === 0" class="text-muted">No admin users found.</p>
+  <table *ngIf="admins.length > 0" class="table table-striped">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let admin of admins">
+        <td>{{ admin.name }}</td>
+        <td>
+          <button type="button" class="btn btn-sm btn-outline-primary me-2" [attr.data-testid]="'edit-admin-' + admin.id" (click)="editAdmin(admin)">Edit</button>
+          <button type="button" class="btn btn-sm btn-outline-danger" [attr.data-testid]="'delete-admin-' + admin.id" (click)="deleteAdmin(admin)">Delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
