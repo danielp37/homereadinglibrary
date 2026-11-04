@@ -1,5 +1,11 @@
 import { Injectable } from '@angular/core';
 import { marked } from 'marked';
+import { Observable, of } from 'rxjs';
+import { map, switchMap, tap } from 'rxjs/operators';
+import { NoticeTemplate } from '../entities/notice-template';
+import { BaggyBookService } from './baggy-book.service';
+
+export type { NoticeTemplate } from '../entities/notice-template';
 
 export interface LateNoticeData {
   studentName: string;
@@ -10,18 +16,9 @@ export interface LateNoticeData {
   books: { title: string; bookBarCode: string; checkedOutDate: string }[];
 }
 
-export interface NoticeTemplate {
-  id: string;
-  name: string;
-  content: string;
-}
-
-interface TemplateStore {
-  templates: NoticeTemplate[];
-}
-
 @Injectable({ providedIn: 'root' })
 export class LateNoticeTemplateService {
+  // Templates used to live only in browser local storage; they are migrated to the database on first load.
   private readonly STORAGE_KEY = 'late-notice-templates';
   private readonly LEGACY_KEY = 'late-notice-template';
 
@@ -34,80 +31,66 @@ export class LateNoticeTemplateService {
     `{{bookList}}\n\n` +
     `Thank you!`;
 
-  private loadStore(): TemplateStore {
-    const raw = localStorage.getItem(this.STORAGE_KEY);
-    if (!raw) {
-      const store = this.migrateOrDefault();
-      this.saveStore(store);
-      return store;
-    }
-    try {
-      const parsed = JSON.parse(raw) as TemplateStore;
-      if (Array.isArray(parsed?.templates) && parsed.templates.length > 0) {
-        return parsed;
-      }
-    } catch { /* fall through to default */ }
-    return this.defaultStore();
+  constructor(private baggyBookService: BaggyBookService) { }
+
+  loadTemplates(): Observable<NoticeTemplate[]> {
+    return this.baggyBookService.getLateNoticeTemplates().pipe(
+      switchMap(templates => templates.length > 0 ? of(templates) : this.migrateLocalTemplates())
+    );
   }
 
-  private migrateOrDefault(): TemplateStore {
-    const legacy = localStorage.getItem(this.LEGACY_KEY);
-    if (legacy) {
-      localStorage.removeItem(this.LEGACY_KEY);
-      return { templates: [{ id: 'default', name: 'Default', content: legacy }] };
-    }
-    return this.defaultStore();
-  }
-
-  private defaultStore(): TemplateStore {
-    return { templates: [{ id: 'default', name: 'Default', content: this.DEFAULT_TEMPLATE_CONTENT }] };
-  }
-
-  private saveStore(store: TemplateStore): void {
-    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(store));
-  }
-
-  getTemplates(): NoticeTemplate[] {
-    return this.loadStore().templates;
-  }
-
-  getTemplate(id: string): NoticeTemplate {
-    const store = this.loadStore();
-    return store.templates.find(t => t.id === id) ?? store.templates[0];
-  }
-
-  saveTemplate(template: NoticeTemplate): void {
-    const store = this.loadStore();
-    const idx = store.templates.findIndex(t => t.id === template.id);
-    const sanitized: NoticeTemplate = {
+  saveTemplate(template: NoticeTemplate): Observable<NoticeTemplate> {
+    return this.baggyBookService.updateLateNoticeTemplate({
       ...template,
       name: template.name.trim() || 'Untitled',
-    };
-    if (idx >= 0) {
-      store.templates[idx] = sanitized;
-    } else {
-      store.templates.push(sanitized);
-    }
-    this.saveStore(store);
+    });
   }
 
-  addTemplate(name: string, content: string): NoticeTemplate {
-    const store = this.loadStore();
-    const newTemplate: NoticeTemplate = {
-      id: crypto.randomUUID(),
-      name: name.trim() || 'Untitled',
-      content,
-    };
-    store.templates.push(newTemplate);
-    this.saveStore(store);
-    return newTemplate;
+  addTemplate(name: string, content: string): Observable<NoticeTemplate> {
+    return this.baggyBookService.createLateNoticeTemplate(name.trim() || 'Untitled', content);
   }
 
-  deleteTemplate(id: string): void {
-    const store = this.loadStore();
-    if (store.templates.length <= 1) return;
-    store.templates = store.templates.filter(t => t.id !== id);
-    this.saveStore(store);
+  deleteTemplate(id: string): Observable<string> {
+    return this.baggyBookService.deleteLateNoticeTemplate(id);
+  }
+
+  // Uploads any templates found in local storage (or the default one) and clears local storage once stored.
+  private migrateLocalTemplates(): Observable<NoticeTemplate[]> {
+    const local = this.readLocalTemplates();
+    const toImport = local.length > 0 ? local : [{ name: 'Default', content: this.DEFAULT_TEMPLATE_CONTENT }];
+    return this.baggyBookService.importLateNoticeTemplates(toImport).pipe(
+      tap(result => {
+        if (local.length > 0 && result.imported) {
+          this.clearLocalTemplates();
+        }
+      }),
+      map(result => result.templates)
+    );
+  }
+
+  private readLocalTemplates(): { name: string; content: string }[] {
+    try {
+      const raw = localStorage.getItem(this.STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw) as { templates?: { name?: string; content?: string }[] };
+        const templates = (Array.isArray(parsed?.templates) ? parsed.templates : [])
+          .filter(t => typeof t?.content === 'string' && t.content.trim().length > 0)
+          .map(t => ({ name: t.name?.trim() || 'Untitled', content: t.content as string }));
+        if (templates.length > 0) {
+          return templates;
+        }
+      }
+      const legacy = localStorage.getItem(this.LEGACY_KEY);
+      if (legacy && legacy.trim()) {
+        return [{ name: 'Default', content: legacy }];
+      }
+    } catch { /* unreadable local storage is treated as nothing to migrate */ }
+    return [];
+  }
+
+  private clearLocalTemplates(): void {
+    localStorage.removeItem(this.STORAGE_KEY);
+    localStorage.removeItem(this.LEGACY_KEY);
   }
 
   renderNoticeFromTemplate(template: string, data: LateNoticeData): string {

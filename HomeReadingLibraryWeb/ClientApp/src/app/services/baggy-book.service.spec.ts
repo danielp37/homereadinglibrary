@@ -71,4 +71,16 @@ describe('BaggyBookService class editing', () => {
     req.flush({ data: 'c1' });
     expect(result).toBe('c1');
   });
+
+  it('importLateNoticeTemplates preserves the server import outcome', () => {
+    const templates = [{ id: 'template-1', name: 'Default', content: 'Notice' }];
+    let result: unknown;
+    service.importLateNoticeTemplates([{ name: 'Default', content: 'Notice' }]).subscribe(value => result = value);
+
+    const req = http.expectOne('/api/latenoticetemplates/import');
+    expect(req.request.method).toBe('POST');
+    req.flush({ data: templates, imported: false });
+
+    expect(result).toEqual({ templates, imported: false });
+  });
 });

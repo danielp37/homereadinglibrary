@@ -73,10 +73,17 @@ export class BookCopyReservationsComponent implements OnInit {
   }
 
   private loadTemplates(): void {
-    this.templates = this.lateNoticeTemplateService.getTemplates();
-    if (!this.selectedTemplateId || !this.templates.find(t => t.id === this.selectedTemplateId)) {
-      this.selectedTemplateId = this.templates[0].id;
-    }
+    this.lateNoticeTemplateService.loadTemplates().subscribe(templates => this.applyTemplates(templates));
+  }
+
+  private applyTemplates(templates: NoticeTemplate[]): void {
+    this.ngZone.run(() => {
+      this.templates = templates;
+      if (!this.selectedTemplateId || !this.templates.find(t => t.id === this.selectedTemplateId)) {
+        this.selectedTemplateId = this.templates[0]?.id ?? '';
+      }
+      this.cdr.detectChanges();
+    });
   }
 
   getBookCopyReservations() {
@@ -168,13 +175,18 @@ export class BookCopyReservationsComponent implements OnInit {
   // ─── Template Editor ─────────────────────────────────────────────────────────
 
   openTemplateEditor(): void {
-    this.loadTemplates();
+    if (this.templates.length === 0) return;
     this.selectTemplateForEditing(this.selectedTemplateId || this.templates[0].id);
     this.templateEditorModalRef = this.modalService.show(this.templateEditorModal, { class: 'modal-lg modal-dialog-scrollable' });
   }
 
+  private findTemplate(id: string): NoticeTemplate | undefined {
+    return this.templates.find(t => t.id === id) ?? this.templates[0];
+  }
+
   selectTemplateForEditing(id: string): void {
-    const template = this.lateNoticeTemplateService.getTemplate(id);
+    const template = this.findTemplate(id);
+    if (!template) return;
     this.editorSelectedId = template.id;
     this.editableName = template.name;
     this.editableContent = template.content;
@@ -190,30 +202,32 @@ export class BookCopyReservationsComponent implements OnInit {
       id: this.editorSelectedId,
       name: this.editableName,
       content: this.editableContent,
+    }).subscribe(saved => {
+      this.applyTemplates(this.templates.map(t => t.id === saved.id ? saved : t));
     });
-    this.loadTemplates();
   }
 
   addNewTemplate(): void {
-    const created = this.lateNoticeTemplateService.addTemplate(
+    this.lateNoticeTemplateService.addTemplate(
       'New Template',
       this.lateNoticeTemplateService.DEFAULT_TEMPLATE_CONTENT
-    );
-    this.loadTemplates();
-    this.selectTemplateForEditing(created.id);
+    ).subscribe(created => {
+      this.applyTemplates([...this.templates, created]);
+      this.selectTemplateForEditing(created.id);
+    });
   }
 
   deleteSelectedTemplate(): void {
     if (this.templates.length <= 1) return;
     const deletedId = this.editorSelectedId;
-    this.lateNoticeTemplateService.deleteTemplate(deletedId);
-    this.loadTemplates();
-    // Select the first remaining template for editing
-    this.selectTemplateForEditing(this.templates[0].id);
-    // If the deleted template was the one selected for generation, update
-    if (this.selectedTemplateId === deletedId) {
-      this.selectedTemplateId = this.templates[0].id;
-    }
+    this.lateNoticeTemplateService.deleteTemplate(deletedId).subscribe(() => {
+      const remaining = this.templates.filter(t => t.id !== deletedId);
+      if (this.selectedTemplateId === deletedId) {
+        this.selectedTemplateId = remaining[0].id;
+      }
+      this.applyTemplates(remaining);
+      this.selectTemplateForEditing(remaining[0].id);
+    });
   }
 
   resetTemplateContent(): void {
@@ -239,7 +253,8 @@ export class BookCopyReservationsComponent implements OnInit {
   // ─── Notice Generation ───────────────────────────────────────────────────────
 
   generateNotices(): void {
-    const template = this.lateNoticeTemplateService.getTemplate(this.selectedTemplateId);
+    const template = this.findTemplate(this.selectedTemplateId);
+    if (!template) return;
     this.generatingNotices = true;
     this.baggyBookService.getAllBookCopyReservationsForNotices(
       this.appliedDaysBack, this.appliedSearchParams
