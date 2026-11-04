@@ -12,8 +12,9 @@ describe('BookCopyReservationsComponent', () => {
   let fixture: ComponentFixture<BookCopyReservationsComponent>;
 
   beforeEach(waitForAsync(() => {
-    const mockBaggyBookService = jasmine.createSpyObj('BaggyBookService', ['getBookCopyReservations']);
+    const mockBaggyBookService = jasmine.createSpyObj('BaggyBookService',     ['getBookCopyReservations', 'getLateNoticeTemplates', 'importLateNoticeTemplates']);
     mockBaggyBookService.getBookCopyReservations.and.returnValue(of({ reservations: [], count: 0 }));
+        mockBaggyBookService.getLateNoticeTemplates.and.returnValue(of([{ id: 't1', name: 'Stored', content: 'c' }]));
 
     TestBed.configureTestingModule({
       declarations: [ BookCopyReservationsComponent, UtcDatePipe ],
@@ -49,5 +50,10 @@ describe('BookCopyReservationsComponent', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     expect(() => (component as any).buildNotices(reservations, 'x')).not.toThrow();
     expect(component.noticePages.length).toBe(1);
+  });
+
+  it('loads notice templates from the database on init', () => {
+    expect(component.templates.map(t => t.id)).toEqual(['t1']);
+    expect(component.selectedTemplateId).toBe('t1');
   });
 });
