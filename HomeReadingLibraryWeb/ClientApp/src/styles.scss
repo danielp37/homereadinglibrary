@@ -213,9 +213,13 @@
 
     .barcode-sheet {
         margin: 0;
-        page: barcode-labels;
         page-break-after: always;
         break-after: page;
+    }
+
+    // The overlay is absolutely positioned, so the named page must be set on an in-flow ancestor.
+    body:has(.barcode-print-overlay) {
+        page: barcode-labels;
     }
 
     .barcode-sheet:last-child {
