@@ -52,9 +52,19 @@ namespace AspnetCore.Identity.MongoDb.Stores
       return foundVolunteer;
     }
 
-    public Task<IdentityResult> DeleteAsync(Volunteer user, CancellationToken cancellationToken)
+    public async Task<IdentityResult> DeleteAsync(Volunteer user, CancellationToken cancellationToken)
     {
-      throw new NotImplementedException();
+      if (user == null)
+        throw new ArgumentNullException(nameof(user));
+
+      cancellationToken.ThrowIfCancellationRequested();
+
+      var filter = Builders<Volunteer>.Filter.Eq(v => v.Id, user.Id);
+      var result = await _volunteerCollection.DeleteOneAsync(filter, cancellationToken).ConfigureAwait(false);
+
+      return result.IsAcknowledged && result.DeletedCount == 1
+        ? IdentityResult.Success
+        : IdentityResult.Failed();
     }
 
     public async Task<Volunteer> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken)
@@ -93,19 +103,35 @@ namespace AspnetCore.Identity.MongoDb.Stores
 
     public Task SetUserNameAsync(Volunteer user, string userName, CancellationToken cancellationToken)
     {
-      throw new NotImplementedException();
+      if (user == null)
+        throw new ArgumentNullException(nameof(user));
+
+      cancellationToken.ThrowIfCancellationRequested();
+      user.UserName = userName;
+      return Task.CompletedTask;
     }
 
     public async Task<IdentityResult> UpdateAsync(Volunteer user, CancellationToken cancellationToken)
     {
-      var volunteers = GetVolunteerCollection();
-      var filter = Builders<Volunteer>.Filter.Eq(v => v.Id, user.Id);
-      var update = Builders<Volunteer>.Update.Set(v => v.PasswordHash, user.PasswordHash);
-      var result = await volunteers.UpdateOneAsync(filter, update, cancellationToken: cancellationToken);
+      if (user == null)
+        throw new ArgumentNullException(nameof(user));
 
-      return result.IsAcknowledged && result.ModifiedCount == 1 ? 
-                   IdentityResult.Success : 
-                   IdentityResult.Failed();
+      cancellationToken.ThrowIfCancellationRequested();
+
+      try
+      {
+        var filter = Builders<Volunteer>.Filter.Eq(v => v.Id, user.Id);
+        var result = await _volunteerCollection.ReplaceOneAsync(filter, user, cancellationToken: cancellationToken);
+
+        return result.IsAcknowledged && result.MatchedCount == 1 ?
+                     IdentityResult.Success :
+                     IdentityResult.Failed();
+      }
+      catch (MongoWriteException ex) when (ex.WriteError?.Code == 11000)
+      {
+        var errorDescriber = new IdentityErrorDescriber();
+        return IdentityResult.Failed(errorDescriber.DuplicateUserName(user.UserName));
+      }
     }
 
     private IMongoCollection<Volunteer> GetVolunteerCollection()

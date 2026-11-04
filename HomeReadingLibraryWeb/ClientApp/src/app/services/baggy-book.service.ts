@@ -20,6 +20,7 @@ import { Volunteer } from '../entities/volunteer';
 import { Observable} from 'rxjs';
 import { catchError, map  } from 'rxjs/operators';
 import { ClassStatistics } from '../entities/class-statistics';
+import { AdminUser } from '../entities/admin-user';
 
 interface ClassWithVolunteersResult {
     data : ClassWithVolunteers[]
@@ -77,6 +78,42 @@ export class BaggyBookService {
       .post<Volunteer>(`${this.volunteersUrl}`, JSON.stringify(volunteer), {headers: this.getAuthHeaders(true)})
       .pipe(
         catchError(err => this.handleObservableError<Volunteer>(err))
+      );
+  }
+
+  getAdmins(): Observable<AdminUser[]> {
+    return this.http
+      .get<{ data: AdminUser[] }>(`${this.volunteersUrl}/admins`, { headers: this.getAuthHeaders(false) })
+      .pipe(
+        map(res => res.data),
+        catchError(err => this.handleObservableError<AdminUser[]>(err))
+      );
+  }
+
+  addAdmin(name: string, password: string): Observable<AdminUser> {
+    return this.http
+      .post<{ data: AdminUser }>(`${this.volunteersUrl}/admins`, JSON.stringify({ name, password }), { headers: this.getAuthHeaders(true) })
+      .pipe(
+        map(res => res.data),
+        catchError(err => this.handleObservableError<AdminUser>(err))
+      );
+  }
+
+  updateAdmin(id: string, name: string, password: string): Observable<AdminUser> {
+    return this.http
+      .put<{ data: AdminUser }>(`${this.volunteersUrl}/admins/${encodeURIComponent(id)}`, JSON.stringify({ name, password }), { headers: this.getAuthHeaders(true) })
+      .pipe(
+        map(res => res.data),
+        catchError(err => this.handleObservableError<AdminUser>(err))
+      );
+  }
+
+  deleteAdmin(id: string): Observable<string> {
+    return this.http
+      .delete<{ data: string }>(`${this.volunteersUrl}/admins/${encodeURIComponent(id)}`, { headers: this.getAuthHeaders(false) })
+      .pipe(
+        map(res => res.data),
+        catchError(err => this.handleObservableError<string>(err))
       );
   }
 
