@@ -15,11 +15,16 @@ namespace HomeReadingLibrary.Controllers.Controllers
     public class LateNoticeTemplatesController : Controller
     {
         private const string DefaultName = "Untitled";
+        private const string MutationLockId = "late-notice-template-mutation";
+        private readonly IMongoDatabase mongoDatabase;
         private readonly IMongoCollection<LateNoticeTemplate> templateCollection;
+        private readonly IMongoCollection<BsonDocument> mutationLockCollection;
 
         public LateNoticeTemplatesController(IMongoDatabase mongoDatabase)
         {
+            this.mongoDatabase = mongoDatabase;
             templateCollection = mongoDatabase.GetCollection<LateNoticeTemplate>("lateNoticeTemplates");
+            mutationLockCollection = mongoDatabase.GetCollection<BsonDocument>("lateNoticeTemplateOperations");
         }
 
         [HttpGet]
@@ -57,14 +62,16 @@ namespace HomeReadingLibrary.Controllers.Controllers
                 .Set(t => t.Name, NormalizeName(body.Name))
                 .Set(t => t.Content, body.Content ?? string.Empty)
                 .Set(t => t.ModifiedDate, DateTime.UtcNow);
-            var result = await templateCollection.UpdateOneAsync(t => t.Id == id, update);
-            if (result.MatchedCount == 0)
+            var template = await templateCollection.FindOneAndUpdateAsync(
+                t => t.Id == id,
+                update,
+                new FindOneAndUpdateOptions<LateNoticeTemplate> { ReturnDocument = ReturnDocument.After });
+            if (template == null)
             {
                 return NotFound();
             }
 
-            var templates = await templateCollection.Find(t => t.Id == id).ToListAsync();
-            return Ok(new { Data = templates.FirstOrDefault() });
+            return Ok(new { Data = template });
         }
 
         [HttpDelete("{id}")]
@@ -75,18 +82,21 @@ namespace HomeReadingLibrary.Controllers.Controllers
                 return NotFound();
             }
 
-            var templates = await ListAll();
-            if (templates.All(t => t.Id != id))
+            return await WithSerializedMutation<IActionResult>(async session =>
             {
-                return NotFound();
-            }
-            if (templates.Count <= 1)
-            {
-                return BadRequest(new { Message = "At least one template must remain." });
-            }
+                var templates = await ListAll(session);
+                if (templates.All(t => t.Id != id))
+                {
+                    return NotFound();
+                }
+                if (templates.Count <= 1)
+                {
+                    return BadRequest(new { Message = "At least one template must remain." });
+                }
 
-            await templateCollection.DeleteOneAsync(t => t.Id == id);
-            return Ok(new { Data = id });
+                await templateCollection.DeleteOneAsync(session, t => t.Id == id);
+                return Ok(new { Data = id });
+            });
         }
 
         // One-time migration of templates from browser local storage. Does nothing once any template exists,
@@ -94,29 +104,63 @@ namespace HomeReadingLibrary.Controllers.Controllers
         [HttpPost("import")]
         public async Task<IActionResult> Import([FromBody] LateNoticeTemplateImportBody body)
         {
-            var existing = await ListAll();
-            if (existing.Count > 0)
+            return await WithSerializedMutation<IActionResult>(async session =>
             {
-                return Ok(new { Data = existing, Imported = false });
-            }
+                var existing = await ListAll(session);
+                if (existing.Count > 0)
+                {
+                    return Ok(new { Data = existing, Imported = false });
+                }
 
-            var now = DateTime.UtcNow;
-            var toImport = (body?.Templates ?? new List<LateNoticeTemplateBody>())
-                .Where(t => t != null && !string.IsNullOrWhiteSpace(t.Content))
-                .Select(t => NewTemplate(t, now))
-                .ToList();
-            if (toImport.Count == 0)
-            {
-                return Ok(new { Data = existing, Imported = false });
-            }
+                var now = DateTime.UtcNow;
+                var toImport = (body?.Templates ?? new List<LateNoticeTemplateBody>())
+                    .Where(t => t != null && !string.IsNullOrWhiteSpace(t.Content))
+                    .Select(t => NewTemplate(t, now))
+                    .ToList();
+                if (toImport.Count == 0)
+                {
+                    return Ok(new { Data = existing, Imported = false });
+                }
 
-            await templateCollection.InsertManyAsync(toImport);
-            return Ok(new { Data = await ListAll(), Imported = true });
+                await templateCollection.InsertManyAsync(session, toImport);
+                return Ok(new { Data = await ListAll(session), Imported = true });
+            });
         }
 
-        private Task<List<LateNoticeTemplate>> ListAll()
+        private async Task<T> WithSerializedMutation<T>(Func<IClientSessionHandle, Task<T>> operation)
         {
-            return templateCollection.Find(Builders<LateNoticeTemplate>.Filter.Empty)
+            var lockFilter = Builders<BsonDocument>.Filter.Eq("_id", MutationLockId);
+            try
+            {
+                await mutationLockCollection.UpdateOneAsync(
+                    lockFilter,
+                    Builders<BsonDocument>.Update.SetOnInsert("version", 0),
+                    new UpdateOptions { IsUpsert = true });
+            }
+            catch (MongoWriteException exception) when (exception.WriteError?.Code == 11000)
+            {
+            }
+
+            using var session = await mongoDatabase.Client.StartSessionAsync();
+            return await session.WithTransactionAsync(async (transactionSession, cancellationToken) =>
+            {
+                // The shared write makes concurrent delete/import transactions conflict and retry.
+                await mutationLockCollection.UpdateOneAsync(
+                    transactionSession,
+                    lockFilter,
+                    Builders<BsonDocument>.Update.Inc("version", 1),
+                    cancellationToken: cancellationToken);
+                return await operation(transactionSession);
+            });
+        }
+
+        private Task<List<LateNoticeTemplate>> ListAll(IClientSessionHandle session = null)
+        {
+            var filter = Builders<LateNoticeTemplate>.Filter.Empty;
+            var query = session == null
+                ? templateCollection.Find(filter)
+                : templateCollection.Find(session, filter);
+            return query
                 .SortBy(t => t.CreatedDate)
                 .ThenBy(t => t.Id)
                 .ToListAsync();

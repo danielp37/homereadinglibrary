@@ -60,7 +60,7 @@ describe('LateNoticeTemplateService', () => {
       ]
     }));
     api.getLateNoticeTemplates.and.returnValue(of([]));
-    api.importLateNoticeTemplates.and.returnValue(of(stored));
+    api.importLateNoticeTemplates.and.returnValue(of({ templates: stored, imported: true }));
     let result;
     service.loadTemplates().subscribe(t => result = t);
     expect(api.importLateNoticeTemplates).toHaveBeenCalledWith([
@@ -74,15 +74,29 @@ describe('LateNoticeTemplateService', () => {
   it('migrates the legacy single-template key', () => {
     localStorage.setItem('late-notice-template', 'Legacy template content');
     api.getLateNoticeTemplates.and.returnValue(of([]));
-    api.importLateNoticeTemplates.and.returnValue(of(stored));
+    api.importLateNoticeTemplates.and.returnValue(of({ templates: stored, imported: true }));
     service.loadTemplates().subscribe();
     expect(api.importLateNoticeTemplates).toHaveBeenCalledWith([{ name: 'Default', content: 'Legacy template content' }]);
     expect(localStorage.getItem('late-notice-template')).toBeNull();
   });
 
+  it('retains local templates when the server skips the import', () => {
+    localStorage.setItem('late-notice-templates', JSON.stringify({
+      templates: [{ name: 'Local', content: 'Keep me' }]
+    }));
+    api.getLateNoticeTemplates.and.returnValue(of([]));
+    api.importLateNoticeTemplates.and.returnValue(of({ templates: stored, imported: false }));
+
+    let result;
+    service.loadTemplates().subscribe(templates => result = templates);
+
+    expect(result).toEqual(stored);
+    expect(localStorage.getItem('late-notice-templates')).not.toBeNull();
+  });
+
   it('seeds the default template when database and local storage are empty', () => {
     api.getLateNoticeTemplates.and.returnValue(of([]));
-    api.importLateNoticeTemplates.and.returnValue(of(stored));
+    api.importLateNoticeTemplates.and.returnValue(of({ templates: stored, imported: true }));
     service.loadTemplates().subscribe();
     expect(api.importLateNoticeTemplates).toHaveBeenCalledWith([{ name: 'Default', content: service.DEFAULT_TEMPLATE_CONTENT }]);
   });
@@ -90,7 +104,7 @@ describe('LateNoticeTemplateService', () => {
   it('ignores malformed local storage and seeds the default template', () => {
     localStorage.setItem('late-notice-templates', 'not-json!!');
     api.getLateNoticeTemplates.and.returnValue(of([]));
-    api.importLateNoticeTemplates.and.returnValue(of(stored));
+    api.importLateNoticeTemplates.and.returnValue(of({ templates: stored, imported: true }));
     service.loadTemplates().subscribe();
     expect(api.importLateNoticeTemplates).toHaveBeenCalledWith([{ name: 'Default', content: service.DEFAULT_TEMPLATE_CONTENT }]);
   });

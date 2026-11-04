@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { marked } from 'marked';
 import { Observable, of } from 'rxjs';
-import { switchMap, tap } from 'rxjs/operators';
+import { map, switchMap, tap } from 'rxjs/operators';
 import { NoticeTemplate } from '../entities/notice-template';
 import { BaggyBookService } from './baggy-book.service';
 
@@ -59,11 +59,12 @@ export class LateNoticeTemplateService {
     const local = this.readLocalTemplates();
     const toImport = local.length > 0 ? local : [{ name: 'Default', content: this.DEFAULT_TEMPLATE_CONTENT }];
     return this.baggyBookService.importLateNoticeTemplates(toImport).pipe(
-      tap(templates => {
-        if (local.length > 0 && templates.length > 0) {
+      tap(result => {
+        if (local.length > 0 && result.imported) {
           this.clearLocalTemplates();
         }
-      })
+      }),
+      map(result => result.templates)
     );
   }
 

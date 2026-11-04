@@ -198,12 +198,12 @@ export class BaggyBookService {
   }
 
   // Server only imports when no templates exist yet, otherwise it returns the stored templates unchanged.
-  importLateNoticeTemplates(templates: { name: string; content: string }[]): Observable<NoticeTemplate[]> {
+  importLateNoticeTemplates(templates: { name: string; content: string }[]): Observable<{ templates: NoticeTemplate[]; imported: boolean }> {
     return this.http
-      .post<{ data: NoticeTemplate[] }>(`${this.lateNoticeTemplatesUrl}/import`, JSON.stringify({ templates }), {headers: this.getAuthHeaders(true)})
+      .post<{ data: NoticeTemplate[]; imported: boolean }>(`${this.lateNoticeTemplatesUrl}/import`, JSON.stringify({ templates }), {headers: this.getAuthHeaders(true)})
       .pipe(
-        map(res => res.data),
-        catchError(err => this.handleObservableError<NoticeTemplate[]>(err))
+        map(res => ({ templates: res.data, imported: res.imported })),
+        catchError(err => this.handleObservableError<{ templates: NoticeTemplate[]; imported: boolean }>(err))
       );
   }
 
