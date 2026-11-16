@@ -82,6 +82,63 @@ namespace AspnetCore.Identity.MongoDb.Tests.Stores
       await Assert.ThrowsAsync<OperationCanceledException>(async () => await volunteerStore.FindByIdAsync(volunteer.Id, token));
     }
 
+    [Fact]
+    public async Task UpdateAsync_ReplacesVolunteerAndReturnsSuccessWhenMatched()
+    {
+      var volunteerStore = BuildVolunteerStore();
+      var volunteer = BuildVolunteer();
+      A.CallTo(() => volunteerCollection.ReplaceOneAsync(
+          A<FilterDefinition<Volunteer>>.Ignored,
+          volunteer,
+          A<ReplaceOptions>.Ignored,
+          A<CancellationToken>.Ignored))
+        .Returns(Task.FromResult<ReplaceOneResult>(new ReplaceOneResult.Acknowledged(1, 0, null)));
+
+      var result = await volunteerStore.UpdateAsync(volunteer, CancellationToken.None);
+
+      Assert.True(result.Succeeded);
+      A.CallTo(() => volunteerCollection.ReplaceOneAsync(
+          A<FilterDefinition<Volunteer>>.Ignored,
+          volunteer,
+          A<ReplaceOptions>.Ignored,
+          A<CancellationToken>.Ignored))
+        .MustHaveHappenedOnceExactly();
+    }
+
+    [Fact]
+    public async Task UpdateAsync_NullVolunteer_ThrowsArgumentNullException()
+    {
+      var volunteerStore = BuildVolunteerStore();
+
+      await Assert.ThrowsAsync<ArgumentNullException>(async () => await volunteerStore.UpdateAsync(null, CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task DeleteAsync_DeletesVolunteerAndReturnsSuccessWhenDeleted()
+    {
+      var volunteerStore = BuildVolunteerStore();
+      var volunteer = BuildVolunteer();
+      A.CallTo(() => volunteerCollection.DeleteOneAsync(
+          A<FilterDefinition<Volunteer>>.Ignored,
+          A<CancellationToken>.Ignored))
+        .Returns(Task.FromResult<DeleteResult>(new DeleteResult.Acknowledged(1)));
+
+      var result = await volunteerStore.DeleteAsync(volunteer, CancellationToken.None);
+
+      Assert.True(result.Succeeded);
+    }
+
+    [Fact]
+    public async Task SetUserNameAsync_UpdatesUserName()
+    {
+      var volunteerStore = BuildVolunteerStore();
+      var volunteer = BuildVolunteer();
+
+      await volunteerStore.SetUserNameAsync(volunteer, "New Name", CancellationToken.None);
+
+      Assert.Equal("New Name", volunteer.UserName);
+    }
+
     private static IAsyncCursor<Volunteer> BuildIAsyncCursor(IEnumerable<Volunteer> volunteers)
     {
       var asyncCursor = A.Fake<IAsyncCursor<Volunteer>>();

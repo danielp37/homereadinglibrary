@@ -46,6 +46,7 @@ import { StudentUploadComponent } from './components/student-upload/student-uplo
 import { VolunteerUploadComponent } from './components/volunteer-upload/volunteer-upload.component';
 import { PrintBarcodesComponent } from './components/print-barcodes/print-barcodes.component';
 import { BarcodeDirective } from './directives/barcode.directive';
+import { AdminUsersComponent } from './components/admin-users/admin-users.component';
 
 @NgModule({
   declarations: [
@@ -77,7 +78,8 @@ import { BarcodeDirective } from './directives/barcode.directive';
     StudentUploadComponent,
     VolunteerUploadComponent,
     PrintBarcodesComponent,
-    BarcodeDirective
+    BarcodeDirective,
+    AdminUsersComponent
   ],
   imports: [
     BrowserModule,

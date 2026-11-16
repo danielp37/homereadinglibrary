@@ -22,6 +22,7 @@ import { DatabaseRefreshComponent } from 'src/app/components/database-refresh/da
 import { StudentUploadComponent } from 'src/app/components/student-upload/student-upload.component';
 import { VolunteerUploadComponent } from 'src/app/components/volunteer-upload/volunteer-upload.component';
 import { PrintBarcodesComponent } from 'src/app/components/print-barcodes/print-barcodes.component';
+import { AdminUsersComponent } from 'src/app/components/admin-users/admin-users.component';
 
 
 const routes: Routes = [
@@ -46,6 +47,7 @@ const routes: Routes = [
             { path: 'uploadvolunteers', component: VolunteerUploadComponent, canActivate: [AuthGuard]},
             { path: 'printbarcodes', component: PrintBarcodesComponent, canActivate: [AuthGuard]},
             { path: 'databaserefresh', component: DatabaseRefreshComponent, canActivate: [AuthGuard]},
+            { path: 'adminusers', component: AdminUsersComponent, canActivate: [AuthGuard]},
             { path: '**', redirectTo: 'home' }
         ];
 /*[
