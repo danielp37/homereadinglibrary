@@ -13,6 +13,7 @@ import { Student } from './../entities/student';
 import { Injectable } from '@angular/core';
 
 import { Class } from '../entities/class';
+import { NoticeTemplate } from '../entities/notice-template';
 import { Book } from '../entities/book';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { OAuthService } from 'angular-oauth2-oidc';
@@ -51,6 +52,7 @@ export class BaggyBookService {
   private studentsUrl = '/api/students';
   private volunteersUrl = '/api/volunteers'
   private classesUrl = '/api/classes'
+  private lateNoticeTemplatesUrl = '/api/latenoticetemplates'
   private booksUrl = '/api/books'
   private bookCheckOutUrl = '/api/bookcopyreservations'
 
@@ -155,6 +157,53 @@ export class BaggyBookService {
       .pipe(
         map(res => res.data),
         catchError(err => this.handleObservableError<string>(err))
+      );
+  }
+
+  getLateNoticeTemplates(): Observable<NoticeTemplate[]> {
+    return this.http
+      .get<{ data: NoticeTemplate[] }>(this.lateNoticeTemplatesUrl, {headers: this.getAuthHeaders(false)})
+      .pipe(
+        map(res => res.data),
+        catchError(err => this.handleObservableError<NoticeTemplate[]>(err))
+      );
+  }
+
+  createLateNoticeTemplate(name: string, content: string): Observable<NoticeTemplate> {
+    return this.http
+      .post<{ data: NoticeTemplate }>(this.lateNoticeTemplatesUrl, JSON.stringify({ name, content }), {headers: this.getAuthHeaders(true)})
+      .pipe(
+        map(res => res.data),
+        catchError(err => this.handleObservableError<NoticeTemplate>(err))
+      );
+  }
+
+  updateLateNoticeTemplate(template: NoticeTemplate): Observable<NoticeTemplate> {
+    return this.http
+      .put<{ data: NoticeTemplate }>(`${this.lateNoticeTemplatesUrl}/${encodeURIComponent(template.id)}`,
+        JSON.stringify({ name: template.name, content: template.content }), {headers: this.getAuthHeaders(true)})
+      .pipe(
+        map(res => res.data),
+        catchError(err => this.handleObservableError<NoticeTemplate>(err))
+      );
+  }
+
+  deleteLateNoticeTemplate(id: string): Observable<string> {
+    return this.http
+      .delete<{ data: string }>(`${this.lateNoticeTemplatesUrl}/${encodeURIComponent(id)}`, {headers: this.getAuthHeaders(false)})
+      .pipe(
+        map(res => res.data),
+        catchError(err => this.handleObservableError<string>(err))
+      );
+  }
+
+  // Server only imports when no templates exist yet, otherwise it returns the stored templates unchanged.
+  importLateNoticeTemplates(templates: { name: string; content: string }[]): Observable<{ templates: NoticeTemplate[]; imported: boolean }> {
+    return this.http
+      .post<{ data: NoticeTemplate[]; imported: boolean }>(`${this.lateNoticeTemplatesUrl}/import`, JSON.stringify({ templates }), {headers: this.getAuthHeaders(true)})
+      .pipe(
+        map(res => ({ templates: res.data, imported: res.imported })),
+        catchError(err => this.handleObservableError<{ templates: NoticeTemplate[]; imported: boolean }>(err))
       );
   }
 

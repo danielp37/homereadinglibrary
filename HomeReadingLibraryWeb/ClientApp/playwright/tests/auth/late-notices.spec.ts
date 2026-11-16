@@ -61,6 +61,37 @@ const mockReservationsData = {
 
 test.describe('late notices — UI controls on books checked out page', () => {
   test.beforeEach(async ({ page }) => {
+    // Stateful in-memory stand-in for the late notice templates API.
+    let templates: { id: string; name: string; content: string }[] = [];
+    let nextId = 1;
+    const json = (data: unknown) => ({ status: 200, contentType: 'application/json', body: JSON.stringify({ data }) });
+    await page.route('**/api/latenoticetemplates**', async route => {
+      const request = route.request();
+      const method = request.method();
+      const url = new URL(request.url());
+      const id = decodeURIComponent(url.pathname.split('/').pop() ?? '');
+      const body = request.postData() ? JSON.parse(request.postData() as string) : {};
+      if (method === 'GET') {
+        await route.fulfill(json(templates));
+      } else if (url.pathname.endsWith('/import')) {
+        if (templates.length === 0) {
+          templates = body.templates.map((t: { name: string; content: string }) => ({ id: `t${nextId++}`, ...t }));
+        }
+        await route.fulfill(json(templates));
+      } else if (method === 'POST') {
+        const created = { id: `t${nextId++}`, name: body.name, content: body.content };
+        templates.push(created);
+        await route.fulfill(json(created));
+      } else if (method === 'PUT') {
+        const updated = { id, name: body.name, content: body.content };
+        templates = templates.map(t => t.id === id ? updated : t);
+        await route.fulfill(json(updated));
+      } else {
+        templates = templates.filter(t => t.id !== id);
+        await route.fulfill(json(id));
+      }
+    });
+
     await page.route('**/api/bookcopyreservations**', async route => {
       await route.fulfill({
         status: 200,

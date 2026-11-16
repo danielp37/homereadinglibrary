@@ -1,109 +1,112 @@
+  import { of } from 'rxjs';
 import { LateNoticeTemplateService } from './late-notice-template.service';
+import { BaggyBookService } from './baggy-book.service';
 
 describe('LateNoticeTemplateService', () => {
   let service: LateNoticeTemplateService;
+  let api: jasmine.SpyObj<BaggyBookService>;
+
+  const stored = [{ id: 'abc', name: 'Stored', content: 'Stored content' }];
 
   beforeEach(() => {
     localStorage.clear();
-    service = new LateNoticeTemplateService();
-    // Trigger initial store population so the new storage key is written to localStorage.
-    // Subsequent tests that set the legacy key will find the new key already present.
-    service.getTemplates();
+    api = jasmine.createSpyObj<BaggyBookService>('BaggyBookService', [
+      'getLateNoticeTemplates', 'createLateNoticeTemplate', 'updateLateNoticeTemplate',
+      'deleteLateNoticeTemplate', 'importLateNoticeTemplates'
+    ]);
+    service = new LateNoticeTemplateService(api);
   });
 
-  // --- Storage & CRUD ---
+  afterEach(() => localStorage.clear());
 
-  it('should return a default template when nothing is stored', () => {
-    const templates = service.getTemplates();
-    expect(templates.length).toBe(1);
-    expect(templates[0].name).toBe('Default');
-    expect(templates[0].content).toBe(service.DEFAULT_TEMPLATE_CONTENT);
+  // --- Database storage ---
+
+  it('loadTemplates returns database templates without touching local storage', () => {
+    localStorage.setItem('late-notice-templates', JSON.stringify({ templates: [{ id: 'x', name: 'Local', content: 'local' }] }));
+    api.getLateNoticeTemplates.and.returnValue(of(stored));
+    let result;
+    service.loadTemplates().subscribe(t => result = t);
+    expect(result).toEqual(stored);
+    expect(api.importLateNoticeTemplates).not.toHaveBeenCalled();
+    expect(localStorage.getItem('late-notice-templates')).not.toBeNull();
   });
 
-  it('getTemplate with unknown id should fall back to first template', () => {
-    const t = service.getTemplate('non-existent-id');
-    expect(t).toBeTruthy();
-    expect(t.id).toBe(service.getTemplates()[0].id);
+  it('addTemplate defaults empty name to "Untitled"', () => {
+    api.createLateNoticeTemplate.and.returnValue(of(stored[0]));
+    service.addTemplate('  ', 'content').subscribe();
+    expect(api.createLateNoticeTemplate).toHaveBeenCalledWith('Untitled', 'content');
   });
 
-  it('should add a new template', () => {
-    const created = service.addTemplate('My Notice', 'Hello {{studentName}}');
-    const templates = service.getTemplates();
-    expect(templates.length).toBe(2);
-    expect(templates[1].id).toBe(created.id);
-    expect(templates[1].name).toBe('My Notice');
-    expect(templates[1].content).toBe('Hello {{studentName}}');
+  it('saveTemplate trims the name and defaults empty name to "Untitled"', () => {
+    api.updateLateNoticeTemplate.and.returnValue(of(stored[0]));
+    service.saveTemplate({ id: 'abc', name: '   ', content: 'c' }).subscribe();
+    expect(api.updateLateNoticeTemplate).toHaveBeenCalledWith({ id: 'abc', name: 'Untitled', content: 'c' });
   });
 
-  it('addTemplate should default empty name to "Untitled"', () => {
-    const created = service.addTemplate('', 'content');
-    expect(created.name).toBe('Untitled');
+  it('deleteTemplate delegates to the API', () => {
+    api.deleteLateNoticeTemplate.and.returnValue(of('abc'));
+    service.deleteTemplate('abc').subscribe();
+    expect(api.deleteLateNoticeTemplate).toHaveBeenCalledWith('abc');
   });
 
-  it('should save (update) an existing template', () => {
-    const templates = service.getTemplates();
-    const original = templates[0];
-    service.saveTemplate({ ...original, name: 'Renamed', content: 'New content' });
-    const updated = service.getTemplate(original.id);
-    expect(updated.name).toBe('Renamed');
-    expect(updated.content).toBe('New content');
-    expect(service.getTemplates().length).toBe(1);
+  // --- Migration from local storage ---
+
+  it('migrates local storage templates to the database and clears local storage', () => {
+    localStorage.setItem('late-notice-templates', JSON.stringify({
+      templates: [
+        { id: 'default', name: 'Default', content: 'One' },
+        { id: 'u2', name: '  ', content: 'Two' },
+        { id: 'u3', name: 'Blank', content: '  ' },
+      ]
+    }));
+    api.getLateNoticeTemplates.and.returnValue(of([]));
+    api.importLateNoticeTemplates.and.returnValue(of({ templates: stored, imported: true }));
+    let result;
+    service.loadTemplates().subscribe(t => result = t);
+    expect(api.importLateNoticeTemplates).toHaveBeenCalledWith([
+      { name: 'Default', content: 'One' },
+      { name: 'Untitled', content: 'Two' },
+    ]);
+    expect(result).toEqual(stored);
+    expect(localStorage.getItem('late-notice-templates')).toBeNull();
   });
 
-  it('saveTemplate should trim and default empty name to "Untitled"', () => {
-    const original = service.getTemplates()[0];
-    service.saveTemplate({ ...original, name: '   ' });
-    expect(service.getTemplate(original.id).name).toBe('Untitled');
-  });
-
-  it('should delete a template when more than one exists', () => {
-    const created = service.addTemplate('Second', 'content');
-    service.deleteTemplate(created.id);
-    const templates = service.getTemplates();
-    expect(templates.length).toBe(1);
-    expect(templates.find(t => t.id === created.id)).toBeUndefined();
-  });
-
-  it('should not delete the last remaining template', () => {
-    const templates = service.getTemplates();
-    service.deleteTemplate(templates[0].id);
-    expect(service.getTemplates().length).toBe(1);
-  });
-
-  // --- Migration ---
-
-  it('should migrate legacy "late-notice-template" key on first load', () => {
-    localStorage.clear();
+  it('migrates the legacy single-template key', () => {
     localStorage.setItem('late-notice-template', 'Legacy template content');
-    const freshService = new LateNoticeTemplateService();
-    const templates = freshService.getTemplates();
-    expect(templates.length).toBe(1);
-    expect(templates[0].content).toBe('Legacy template content');
+    api.getLateNoticeTemplates.and.returnValue(of([]));
+    api.importLateNoticeTemplates.and.returnValue(of({ templates: stored, imported: true }));
+    service.loadTemplates().subscribe();
+    expect(api.importLateNoticeTemplates).toHaveBeenCalledWith([{ name: 'Default', content: 'Legacy template content' }]);
     expect(localStorage.getItem('late-notice-template')).toBeNull();
   });
 
-  it('should prefer new storage key over legacy key', () => {
-    // service already populated new key in beforeEach
-    localStorage.setItem('late-notice-template', 'Old content');
-    const freshService = new LateNoticeTemplateService();
-    // new key already exists, legacy key should be ignored
-    expect(freshService.getTemplates()[0].content).not.toBe('Old content');
+  it('retains local templates when the server skips the import', () => {
+    localStorage.setItem('late-notice-templates', JSON.stringify({
+      templates: [{ name: 'Local', content: 'Keep me' }]
+    }));
+    api.getLateNoticeTemplates.and.returnValue(of([]));
+    api.importLateNoticeTemplates.and.returnValue(of({ templates: stored, imported: false }));
+
+    let result;
+    service.loadTemplates().subscribe(templates => result = templates);
+
+    expect(result).toEqual(stored);
+    expect(localStorage.getItem('late-notice-templates')).not.toBeNull();
   });
 
-  // --- Corrupt storage fallback ---
+  it('seeds the default template when database and local storage are empty', () => {
+    api.getLateNoticeTemplates.and.returnValue(of([]));
+    api.importLateNoticeTemplates.and.returnValue(of({ templates: stored, imported: true }));
+    service.loadTemplates().subscribe();
+    expect(api.importLateNoticeTemplates).toHaveBeenCalledWith([{ name: 'Default', content: service.DEFAULT_TEMPLATE_CONTENT }]);
+  });
 
-  it('should fall back to default when stored JSON is malformed', () => {
+  it('ignores malformed local storage and seeds the default template', () => {
     localStorage.setItem('late-notice-templates', 'not-json!!');
-    const freshService = new LateNoticeTemplateService();
-    const templates = freshService.getTemplates();
-    expect(templates.length).toBe(1);
-    expect(templates[0].content).toBe(freshService.DEFAULT_TEMPLATE_CONTENT);
-  });
-
-  it('should fall back to default when templates array is empty', () => {
-    localStorage.setItem('late-notice-templates', JSON.stringify({ templates: [] }));
-    const freshService = new LateNoticeTemplateService();
-    expect(freshService.getTemplates().length).toBe(1);
+    api.getLateNoticeTemplates.and.returnValue(of([]));
+    api.importLateNoticeTemplates.and.returnValue(of({ templates: stored, imported: true }));
+    service.loadTemplates().subscribe();
+    expect(api.importLateNoticeTemplates).toHaveBeenCalledWith([{ name: 'Default', content: service.DEFAULT_TEMPLATE_CONTENT }]);
   });
 
   // --- renderNoticeFromTemplate ---
